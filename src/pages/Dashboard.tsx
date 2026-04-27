@@ -50,12 +50,12 @@ export default function Dashboard() {
           <img
             src="/mytrees/logo-icon.png"
             alt="MyTrees icon"
-            style={{ width: 88, height: 88, flexShrink: 0 }}
+            style={{ width: 70, height: 70, flexShrink: 0 }}
           />
           <img
             src="/mytrees/logo-wordmark.png"
             alt="MyTrees"
-            style={{ height: 144, width: 'auto' }}
+            style={{ height: 43, width: 'auto' }}
           />
         </div>
         <p className="page-subtitle" style={{ marginTop: 8 }}>
