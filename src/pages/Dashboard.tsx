@@ -48,12 +48,12 @@ export default function Dashboard() {
       <header className="page-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 4 }}>
           <img
-            src="/mytrees/logo-icon.svg"
+            src="/mytrees/logo-icon.png"
             alt="MyTrees icon"
             style={{ width: 44, height: 44, flexShrink: 0 }}
           />
           <img
-            src="/mytrees/logo-wordmark.svg"
+            src="/mytrees/logo-wordmark.png"
             alt="MyTrees"
             style={{ height: 36, width: 'auto' }}
           />
