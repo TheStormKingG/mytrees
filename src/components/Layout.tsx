@@ -39,7 +39,7 @@ const icons = {
 }
 
 const navItems = [
-  { to: '/dashboard',   icon: icons.forest,  label: 'Forest'  },
+  { to: '/dashboard',   icon: icons.forest,  label: 'MyTree'  },
   { to: '/add-tree',    icon: icons.plant,   label: 'Plant'   },
   { to: '/carbon',      icon: icons.carbon,  label: 'Carbon'  },
   { to: '/leaderboard', icon: icons.leagues, label: 'Leagues' },
