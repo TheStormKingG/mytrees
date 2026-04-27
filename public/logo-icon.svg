@@ -1,0 +1,53 @@
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- White border layer — rounded hexagon (flat-top) -->
+  <polygon
+    points="30,10 90,10 114,52 90,110 30,110 6,52"
+    fill="white"
+    stroke="white"
+    stroke-width="10"
+    stroke-linejoin="round"
+  />
+  <!-- Green fill layer -->
+  <polygon
+    points="30,10 90,10 114,52 90,110 30,110 6,52"
+    fill="#85C130"
+    stroke="#85C130"
+    stroke-width="2"
+    stroke-linejoin="round"
+  />
+
+  <!-- Plant icon — white silhouette -->
+
+  <!-- Left leaf: sweeping curve from center base outward -->
+  <path
+    d="M60,74
+       C54,66 40,58 24,64
+       C16,68 18,80 28,80
+       C40,80 52,78 60,74 Z"
+    fill="white"
+  />
+
+  <!-- Right leaf: mirror -->
+  <path
+    d="M60,74
+       C66,66 80,58 96,64
+       C104,68 102,80 92,80
+       C80,80 68,78 60,74 Z"
+    fill="white"
+  />
+
+  <!-- Center vertical stem -->
+  <rect x="56.5" y="44" width="7" height="32" rx="3.5" fill="white"/>
+
+  <!-- Upward arrowhead -->
+  <path
+    d="M60,24
+       L47,48
+       L55.5,43
+       L55.5,52
+       L64.5,52
+       L64.5,43
+       L73,48 Z"
+    fill="white"
+  />
+</svg>

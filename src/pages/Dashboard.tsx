@@ -46,9 +46,21 @@ export default function Dashboard() {
     <div>
       {/* Page header */}
       <header className="page-header">
-        <p className="page-eyebrow">Welcome back</p>
-        <h1 className="page-title">My Forest 🌳</h1>
-        <p className="page-subtitle">{profile?.username ?? 'Forest keeper'}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 4 }}>
+          <img
+            src="/mytrees/logo-icon.svg"
+            alt="MyTrees icon"
+            style={{ width: 44, height: 44, flexShrink: 0 }}
+          />
+          <img
+            src="/mytrees/logo-wordmark.svg"
+            alt="MyTrees"
+            style={{ height: 36, width: 'auto' }}
+          />
+        </div>
+        <p className="page-subtitle" style={{ marginTop: 8 }}>
+          {profile?.username ? `Hey, ${profile.username} 👋` : 'Your personal forest tracker'}
+        </p>
       </header>
 
       {/* XP card */}
