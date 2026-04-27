@@ -4,9 +4,6 @@ import type { Database } from '../types/database'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 
-const inputStyle = { background: 'var(--bg)', color: 'var(--color-fg)', boxShadow: 'var(--neu-inset)', border: 'none' }
-const inputCls = "w-full rounded-xl px-3.5 py-3 text-sm focus:outline-none"
-
 export default function ProfilePage() {
   const [profile,     setProfile]     = useState<Profile | null>(null)
   const [email,       setEmail]       = useState('')
@@ -31,80 +28,72 @@ export default function ProfilePage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     await supabase.from('profiles').upsert({ id: user.id, username: username || null, school_group: schoolGroup || null })
-    setMessage('Saved!')
-    setTimeout(() => setMessage(''), 2000)
-    setSaving(false)
+    setMessage('Saved!'); setTimeout(() => setMessage(''), 2000); setSaving(false)
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    window.location.href = '/mytrees/'
+    await supabase.auth.signOut(); window.location.href = '/mytrees/'
   }
 
   return (
     <div>
-      <header className="mb-6">
-        <p className="label-cap mb-1">Account</p>
-        <h1 className="section-title text-[28px] leading-[34px]">Profile 👤</h1>
+      <header className="page-header">
+        <p className="page-eyebrow">Account</p>
+        <h1 className="page-title">Profile 👤</h1>
       </header>
 
       {/* Avatar card */}
-      <div className="card p-5 mb-6 flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl flex-shrink-0"
-          style={{ background: 'var(--bg)', boxShadow: 'var(--neu-inset)' }}>
-          🌳
-        </div>
+      <div className="card" style={{ padding: 20, marginBottom: 28, display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{
+          width: 64, height: 64, borderRadius: '50%', flexShrink: 0,
+          background: 'var(--bg)', boxShadow: 'var(--neu-inset)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30,
+        }}>🌳</div>
         <div>
-          <div className="font-bold text-lg" style={{ color: 'var(--color-fg)' }}>
+          <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-fg)', lineHeight: 1.2 }}>
             {username || 'Forest keeper'}
-          </div>
-          <div className="text-sm font-semibold mt-0.5" style={{ color: 'var(--accent)' }}>
+          </p>
+          <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)', marginTop: 4 }}>
             Level {profile?.level ?? 1} · {profile?.xp ?? 0} XP
-          </div>
-          <div className="text-xs mt-0.5 font-medium" style={{ color: '#d97706' }}>
+          </p>
+          <p style={{ fontSize: 12, color: '#d97706', marginTop: 2 }}>
             🔥 {profile?.streak_days ?? 0} day streak
-          </div>
+          </p>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="card p-4">
-          <label className="label-cap">Display name</label>
-          <input type="text" value={username} onChange={e => setUsername(e.target.value)}
-            placeholder="Your forest keeper name" className={inputCls} style={inputStyle} />
-        </div>
-
-        <div className="card p-4">
-          <label className="label-cap">School / youth group</label>
-          <input type="text" value={schoolGroup} onChange={e => setSchoolGroup(e.target.value)}
-            placeholder="e.g. Green High School" className={inputCls} style={inputStyle} />
-        </div>
-
-        {email && (
-          <div className="card p-4">
-            <label className="label-cap">Email</label>
-            <input type="email" value={email} disabled
-              className="w-full rounded-xl px-3.5 py-3 text-sm opacity-50 cursor-not-allowed outline-none"
-              style={{ background: 'var(--bg)', color: 'var(--color-tertiary)', boxShadow: 'var(--neu-inset-sm)', border: 'none' }} />
-          </div>
-        )}
-
-        {message && <p className="text-xs font-medium px-1" style={{ color: 'var(--accent)' }}>{message}</p>}
-
-        <button onClick={save} disabled={saving}
-          className="w-full text-white font-semibold py-4 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50"
-          style={{ background: 'var(--accent)', boxShadow: '0 4px 16px rgba(58,184,122,0.30)', fontSize: 15 }}>
-          {saving ? 'Saving…' : 'Save changes'}
-        </button>
-
-        {email && (
-          <button onClick={signOut}
-            className="w-full font-semibold py-4 rounded-2xl transition-all active:scale-[0.98] text-sm"
-            style={{ background: 'var(--surface)', boxShadow: 'var(--neu-shadow-sm)', border: '1px solid var(--border-glass)', color: 'var(--color-secondary)' }}>
-            Sign out
-          </button>
-        )}
+      {/* Fields */}
+      <div className="field">
+        <label className="label">Display name</label>
+        <input className="input" type="text" value={username}
+          onChange={e => setUsername(e.target.value)} placeholder="Your forest keeper name" />
       </div>
+
+      <div className="field">
+        <label className="label">School / youth group</label>
+        <input className="input" type="text" value={schoolGroup}
+          onChange={e => setSchoolGroup(e.target.value)} placeholder="e.g. Green High School" />
+      </div>
+
+      {email && (
+        <div className="field">
+          <label className="label">Email</label>
+          <input className="input" type="email" value={email} disabled
+            style={{ opacity: 0.5, cursor: 'not-allowed' }} />
+        </div>
+      )}
+
+      {message && (
+        <p style={{ fontSize: 13, color: 'var(--accent)', marginBottom: 16, fontWeight: 500 }}>{message}</p>
+      )}
+
+      <button className="btn-primary" onClick={save} disabled={saving} style={{ marginBottom: 12 }}>
+        {saving ? 'Saving…' : 'Save changes'}
+      </button>
+
+      {email && (
+        <button className="btn-ghost" onClick={signOut}>Sign out</button>
+      )}
     </div>
   )
 }

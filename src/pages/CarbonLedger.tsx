@@ -12,8 +12,7 @@ function estimateCO2(tree: TreeWithSpecies): number {
   const years = (Date.now() - new Date(tree.planted_at).getTime()) / (1000 * 60 * 60 * 24 * 365)
   const coeff = tree.species?.carbon_coeff_kg_per_cm ?? 1.5
   const height = tree.latest_height ?? 30
-  const diameterProxy = height / 100
-  return parseFloat((coeff * diameterProxy * years).toFixed(2))
+  return parseFloat((coeff * (height / 100) * years).toFixed(2))
 }
 
 export default function CarbonLedger() {
@@ -28,12 +27,12 @@ export default function CarbonLedger() {
       if (!treeData) { setLoading(false); return }
       const treeIds = treeData.map(t => t.id)
       const { data: logData } = await supabase.from('tree_logs').select('tree_id, height_cm, logged_at').in('tree_id', treeIds).order('logged_at', { ascending: false })
-      const latestHeights: Record<string, number | null> = {}
-      logData?.forEach(log => { if (!(log.tree_id in latestHeights)) latestHeights[log.tree_id] = log.height_cm })
+      const latestH: Record<string, number | null> = {}
+      logData?.forEach(log => { if (!(log.tree_id in latestH)) latestH[log.tree_id] = log.height_cm })
       setTrees(treeData.map(t => ({
         ...t,
         species: Array.isArray(t.species) ? t.species[0] ?? null : t.species,
-        latest_height: latestHeights[t.id] ?? null,
+        latest_height: latestH[t.id] ?? null,
       })))
       setLoading(false)
     }
@@ -41,8 +40,8 @@ export default function CarbonLedger() {
   }, [])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-4xl animate-bounce">🌍</div>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 260 }}>
+      <div style={{ fontSize: 40 }} className="animate-bounce">🌍</div>
     </div>
   )
 
@@ -50,55 +49,63 @@ export default function CarbonLedger() {
 
   return (
     <div>
-      <header className="mb-6">
-        <p className="label-cap mb-1">Impact tracker</p>
-        <h1 className="section-title text-[28px] leading-[34px]">Carbon Ledger 🌍</h1>
-        <p className="section-subtitle mt-0.5">Estimated CO₂ sequestered by your forest</p>
+      <header className="page-header">
+        <p className="page-eyebrow">Impact tracker</p>
+        <h1 className="page-title">Carbon Ledger 🌍</h1>
+        <p className="page-subtitle">Estimated CO₂ sequestered by your forest</p>
       </header>
 
-      {/* Hero total */}
-      <div className="card p-6 mb-4 text-center">
-        <div className="w-20 h-20 rounded-full flex items-center justify-center text-4xl mx-auto mb-4"
-          style={{ background: 'var(--bg)', boxShadow: 'var(--neu-inset)' }}>🌿</div>
-        <div className="text-[48px] font-bold leading-none tracking-tight" style={{ color: 'var(--accent)' }}>
+      {/* Hero */}
+      <div className="card" style={{ padding: '28px 20px', marginBottom: 16, textAlign: 'center' }}>
+        <div style={{
+          width: 80, height: 80, borderRadius: '50%', margin: '0 auto 16px',
+          background: 'var(--bg)', boxShadow: 'var(--neu-inset)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36,
+        }}>🌿</div>
+        <p style={{ fontSize: 52, fontWeight: 700, letterSpacing: '-0.04em', color: 'var(--accent)', lineHeight: 1 }}>
           {totalCO2.toFixed(1)}
-        </div>
-        <div className="text-sm font-semibold mt-1" style={{ color: 'var(--accent)' }}>kg CO₂e absorbed</div>
-        <div className="text-xs mt-3" style={{ color: 'var(--color-tertiary)' }}>
-          ≈ {(totalCO2 / 21000).toFixed(4)} car-years of emissions offset
-        </div>
+        </p>
+        <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--accent)', marginTop: 6 }}>kg CO₂e absorbed</p>
+        <p style={{ fontSize: 12, color: 'var(--color-tertiary)', marginTop: 8 }}>
+          ≈ {(totalCO2 / 21000).toFixed(4)} car-years offset
+        </p>
       </div>
 
       {/* Disclaimer */}
-      <div className="rounded-xl p-3 mb-5 text-xs font-medium"
-        style={{ background: 'rgba(217,119,6,0.08)', border: '1px solid rgba(217,119,6,0.2)', color: '#d97706' }}>
-        ⚠️ Estimates use simplified allometric equations. Actual sequestration varies by species, climate and soil.
+      <div style={{
+        borderRadius: 14, padding: '12px 14px', marginBottom: 24,
+        background: 'rgba(217,119,6,0.07)', border: '1px solid rgba(217,119,6,0.18)',
+      }}>
+        <p style={{ fontSize: 12, color: '#b45309', lineHeight: 1.5 }}>
+          ⚠️ Estimates use simplified allometric equations. Actual sequestration varies by species, climate and soil.
+        </p>
       </div>
 
-      <div className="flex items-baseline justify-between mb-3 px-1">
+      {/* Breakdown */}
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
         <h2 className="section-title">Tree breakdown</h2>
         <p className="section-subtitle">{trees.length} trees</p>
       </div>
 
       {trees.length === 0 ? (
-        <p className="text-sm text-center py-8" style={{ color: 'var(--color-tertiary)' }}>
+        <p style={{ fontSize: 14, color: 'var(--color-tertiary)', textAlign: 'center', padding: '32px 0' }}>
           No trees yet — plant one to see your carbon impact!
         </p>
       ) : (
-        <div className="space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {trees.map(tree => {
             const co2 = estimateCO2(tree)
             return (
-              <div key={tree.id} className="card-sm p-4 flex items-center justify-between">
+              <div key={tree.id} className="card-sm" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <div className="font-semibold text-sm" style={{ color: 'var(--color-fg)' }}>{tree.name}</div>
-                  <div className="text-xs mt-0.5" style={{ color: 'var(--color-tertiary)' }}>
+                  <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-fg)' }}>{tree.name}</p>
+                  <p style={{ fontSize: 12, color: 'var(--color-tertiary)', marginTop: 2 }}>
                     {tree.species?.name ?? 'Unknown species'} · {tree.latest_height ? `${tree.latest_height}cm` : 'No height logged'}
-                  </div>
+                  </p>
                 </div>
-                <div className="text-right">
-                  <div className="font-bold text-sm" style={{ color: 'var(--accent)' }}>{co2.toFixed(2)} kg</div>
-                  <div className="text-xs" style={{ color: 'var(--color-tertiary)' }}>CO₂e</div>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--accent)' }}>{co2.toFixed(2)}</p>
+                  <p style={{ fontSize: 11, color: 'var(--color-tertiary)' }}>kg CO₂e</p>
                 </div>
               </div>
             )

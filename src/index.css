@@ -7,33 +7,25 @@
 }
 
 :root {
-  /* Base background */
-  --bg:              #e8edf4;
-
-  /* Glass card surface */
-  --surface:         rgba(255, 255, 255, 0.72);
+  --bg:              #eef1f6;
+  --surface:         rgba(255, 255, 255, 0.85);
   --surface-solid:   #ffffff;
-  --border-glass:    rgba(255, 255, 255, 0.60);
+  --border-glass:    rgba(255, 255, 255, 0.70);
   --border:          #d4dbe5;
 
-  /* Text hierarchy */
   --color-fg:        #1c2a3a;
   --color-secondary: #5a6b7e;
   --color-tertiary:  #8494a7;
 
-  /* Neumorphic shadows — EIS-matched */
-  --neu-shadow-lg: 10px 10px 20px rgba(163,177,198,0.40), -10px -10px 20px rgba(255,255,255,0.95);
+  --neu-shadow-lg: 12px 12px 24px rgba(163,177,198,0.40), -12px -12px 24px rgba(255,255,255,0.95);
   --neu-shadow:     8px  8px 16px rgba(163,177,198,0.35),  -8px  -8px 16px rgba(255,255,255,0.90);
   --neu-shadow-sm:  4px  4px  8px rgba(163,177,198,0.30),  -4px  -4px  8px rgba(255,255,255,0.85);
-  --neu-inset:    inset 3px 3px 6px rgba(163,177,198,0.28), inset -3px -3px 6px rgba(255,255,255,0.72);
-  --neu-inset-sm: inset 2px 2px 4px rgba(163,177,198,0.22), inset -2px -2px 4px rgba(255,255,255,0.65);
+  --neu-inset:    inset 3px 3px 6px rgba(163,177,198,0.25), inset -3px -3px 6px rgba(255,255,255,0.80);
+  --neu-inset-sm: inset 2px 2px 4px rgba(163,177,198,0.20), inset -2px -2px 4px rgba(255,255,255,0.70);
 
-  /* Accent — emerald */
   --accent:          #3ab87a;
-  --accent-dark:     #2ea868;
-
-  /* Safe area */
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --accent-shadow:   rgba(58,184,122,0.30);
+  --safe-bottom:     env(safe-area-inset-bottom, 0px);
 }
 
 html {
@@ -58,7 +50,7 @@ a, button, input, textarea, select { -webkit-touch-callout: default; }
 
 #root { min-height: 100svh; }
 
-/* ── App shell: constrain to 430px like EIS ── */
+/* ── App shell ── */
 .app-shell {
   position: relative;
   margin: 0 auto;
@@ -66,30 +58,157 @@ a, button, input, textarea, select { -webkit-touch-callout: default; }
   max-width: 430px;
 }
 
-/* ── Page content area ── */
+/* ── Page container — generous breathing room ── */
 .page-container {
-  padding: 1.5rem 1.25rem 7rem;
+  padding: 2rem 1.25rem 8rem;
 }
 
-/* ── Glass card (EIS .card equivalent) ── */
+/* ── Cards ── */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border-glass);
-  box-shadow: var(--neu-shadow);
-  border-radius: 18px;
+  background: var(--surface-solid);
+  border: 1px solid rgba(212,219,229,0.6);
+  box-shadow: var(--neu-shadow-sm);
+  border-radius: 20px;
 }
 .card-sm {
-  background: var(--surface);
-  border: 1px solid var(--border-glass);
+  background: var(--surface-solid);
+  border: 1px solid rgba(212,219,229,0.6);
   box-shadow: var(--neu-shadow-sm);
-  border-radius: 14px;
+  border-radius: 16px;
 }
 
-/* ── Legacy neu utilities (used throughout pages) ── */
-.neu-raised-lg  { box-shadow: var(--neu-shadow-lg); }
-.neu-raised     { box-shadow: var(--neu-shadow); }
-.neu-raised-sm  { box-shadow: var(--neu-shadow-sm); }
-.neu-pressed    { box-shadow: var(--neu-inset); }
+/* ── Form field — standalone, not nested in cards ── */
+.field {
+  margin-bottom: 1.25rem;
+}
+.field:last-child { margin-bottom: 0; }
+
+/* ── Input ── */
+.input {
+  display: block;
+  width: 100%;
+  background: var(--bg);
+  border: none;
+  box-shadow: var(--neu-inset);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--color-fg);
+  outline: none;
+  transition: box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+.input::placeholder { color: var(--color-tertiary); }
+.input:focus { box-shadow: var(--neu-inset), 0 0 0 2px rgba(58,184,122,0.20); }
+
+/* ── Label ── */
+.label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-tertiary);
+  margin-bottom: 8px;
+}
+
+/* ── Section heading ── */
+.section-title {
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-fg);
+}
+.section-subtitle {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-tertiary);
+  margin-top: 2px;
+}
+
+/* ── Page header ── */
+.page-header { margin-bottom: 2rem; }
+.page-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--color-tertiary);
+  margin-bottom: 4px;
+}
+.page-title {
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-fg);
+}
+.page-subtitle {
+  font-size: 14px;
+  color: var(--color-secondary);
+  margin-top: 4px;
+}
+
+/* ── Primary button ── */
+.btn-primary {
+  display: block;
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-align: center;
+  padding: 17px 24px;
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 6px 20px var(--accent-shadow);
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  cursor: pointer;
+}
+.btn-primary:active  { transform: scale(0.98); box-shadow: 0 3px 10px var(--accent-shadow); }
+.btn-primary:disabled { opacity: 0.50; }
+
+/* ── Ghost button ── */
+.btn-ghost {
+  display: block;
+  width: 100%;
+  background: var(--surface-solid);
+  color: var(--color-secondary);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  padding: 16px 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(212,219,229,0.8);
+  box-shadow: var(--neu-shadow-sm);
+  transition: transform 0.15s, opacity 0.15s;
+  cursor: pointer;
+}
+.btn-ghost:active { transform: scale(0.98); }
+
+/* ── Back button ── */
+.btn-back {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-solid);
+  border: 1px solid rgba(212,219,229,0.6);
+  box-shadow: var(--neu-shadow-sm);
+  color: var(--color-secondary);
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+.btn-back:active { transform: scale(0.94); }
+
+/* ── Neumorphic utilities ── */
+.neu-raised    { box-shadow: var(--neu-shadow); }
+.neu-raised-sm { box-shadow: var(--neu-shadow-sm); }
+.neu-pressed   { box-shadow: var(--neu-inset); }
 .neu-pressed-sm { box-shadow: var(--neu-inset-sm); }
 
 /* ── Frosted glass bottom nav ── */
@@ -100,33 +219,10 @@ a, button, input, textarea, select { -webkit-touch-callout: default; }
   width: 100%;
   max-width: 430px;
   transform: translateX(-50%);
-  background: rgba(232, 237, 244, 0.85);
+  background: rgba(238, 241, 246, 0.90);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(255, 255, 255, 0.50);
+  border-top: 1px solid rgba(255, 255, 255, 0.60);
   padding-bottom: var(--safe-bottom);
   z-index: 50;
-}
-
-/* ── Section typography ── */
-.section-title {
-  font-size: 17px;
-  line-height: 22px;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  color: var(--color-fg);
-}
-.section-subtitle {
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--color-tertiary);
-}
-.label-cap {
-  display: block;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--color-tertiary);
-  margin-bottom: 6px;
 }

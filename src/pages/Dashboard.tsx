@@ -9,10 +9,11 @@ type Tree    = Database['public']['Tables']['trees']['Row']
 const STAGE_EMOJI: Record<string, string> = { seed: '🌰', seedling: '🌱', sapling: '🌿', tree: '🌳' }
 const XP_PER_LEVEL = 500
 
-function xpToNextLevel(xp: number) {
+function xpInfo(xp: number) {
   const level    = Math.floor(xp / XP_PER_LEVEL) + 1
   const progress = xp % XP_PER_LEVEL
-  return { level, progress, max: XP_PER_LEVEL }
+  const pct      = Math.round((progress / XP_PER_LEVEL) * 100)
+  return { level, progress, pct }
 }
 
 export default function Dashboard() {
@@ -28,110 +29,113 @@ export default function Dashboard() {
         supabase.from('profiles').select('*').eq('id', user.id).single(),
         supabase.from('trees').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
       ])
-      setProfile(prof)
-      setTrees(treeData ?? [])
-      setLoading(false)
+      setProfile(prof); setTrees(treeData ?? []); setLoading(false)
     }
     load()
   }, [])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-4xl animate-bounce">🌱</div>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 260 }}>
+      <div style={{ fontSize: 40 }} className="animate-bounce">🌱</div>
     </div>
   )
 
-  const { level, progress, max } = xpToNextLevel(profile?.xp ?? 0)
-  const pct = Math.round((progress / max) * 100)
+  const { level, progress, pct } = xpInfo(profile?.xp ?? 0)
 
   return (
     <div>
-      {/* Header */}
-      <header className="mb-6">
-        <p className="label-cap mb-1">My Forest</p>
-        <h1 className="section-title text-[28px] leading-[34px]">🌳 Forest</h1>
-        <p className="section-subtitle mt-0.5">{profile?.username ?? 'Forest keeper'}</p>
+      {/* Page header */}
+      <header className="page-header">
+        <p className="page-eyebrow">Welcome back</p>
+        <h1 className="page-title">My Forest 🌳</h1>
+        <p className="page-subtitle">{profile?.username ?? 'Forest keeper'}</p>
       </header>
 
       {/* XP card */}
-      <div className="card p-5 mb-5">
-        <div className="flex items-center justify-between mb-4">
+      <div className="card" style={{ padding: '20px 20px 18px', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
           <div>
-            <p className="label-cap mb-0.5">Experience</p>
-            <p className="text-[28px] font-bold leading-none" style={{ color: 'var(--color-fg)' }}>
-              {profile?.xp ?? 0} <span className="text-base font-normal" style={{ color: 'var(--color-tertiary)' }}>XP</span>
+            <p className="label" style={{ marginBottom: 2 }}>Experience points</p>
+            <p style={{ fontSize: 32, fontWeight: 700, lineHeight: 1, letterSpacing: '-0.03em', color: 'var(--color-fg)' }}>
+              {(profile?.xp ?? 0).toLocaleString()}
+              <span style={{ fontSize: 16, fontWeight: 400, color: 'var(--color-tertiary)', marginLeft: 4 }}>XP</span>
             </p>
           </div>
-          <div className="text-right">
-            <p className="label-cap mb-0.5">Streak</p>
-            <p className="text-base font-semibold" style={{ color: 'var(--color-fg)' }}>🔥 {profile?.streak_days ?? 0}d</p>
-          </div>
-          <div className="text-right">
-            <p className="label-cap mb-0.5">Level</p>
-            <p className="text-base font-semibold" style={{ color: 'var(--accent)' }}>{level}</p>
+          <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ textAlign: 'right' }}>
+              <p className="label" style={{ marginBottom: 2 }}>Streak</p>
+              <p style={{ fontSize: 17, fontWeight: 600, color: '#d97706' }}>🔥 {profile?.streak_days ?? 0}d</p>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <p className="label" style={{ marginBottom: 2 }}>Level</p>
+              <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--accent)' }}>{level}</p>
+            </div>
           </div>
         </div>
-        {/* XP progress bar */}
-        <div className="rounded-full overflow-hidden h-2" style={{ background: 'var(--bg)', boxShadow: 'var(--neu-inset-sm)' }}>
-          <div className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${pct}%`, background: 'var(--accent)' }} />
+        {/* XP bar */}
+        <div style={{ background: 'var(--bg)', borderRadius: 8, height: 8, overflow: 'hidden', boxShadow: 'var(--neu-inset-sm)' }}>
+          <div style={{ height: '100%', width: `${pct}%`, background: 'var(--accent)', borderRadius: 8, transition: 'width 0.6s ease' }} />
         </div>
-        <p className="text-[11px] mt-1.5" style={{ color: 'var(--color-tertiary)' }}>
-          {progress} / {max} XP · {pct}% to Level {level + 1}
+        <p style={{ fontSize: 11, color: 'var(--color-tertiary)', marginTop: 8 }}>
+          {progress} / {XP_PER_LEVEL} XP · {pct}% to Level {level + 1}
         </p>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 28 }}>
         {[
-          { value: trees.length, label: 'Trees planted' },
-          { value: `${profile?.streak_days ?? 0}d`, label: 'Day streak' },
-          { value: `Lvl ${level}`, label: 'Current level' },
+          { value: trees.length,           label: 'Trees' },
+          { value: `${profile?.streak_days ?? 0}d`, label: 'Streak' },
+          { value: `Lvl ${level}`,          label: 'Rank' },
         ].map(stat => (
-          <div key={stat.label} className="card-sm p-3 text-center">
-            <div className="font-bold text-lg" style={{ color: 'var(--color-fg)' }}>{stat.value}</div>
-            <div className="text-[11px] mt-0.5" style={{ color: 'var(--color-tertiary)' }}>{stat.label}</div>
+          <div key={stat.label} className="card-sm" style={{ padding: '14px 12px', textAlign: 'center' }}>
+            <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-fg)', lineHeight: 1 }}>{stat.value}</p>
+            <p style={{ fontSize: 11, color: 'var(--color-tertiary)', marginTop: 4 }}>{stat.label}</p>
           </div>
         ))}
       </div>
 
-      {/* Trees section */}
-      <div className="flex items-baseline justify-between mb-3 px-1">
+      {/* Trees section header */}
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
         <div>
           <h2 className="section-title">Your trees</h2>
-          <p className="section-subtitle mt-0.5">{trees.length} in your forest</p>
+          <p className="section-subtitle">{trees.length} in your forest</p>
         </div>
-        <Link to="/add-tree" className="text-xs font-semibold transition-colors"
-          style={{ color: 'var(--accent)' }}>+ Plant new</Link>
+        <Link to="/add-tree" style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none' }}>
+          + Plant new
+        </Link>
       </div>
 
       {trees.length === 0 ? (
-        <div className="card p-8 text-center">
-          <div className="text-5xl mb-3">🌰</div>
-          <p className="text-sm mb-5" style={{ color: 'var(--color-secondary)' }}>You haven't planted any trees yet.</p>
-          <Link to="/add-tree"
-            className="inline-block text-white text-sm font-semibold px-6 py-3 rounded-xl transition-all active:scale-95"
-            style={{ background: 'var(--accent)', boxShadow: '0 4px 12px rgba(58,184,122,0.30)' }}>
+        <div className="card" style={{ padding: '40px 24px', textAlign: 'center' }}>
+          <div style={{ fontSize: 52, marginBottom: 12 }}>🌰</div>
+          <p style={{ fontSize: 15, color: 'var(--color-secondary)', marginBottom: 20 }}>You haven't planted any trees yet.</p>
+          <Link to="/add-tree" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block', width: 'auto', padding: '14px 28px' }}>
             Plant your first tree
           </Link>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {trees.map(tree => (
             <Link key={tree.id} to={`/tree/${tree.id}`}
-              className="block card-sm p-4 transition-all active:scale-[0.98]">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
-                  style={{ background: 'var(--bg)', boxShadow: 'var(--neu-inset-sm)' }}>
+              style={{ textDecoration: 'none', display: 'block' }}>
+              <div className="card-sm" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, transition: 'transform 0.15s' }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+                  background: 'var(--bg)', boxShadow: 'var(--neu-inset-sm)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+                }}>
                   {STAGE_EMOJI[tree.stage] ?? '🌱'}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-sm truncate" style={{ color: 'var(--color-fg)' }}>{tree.name}</div>
-                  <div className="text-xs capitalize mt-0.5" style={{ color: 'var(--color-tertiary)' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {tree.name}
+                  </p>
+                  <p style={{ fontSize: 12, color: 'var(--color-tertiary)', marginTop: 2, textTransform: 'capitalize' }}>
                     {tree.stage} · {tree.planted_at ? new Date(tree.planted_at).toLocaleDateString() : 'Not planted yet'}
-                  </div>
+                  </p>
                 </div>
-                <div className="text-lg font-light" style={{ color: 'var(--border)' }}>›</div>
+                <span style={{ fontSize: 18, color: 'var(--border)', fontWeight: 300 }}>›</span>
               </div>
             </Link>
           ))}

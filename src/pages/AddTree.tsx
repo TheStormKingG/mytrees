@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../types/database'
 
-type Species = Database['public']['Tables']['species']['Row']
+type Species   = Database['public']['Tables']['species']['Row']
 type TreeStage = 'seed' | 'seedling' | 'sapling' | 'tree'
 
 const STAGES: { value: TreeStage; label: string; emoji: string }[] = [
@@ -13,29 +13,16 @@ const STAGES: { value: TreeStage; label: string; emoji: string }[] = [
   { value: 'tree',     label: 'Tree',     emoji: '🌳' },
 ]
 
-const inputStyle = {
-  background: 'var(--bg)',
-  color: 'var(--color-fg)',
-  boxShadow: 'var(--neu-inset)',
-  border: 'none',
-}
-const inputCls = "w-full rounded-xl px-3.5 py-3 text-sm focus:outline-none"
-
 export default function AddTree() {
   const navigate = useNavigate()
-  const [species, setSpecies] = useState<Species[]>([])
-  const [form, setForm] = useState({
-    name: '',
-    species_id: '',
-    stage: 'seed' as TreeStage,
+  const [species,  setSpecies]  = useState<Species[]>([])
+  const [form,     setForm]     = useState({
+    name: '', species_id: '', stage: 'seed' as TreeStage,
     planted_at: new Date().toISOString().split('T')[0],
-    lat: '',
-    lng: '',
-    notes: '',
-    is_public: true,
+    lat: '', lng: '', notes: '', is_public: true,
   })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error,   setError]   = useState<string | null>(null)
 
   useEffect(() => {
     supabase.from('species').select('*').order('name').then(({ data }) => setSpecies(data ?? []))
@@ -54,62 +41,58 @@ export default function AddTree() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setError('Not logged in'); setLoading(false); return }
     const { error: err } = await supabase.from('trees').insert({
-      user_id: user.id,
-      name: form.name,
-      species_id: form.species_id || null,
-      stage: form.stage,
+      user_id: user.id, name: form.name,
+      species_id: form.species_id || null, stage: form.stage,
       planted_at: form.planted_at || null,
       lat: form.lat ? parseFloat(form.lat) : null,
       lng: form.lng ? parseFloat(form.lng) : null,
-      notes: form.notes || null,
-      is_public: form.is_public,
+      notes: form.notes || null, is_public: form.is_public,
     })
     if (err) { setError(err.message); setLoading(false); return }
-    try { await supabase.rpc('award_xp', { user_id: user.id, amount: 50 }) } catch { /* non-critical */ }
+    try { await supabase.rpc('award_xp', { user_id: user.id, amount: 50 }) } catch { /* */ }
     navigate('/dashboard')
   }
 
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-95"
-          style={{ background: 'var(--surface)', boxShadow: 'var(--neu-shadow-sm)', border: '1px solid var(--border-glass)', color: 'var(--color-secondary)' }}
-        >←</button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 32 }}>
+        <button className="btn-back" onClick={() => navigate(-1)}>←</button>
         <div>
-          <h1 className="section-title">Plant a tree 🌱</h1>
-          <p className="section-subtitle">+50 XP on planting</p>
+          <p className="page-eyebrow">New tree</p>
+          <h1 className="page-title" style={{ fontSize: 24 }}>Plant a tree 🌱</h1>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit}>
 
         {/* Tree name */}
-        <div className="card p-4">
-          <label className="label-cap">Tree name *</label>
-          <input type="text" placeholder="e.g. Grandma's Oak" value={form.name}
-            onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required
-            className={inputCls} style={inputStyle} />
+        <div className="field">
+          <label className="label">Tree name *</label>
+          <input className="input" type="text" placeholder="e.g. Grandma's Oak"
+            value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
         </div>
 
-        {/* Stage */}
-        <div className="card p-4">
-          <label className="label-cap">Current stage</label>
-          <div className="grid grid-cols-4 gap-2">
+        {/* Stage picker */}
+        <div className="field">
+          <label className="label">Current stage</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
             {STAGES.map(s => (
               <button key={s.value} type="button"
                 onClick={() => setForm(f => ({ ...f, stage: s.value }))}
-                className="py-3 rounded-xl text-center transition-all active:scale-95"
                 style={{
+                  padding: '14px 0',
+                  borderRadius: 14,
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
                   background: form.stage === s.value ? 'var(--surface-solid)' : 'var(--bg)',
                   boxShadow: form.stage === s.value ? 'var(--neu-inset-sm)' : 'var(--neu-shadow-sm)',
-                  border: form.stage === s.value ? '1px solid var(--border-glass)' : '1px solid transparent',
                   color: form.stage === s.value ? 'var(--accent)' : 'var(--color-secondary)',
+                  textAlign: 'center',
                 }}>
-                <div className="text-2xl">{s.emoji}</div>
-                <div className="text-xs mt-1 font-medium">{s.label}</div>
+                <div style={{ fontSize: 26, lineHeight: 1, marginBottom: 6 }}>{s.emoji}</div>
+                <div style={{ fontSize: 11, fontWeight: 600 }}>{s.label}</div>
               </button>
             ))}
           </div>
@@ -117,72 +100,87 @@ export default function AddTree() {
 
         {/* Species */}
         {species.length > 0 && (
-          <div className="card p-4">
-            <label className="label-cap">Species</label>
-            <select value={form.species_id}
-              onChange={e => setForm(f => ({ ...f, species_id: e.target.value }))}
-              className={inputCls} style={inputStyle}>
+          <div className="field">
+            <label className="label">Species</label>
+            <select className="input" value={form.species_id}
+              onChange={e => setForm(f => ({ ...f, species_id: e.target.value }))}>
               <option value="">Unknown / not listed</option>
               {species.map(sp => (
-                <option key={sp.id} value={sp.id}>{sp.name}{sp.scientific_name ? ` (${sp.scientific_name})` : ''}</option>
+                <option key={sp.id} value={sp.id}>
+                  {sp.name}{sp.scientific_name ? ` (${sp.scientific_name})` : ''}
+                </option>
               ))}
             </select>
           </div>
         )}
 
-        {/* Date */}
-        <div className="card p-4">
-          <label className="label-cap">Date planted</label>
-          <input type="date" value={form.planted_at}
-            onChange={e => setForm(f => ({ ...f, planted_at: e.target.value }))}
-            className={inputCls} style={inputStyle} />
+        {/* Date planted */}
+        <div className="field">
+          <label className="label">Date planted</label>
+          <input className="input" type="date" value={form.planted_at}
+            onChange={e => setForm(f => ({ ...f, planted_at: e.target.value }))} />
         </div>
 
         {/* Location */}
-        <div className="card p-4">
-          <label className="label-cap">Location (optional)</label>
-          <div className="flex gap-2">
-            <input type="number" placeholder="Latitude" value={form.lat}
+        <div className="field">
+          <label className="label">Location (optional)</label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input className="input" type="number" placeholder="Latitude" value={form.lat}
               onChange={e => setForm(f => ({ ...f, lat: e.target.value }))} step="any"
-              className="flex-1 rounded-xl px-3 py-3 text-sm focus:outline-none" style={inputStyle} />
-            <input type="number" placeholder="Longitude" value={form.lng}
+              style={{ flex: 1 }} />
+            <input className="input" type="number" placeholder="Longitude" value={form.lng}
               onChange={e => setForm(f => ({ ...f, lng: e.target.value }))} step="any"
-              className="flex-1 rounded-xl px-3 py-3 text-sm focus:outline-none" style={inputStyle} />
+              style={{ flex: 1 }} />
             <button type="button" onClick={useGPS}
-              className="rounded-xl px-3 py-3 text-xl transition-all active:scale-95"
-              style={{ background: 'var(--surface)', boxShadow: 'var(--neu-shadow-sm)', border: '1px solid var(--border-glass)' }}>📍</button>
+              style={{
+                width: 50, flexShrink: 0, borderRadius: 14, border: 'none',
+                background: 'var(--surface-solid)', boxShadow: 'var(--neu-shadow-sm)',
+                fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>📍</button>
           </div>
         </div>
 
         {/* Notes */}
-        <div className="card p-4">
-          <label className="label-cap">Notes</label>
-          <textarea placeholder="Soil type, location, how you got the seed…" value={form.notes}
-            onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3}
-            className="w-full rounded-xl px-3.5 py-3 text-sm focus:outline-none resize-none" style={inputStyle} />
+        <div className="field">
+          <label className="label">Notes</label>
+          <textarea className="input" placeholder="Soil type, location, how you got the seed…"
+            value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+            rows={3} style={{ resize: 'none' }} />
         </div>
 
         {/* Public toggle */}
-        <div className="card p-4">
-          <label className="flex items-center gap-3 cursor-pointer"
+        <div className="field">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}
             onClick={() => setForm(f => ({ ...f, is_public: !f.is_public }))}>
-            <div className="w-12 h-6 rounded-full relative transition-all"
-              style={{
-                background: form.is_public ? 'var(--accent)' : 'var(--bg)',
-                boxShadow: form.is_public ? '0 2px 8px rgba(58,184,122,0.35)' : 'var(--neu-inset-sm)',
-              }}>
-              <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform ${form.is_public ? 'translate-x-6' : 'translate-x-0.5'}`} />
+            <div style={{
+              width: 52, height: 30, borderRadius: 15, position: 'relative', cursor: 'pointer',
+              background: form.is_public ? 'var(--accent)' : 'var(--bg)',
+              boxShadow: form.is_public ? '0 2px 10px var(--accent-shadow)' : 'var(--neu-inset-sm)',
+              transition: 'all 0.2s', flexShrink: 0,
+            }}>
+              <div style={{
+                position: 'absolute', top: 3,
+                left: form.is_public ? 24 : 3,
+                width: 24, height: 24, borderRadius: '50%',
+                background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
+                transition: 'left 0.2s',
+              }} />
             </div>
-            <span className="text-sm font-medium" style={{ color: 'var(--color-secondary)' }}>Public tree profile</span>
-          </label>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-fg)' }}>Public tree profile</div>
+              <div style={{ fontSize: 12, color: 'var(--color-tertiary)', marginTop: 1 }}>
+                Show this tree on the community map
+              </div>
+            </div>
+          </div>
         </div>
 
-        {error && <p className="text-red-500 text-xs px-1">{error}</p>}
+        {error && (
+          <p style={{ fontSize: 13, color: '#ef4444', marginBottom: 16 }}>{error}</p>
+        )}
 
-        <button type="submit" disabled={loading}
-          className="w-full text-white font-semibold py-4 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50"
-          style={{ background: 'var(--accent)', boxShadow: '0 4px 16px rgba(58,184,122,0.30)', fontSize: 15 }}>
-          {loading ? 'Planting…' : 'Plant this tree 🌳 (+50 XP)'}
+        <button type="submit" className="btn-primary" disabled={loading}>
+          {loading ? 'Planting…' : '🌳 Plant this tree · +50 XP'}
         </button>
       </form>
     </div>
