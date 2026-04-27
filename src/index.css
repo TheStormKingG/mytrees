@@ -1,45 +1,132 @@
 @import "tailwindcss";
 
-* {
+*, *:before, *:after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 :root {
-  --neu-base:         #e0e5ec;
-  --neu-dark:         #a3b1c6;
-  --neu-light:        #ffffff;
-  --neu-card:         rgba(255,255,255,0.45);
-  --neu-card-solid:   rgba(255,255,255,0.65);
+  /* Base background */
+  --bg:              #e8edf4;
+
+  /* Glass card surface */
+  --surface:         rgba(255, 255, 255, 0.72);
+  --surface-solid:   #ffffff;
+  --border-glass:    rgba(255, 255, 255, 0.60);
+  --border:          #d4dbe5;
+
+  /* Text hierarchy */
+  --color-fg:        #1c2a3a;
+  --color-secondary: #5a6b7e;
+  --color-tertiary:  #8494a7;
+
+  /* Neumorphic shadows — EIS-matched */
+  --neu-shadow-lg: 10px 10px 20px rgba(163,177,198,0.40), -10px -10px 20px rgba(255,255,255,0.95);
+  --neu-shadow:     8px  8px 16px rgba(163,177,198,0.35),  -8px  -8px 16px rgba(255,255,255,0.90);
+  --neu-shadow-sm:  4px  4px  8px rgba(163,177,198,0.30),  -4px  -4px  8px rgba(255,255,255,0.85);
+  --neu-inset:    inset 3px 3px 6px rgba(163,177,198,0.28), inset -3px -3px 6px rgba(255,255,255,0.72);
+  --neu-inset-sm: inset 2px 2px 4px rgba(163,177,198,0.22), inset -2px -2px 4px rgba(255,255,255,0.65);
+
+  /* Accent — emerald */
+  --accent:          #3ab87a;
+  --accent-dark:     #2ea868;
+
+  /* Safe area */
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--neu-base);
-  color: rgb(51, 65, 85);           /* slate-700 */
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--color-fg);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+               'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none;
 }
+
+* { -webkit-touch-callout: none; }
+a, button, input, textarea, select { -webkit-touch-callout: default; }
 
 #root { min-height: 100svh; }
 
-/* ── Neumorphic shadow utilities ── */
-.neu-raised-lg  { box-shadow: 10px 10px 20px var(--neu-dark), -10px -10px 20px var(--neu-light); }
-.neu-raised     { box-shadow:  6px  6px 12px var(--neu-dark),  -6px  -6px 12px var(--neu-light); }
-.neu-raised-sm  { box-shadow:  3px  3px  6px var(--neu-dark),  -3px  -3px  6px var(--neu-light); }
-.neu-pressed    { box-shadow: inset  6px  6px 12px var(--neu-dark), inset  -6px -6px 12px var(--neu-light); }
-.neu-pressed-sm { box-shadow: inset  3px  3px  6px var(--neu-dark), inset  -3px -3px  6px var(--neu-light); }
-.neu-nav-top    { box-shadow:  0  -4px  8px var(--neu-dark); }
-.neu-nav-bottom { box-shadow:  0   4px  8px var(--neu-dark); }
-
-/* ── Base card ── */
-.neu-card {
-  background: var(--neu-card);
-  border-radius: 1rem;
+/* ── App shell: constrain to 430px like EIS ── */
+.app-shell {
+  position: relative;
+  margin: 0 auto;
+  min-height: 100vh;
+  max-width: 430px;
 }
-.neu-card-solid {
-  background: var(--neu-card-solid);
-  border-radius: 1rem;
+
+/* ── Page content area ── */
+.page-container {
+  padding: 1.5rem 1.25rem 7rem;
+}
+
+/* ── Glass card (EIS .card equivalent) ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--neu-shadow);
+  border-radius: 18px;
+}
+.card-sm {
+  background: var(--surface);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--neu-shadow-sm);
+  border-radius: 14px;
+}
+
+/* ── Legacy neu utilities (used throughout pages) ── */
+.neu-raised-lg  { box-shadow: var(--neu-shadow-lg); }
+.neu-raised     { box-shadow: var(--neu-shadow); }
+.neu-raised-sm  { box-shadow: var(--neu-shadow-sm); }
+.neu-pressed    { box-shadow: var(--neu-inset); }
+.neu-pressed-sm { box-shadow: var(--neu-inset-sm); }
+
+/* ── Frosted glass bottom nav ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  max-width: 430px;
+  transform: translateX(-50%);
+  background: rgba(232, 237, 244, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255, 255, 255, 0.50);
+  padding-bottom: var(--safe-bottom);
+  z-index: 50;
+}
+
+/* ── Section typography ── */
+.section-title {
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--color-fg);
+}
+.section-subtitle {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-tertiary);
+}
+.label-cap {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-tertiary);
+  margin-bottom: 6px;
 }
