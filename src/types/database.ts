@@ -37,6 +37,7 @@ export interface Database {
           school_group?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       species: {
         Row: {
@@ -63,6 +64,7 @@ export interface Database {
           carbon_coeff_kg_per_cm?: number
           created_at?: string
         }
+        Relationships: []
       }
       trees: {
         Row: {
@@ -104,6 +106,20 @@ export interface Database {
           notes?: string | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "trees_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trees_species_id_fkey"
+            columns: ["species_id"]
+            referencedRelation: "species"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       tree_logs: {
         Row: {
@@ -142,10 +158,24 @@ export interface Database {
           xp_awarded?: number
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "tree_logs_tree_id_fkey"
+            columns: ["tree_id"]
+            referencedRelation: "trees"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      award_xp: {
+        Args: { user_id: string; amount: number }
+        Returns: undefined
+      }
+    }
     Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }

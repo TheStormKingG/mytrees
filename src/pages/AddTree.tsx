@@ -63,7 +63,7 @@ export default function AddTree() {
     if (err) { setError(err.message); setLoading(false); return }
 
     // Award XP for planting
-    await supabase.rpc('award_xp', { user_id: user.id, amount: 50 }).catch(() => null)
+    try { await supabase.rpc('award_xp', { user_id: user.id, amount: 50 }) } catch { /* non-critical */ }
 
     navigate('/dashboard')
   }

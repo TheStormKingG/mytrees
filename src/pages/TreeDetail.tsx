@@ -49,7 +49,7 @@ export default function TreeDetail() {
     })
 
     const { data: { user } } = await supabase.auth.getUser()
-    if (user) await supabase.rpc('award_xp', { user_id: user.id, amount: 30 }).catch(() => null)
+    if (user) { try { await supabase.rpc('award_xp', { user_id: user.id, amount: 30 }) } catch { /* non-critical */ } }
 
     // Refresh logs
     const { data: l } = await supabase.from('tree_logs').select('*').eq('tree_id', id).order('logged_at', { ascending: false })
