@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   if (session === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-950">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--neu-base)' }}>
         <div className="text-4xl animate-pulse">🌱</div>
       </div>
     )

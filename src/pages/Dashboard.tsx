@@ -44,7 +44,7 @@ export default function Dashboard() {
   }, [])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
+    <div className="flex items-center justify-center h-64" style={{ background: 'var(--neu-base)' }}>
       <div className="text-4xl animate-bounce">🌱</div>
     </div>
   )
@@ -53,68 +53,71 @@ export default function Dashboard() {
   const pct = Math.round((progress / max) * 100)
 
   return (
-    <div className="px-4 pt-6 pb-4">
+    <div className="px-4 pt-6 pb-4" style={{ background: 'var(--neu-base)' }}>
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-emerald-400">
-            My Forest 🌳
-          </h1>
-          <p className="text-stone-400 text-sm">
-            {profile?.username ?? 'Forest keeper'}
-          </p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">My Forest 🌳</h1>
+          <p className="text-slate-500 text-sm mt-0.5">{profile?.username ?? 'Forest keeper'}</p>
         </div>
-        <div className="text-right">
-          <div className="text-stone-300 text-sm font-semibold">Lvl {level}</div>
-          <div className="text-stone-500 text-xs">{profile?.xp ?? 0} XP</div>
+        <div
+          className="neu-raised-sm rounded-2xl px-4 py-2 text-center"
+          style={{ background: 'var(--neu-base)' }}
+        >
+          <div className="text-slate-800 text-sm font-bold">Lvl {level}</div>
+          <div className="text-slate-400 text-xs">{profile?.xp ?? 0} XP</div>
         </div>
       </div>
 
       {/* XP Bar */}
-      <div className="mb-6">
-        <div className="flex justify-between text-xs text-stone-500 mb-1">
-          <span>{progress} / {max} XP</span>
-          <span>{pct}% to Lvl {level + 1}</span>
-        </div>
-        <div className="h-2 bg-stone-800 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
+      <div className="neu-pressed-sm rounded-full overflow-hidden h-3 mb-1.5" style={{ background: 'var(--neu-base)' }}>
+        <div
+          className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <div className="flex justify-between text-xs text-slate-400 mb-6">
+        <span>{progress} / {max} XP</span>
+        <span>{pct}% to Lvl {level + 1}</span>
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-stone-900 rounded-xl p-3 text-center border border-stone-700">
-          <div className="text-2xl font-bold text-emerald-400">{trees.length}</div>
-          <div className="text-stone-400 text-xs mt-1">Trees</div>
-        </div>
-        <div className="bg-stone-900 rounded-xl p-3 text-center border border-stone-700">
-          <div className="text-2xl font-bold text-orange-400">🔥 {profile?.streak_days ?? 0}</div>
-          <div className="text-stone-400 text-xs mt-1">Day streak</div>
-        </div>
-        <div className="bg-stone-900 rounded-xl p-3 text-center border border-stone-700">
-          <div className="text-2xl font-bold text-sky-400">{profile?.level ?? 1}</div>
-          <div className="text-stone-400 text-xs mt-1">Level</div>
-        </div>
+        {[
+          { value: trees.length, label: 'Trees', color: 'text-emerald-600' },
+          { value: `🔥 ${profile?.streak_days ?? 0}`, label: 'Day streak', color: 'text-amber-500' },
+          { value: profile?.level ?? 1, label: 'Level', color: 'text-slate-700' },
+        ].map(stat => (
+          <div
+            key={stat.label}
+            className="neu-raised-sm rounded-2xl p-3 text-center"
+            style={{ background: 'var(--neu-base)' }}
+          >
+            <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
+            <div className="text-slate-400 text-xs mt-1">{stat.label}</div>
+          </div>
+        ))}
       </div>
 
-      {/* Trees list */}
+      {/* Trees list header */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-stone-200 font-semibold text-sm">Your trees</h2>
-        <Link to="/add-tree" className="text-emerald-400 text-xs font-medium hover:text-emerald-300">
+        <h2 className="text-slate-700 font-semibold text-sm">Your trees</h2>
+        <Link to="/add-tree" className="text-emerald-600 text-xs font-bold hover:text-emerald-500 transition-colors">
           + Plant new
         </Link>
       </div>
 
       {trees.length === 0 ? (
-        <div className="bg-stone-900 border border-dashed border-stone-600 rounded-2xl p-8 text-center">
+        <div
+          className="neu-pressed rounded-2xl p-8 text-center"
+          style={{ background: 'var(--neu-base)' }}
+        >
           <div className="text-5xl mb-3">🌰</div>
-          <p className="text-stone-400 text-sm mb-4">You haven't planted any trees yet.</p>
+          <p className="text-slate-500 text-sm mb-5">You haven't planted any trees yet.</p>
           <Link
             to="/add-tree"
-            className="inline-block bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+            className="inline-block bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold px-6 py-3 rounded-xl transition-all neu-raised-sm"
           >
             Plant your first tree
           </Link>
@@ -125,15 +128,23 @@ export default function Dashboard() {
             <Link
               key={tree.id}
               to={`/tree/${tree.id}`}
-              className="block bg-stone-900 border border-stone-700 hover:border-emerald-700 rounded-xl p-4 transition-colors"
+              className="block neu-raised-sm rounded-xl p-4 transition-all hover:neu-raised active:neu-pressed-sm"
+              style={{ background: 'var(--neu-base)' }}
             >
               <div className="flex items-center gap-3">
-                <div className="text-3xl">{STAGE_EMOJI[tree.stage] ?? '🌱'}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-stone-100 truncate">{tree.name}</div>
-                  <div className="text-stone-400 text-xs capitalize">{tree.stage} · {tree.planted_at ? new Date(tree.planted_at).toLocaleDateString() : 'Not planted yet'}</div>
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl neu-pressed-sm flex-shrink-0"
+                  style={{ background: 'var(--neu-base)' }}
+                >
+                  {STAGE_EMOJI[tree.stage] ?? '🌱'}
                 </div>
-                <div className="text-stone-600 text-sm">›</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-slate-800 truncate">{tree.name}</div>
+                  <div className="text-slate-400 text-xs capitalize mt-0.5">
+                    {tree.stage} · {tree.planted_at ? new Date(tree.planted_at).toLocaleDateString() : 'Not planted yet'}
+                  </div>
+                </div>
+                <div className="text-slate-300 text-lg font-light">›</div>
               </div>
             </Link>
           ))}

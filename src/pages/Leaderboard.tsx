@@ -46,45 +46,42 @@ export default function Leaderboard() {
   }, [])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
+    <div className="flex items-center justify-center h-64" style={{ background: 'var(--neu-base)' }}>
       <div className="text-4xl animate-bounce">🏆</div>
     </div>
   )
 
   return (
-    <div className="px-4 pt-6 pb-4">
-      <h1 className="text-xl font-bold text-emerald-400 mb-1">Forest Leagues 🏆</h1>
-      <p className="text-stone-400 text-xs mb-6">Top forest keepers by XP</p>
+    <div className="px-4 pt-6 pb-4" style={{ background: 'var(--neu-base)' }}>
+      <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1">Forest Leagues 🏆</h1>
+      <p className="text-slate-400 text-sm mb-6">Top forest keepers by XP</p>
 
       {leaders.length === 0 ? (
-        <p className="text-stone-500 text-center py-12">No keepers yet — be the first! 🌱</p>
+        <p className="text-slate-400 text-center py-12">No keepers yet — be the first! 🌱</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {leaders.map((entry, i) => {
             const isMe = entry.id === myId
             return (
               <div
                 key={entry.id}
-                className={`flex items-center gap-4 rounded-xl p-4 border transition-colors ${
-                  isMe
-                    ? 'bg-emerald-900/40 border-emerald-600'
-                    : 'bg-stone-900 border-stone-700'
-                }`}
+                className={`flex items-center gap-4 rounded-xl p-4 transition-all ${isMe ? 'neu-pressed-sm' : 'neu-raised-sm'}`}
+                style={{ background: 'var(--neu-base)' }}
               >
-                <div className="w-8 text-center font-bold text-lg">
-                  {RANK_EMOJI[i] ?? <span className="text-stone-500 text-sm">#{i + 1}</span>}
+                <div className="w-9 text-center font-bold text-xl">
+                  {RANK_EMOJI[i] ?? <span className="text-slate-400 text-sm font-semibold">#{i + 1}</span>}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className={`font-semibold truncate ${isMe ? 'text-emerald-300' : 'text-stone-100'}`}>
-                    {entry.username ?? 'Anonymous'} {isMe && <span className="text-xs text-emerald-500">(you)</span>}
+                  <div className={`font-semibold truncate text-sm ${isMe ? 'text-emerald-700' : 'text-slate-800'}`}>
+                    {entry.username ?? 'Anonymous'} {isMe && <span className="text-xs text-emerald-500 font-normal">(you)</span>}
                   </div>
-                  <div className="text-stone-500 text-xs">
+                  <div className="text-slate-400 text-xs mt-0.5">
                     {entry.tree_count} trees · Lvl {entry.level}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-amber-400 font-bold text-sm">{entry.xp.toLocaleString()}</div>
-                  <div className="text-stone-600 text-xs">XP</div>
+                  <div className="text-amber-500 font-bold text-sm">{entry.xp.toLocaleString()}</div>
+                  <div className="text-slate-400 text-xs">XP</div>
                 </div>
               </div>
             )

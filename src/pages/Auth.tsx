@@ -36,28 +36,35 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0c1a0e] to-[#1a2e1c] flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen flex flex-col items-center justify-center px-5" style={{ background: 'var(--neu-base)' }}>
+
       {/* Logo */}
       <div className="mb-8 text-center">
-        <div className="text-7xl mb-3">🌳</div>
-        <h1 className="text-3xl font-bold text-emerald-400 tracking-tight">MyTrees</h1>
-        <p className="text-stone-400 text-sm mt-1">Grow real trees. Earn XP. Save the planet.</p>
+        <div
+          className="w-24 h-24 rounded-full flex items-center justify-center text-5xl mx-auto mb-4 neu-raised"
+          style={{ background: 'var(--neu-base)' }}
+        >
+          🌳
+        </div>
+        <h1 className="text-4xl font-bold text-slate-900 tracking-tight">MyTrees</h1>
+        <p className="text-slate-500 text-base mt-2">Grow real trees. Earn XP. Save the planet.</p>
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-sm bg-stone-900 rounded-2xl p-6 border border-stone-700">
-        <h2 className="text-lg font-semibold text-stone-100 mb-4">
+      <div className="w-full max-w-sm neu-raised-lg rounded-2xl p-7" style={{ background: 'var(--neu-base)' }}>
+        <h2 className="text-xl font-bold text-slate-800 mb-5">
           {isSignUp ? 'Create account' : 'Welcome back'}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className="w-full bg-stone-800 border border-stone-600 rounded-xl px-4 py-3 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-emerald-500 transition-colors"
+            className="w-full rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all neu-pressed-sm"
+            style={{ background: 'var(--neu-base)' }}
           />
           <input
             type="password"
@@ -65,16 +72,17 @@ export default function Auth() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            className="w-full bg-stone-800 border border-stone-600 rounded-xl px-4 py-3 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-emerald-500 transition-colors"
+            className="w-full rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all neu-pressed-sm"
+            style={{ background: 'var(--neu-base)' }}
           />
 
-          {error && <p className="text-red-400 text-xs">{error}</p>}
-          {message && <p className="text-emerald-400 text-xs">{message}</p>}
+          {error && <p className="text-red-500 text-xs">{error}</p>}
+          {message && <p className="text-emerald-600 text-xs">{message}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors text-sm"
+            className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-all text-sm neu-raised-sm"
           >
             {loading ? '...' : isSignUp ? 'Plant your first seed 🌱' : 'Sign in'}
           </button>
@@ -82,7 +90,7 @@ export default function Auth() {
 
         <button
           onClick={() => { setIsSignUp(!isSignUp); setError(null); setMessage(null) }}
-          className="w-full mt-3 text-stone-400 hover:text-stone-200 text-xs transition-colors"
+          className="w-full mt-4 text-slate-400 hover:text-slate-600 text-xs transition-colors font-medium"
         >
           {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
         </button>

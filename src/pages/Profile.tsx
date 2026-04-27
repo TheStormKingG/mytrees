@@ -46,70 +46,55 @@ export default function ProfilePage() {
     window.location.href = '/mytrees/'
   }
 
-  return (
-    <div className="px-4 pt-6 pb-4">
-      <h1 className="text-xl font-bold text-emerald-400 mb-6">Profile 👤</h1>
+  const inputCls = "w-full rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none neu-pressed-sm"
 
-      {/* Avatar / level badge */}
-      <div className="flex items-center gap-4 bg-stone-900 border border-stone-700 rounded-2xl p-4 mb-6">
-        <div className="w-16 h-16 bg-emerald-900 rounded-full flex items-center justify-center text-3xl border-2 border-emerald-600">
+  return (
+    <div className="px-4 pt-6 pb-4" style={{ background: 'var(--neu-base)' }}>
+      <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-6">Profile 👤</h1>
+
+      {/* Avatar card */}
+      <div className="neu-raised rounded-2xl p-5 mb-6 flex items-center gap-4" style={{ background: 'var(--neu-base)' }}>
+        <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl neu-pressed flex-shrink-0"
+          style={{ background: 'var(--neu-base)' }}>
           🌳
         </div>
         <div>
-          <div className="text-stone-100 font-semibold">{username || 'Forest keeper'}</div>
-          <div className="text-emerald-400 text-sm">Level {profile?.level ?? 1} · {profile?.xp ?? 0} XP</div>
-          <div className="text-orange-400 text-xs mt-0.5">🔥 {profile?.streak_days ?? 0} day streak</div>
+          <div className="text-slate-800 font-bold text-lg">{username || 'Forest keeper'}</div>
+          <div className="text-emerald-600 text-sm font-semibold">Level {profile?.level ?? 1} · {profile?.xp ?? 0} XP</div>
+          <div className="text-amber-500 text-xs mt-0.5 font-medium">🔥 {profile?.streak_days ?? 0} day streak</div>
         </div>
       </div>
 
-      {/* Edit form */}
       <div className="space-y-4">
         <div>
-          <label className="block text-stone-400 text-xs mb-1.5">Display name</label>
-          <input
-            type="text"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
+          <label className="block text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">Display name</label>
+          <input type="text" value={username} onChange={e => setUsername(e.target.value)}
             placeholder="Your forest keeper name"
-            className="w-full bg-stone-900 border border-stone-700 focus:border-emerald-500 rounded-xl px-4 py-3 text-sm text-stone-100 placeholder-stone-600 outline-none"
-          />
+            className={inputCls} style={{ background: 'var(--neu-base)' }} />
         </div>
-
         <div>
-          <label className="block text-stone-400 text-xs mb-1.5">School / youth group</label>
-          <input
-            type="text"
-            value={schoolGroup}
-            onChange={e => setSchoolGroup(e.target.value)}
+          <label className="block text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">School / youth group</label>
+          <input type="text" value={schoolGroup} onChange={e => setSchoolGroup(e.target.value)}
             placeholder="e.g. Green High School"
-            className="w-full bg-stone-900 border border-stone-700 focus:border-emerald-500 rounded-xl px-4 py-3 text-sm text-stone-100 placeholder-stone-600 outline-none"
-          />
+            className={inputCls} style={{ background: 'var(--neu-base)' }} />
         </div>
-
         <div>
-          <label className="block text-stone-400 text-xs mb-1.5">Email</label>
-          <input
-            type="email"
-            value={email}
-            disabled
-            className="w-full bg-stone-800/50 border border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-500 outline-none cursor-not-allowed"
-          />
+          <label className="block text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">Email</label>
+          <input type="email" value={email} disabled
+            className="w-full rounded-xl px-4 py-3 text-sm text-slate-400 neu-pressed-sm opacity-60 cursor-not-allowed outline-none"
+            style={{ background: 'var(--neu-base)' }} />
         </div>
 
-        {message && <p className="text-emerald-400 text-xs">{message}</p>}
+        {message && <p className="text-emerald-600 text-xs font-medium">{message}</p>}
 
-        <button
-          onClick={save}
-          disabled={saving}
-          className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors text-sm"
-        >
-          {saving ? 'Saving...' : 'Save changes'}
+        <button onClick={save} disabled={saving}
+          className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl transition-all neu-raised-sm text-sm">
+          {saving ? 'Saving…' : 'Save changes'}
         </button>
 
-        <button
-          onClick={signOut}
-          className="w-full bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold py-3 rounded-xl transition-colors text-sm"
-        >
+        <button onClick={signOut}
+          className="w-full neu-raised-sm text-slate-500 hover:text-slate-700 font-semibold py-3.5 rounded-xl transition-all text-sm"
+          style={{ background: 'var(--neu-base)' }}>
           Sign out
         </button>
       </div>

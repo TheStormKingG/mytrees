@@ -8,10 +8,10 @@ type TreeLog = Database['public']['Tables']['tree_logs']['Row']
 
 const STAGE_EMOJI: Record<string, string> = { seed: '🌰', seedling: '🌱', sapling: '🌿', tree: '🌳' }
 const HEALTH_COLOR: Record<string, string> = {
-  excellent: 'text-emerald-400',
-  good: 'text-green-400',
-  fair: 'text-amber-400',
-  poor: 'text-red-400',
+  excellent: 'text-emerald-600',
+  good: 'text-green-600',
+  fair: 'text-amber-500',
+  poor: 'text-red-500',
 }
 
 export default function TreeDetail() {
@@ -58,77 +58,82 @@ export default function TreeDetail() {
     setSaving(false)
   }
 
+  const inputCls = "w-full rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none neu-pressed-sm mt-1"
+
   if (!tree) return (
-    <div className="flex items-center justify-center h-64">
+    <div className="flex items-center justify-center h-64" style={{ background: 'var(--neu-base)' }}>
       <div className="text-4xl animate-bounce">🌱</div>
     </div>
   )
 
   return (
-    <div className="px-4 pt-6 pb-4">
+    <div className="px-4 pt-6 pb-4" style={{ background: 'var(--neu-base)' }}>
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate(-1)} className="text-stone-400 hover:text-stone-200 text-xl">←</button>
-        <h1 className="text-xl font-bold text-stone-100 flex items-center gap-2">
+        <button onClick={() => navigate(-1)}
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 neu-raised-sm active:neu-pressed-sm"
+          style={{ background: 'var(--neu-base)' }}>←</button>
+        <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
           {STAGE_EMOJI[tree.stage]} {tree.name}
         </h1>
       </div>
 
       {/* Tree info card */}
-      <div className="bg-stone-900 border border-stone-700 rounded-2xl p-4 mb-5">
-        <div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="neu-raised rounded-2xl p-5 mb-5" style={{ background: 'var(--neu-base)' }}>
+        <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <div className="text-stone-500 text-xs">Stage</div>
-            <div className="text-stone-100 capitalize mt-0.5">{tree.stage}</div>
+            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Stage</div>
+            <div className="text-slate-700 capitalize font-medium mt-1">{tree.stage}</div>
           </div>
           <div>
-            <div className="text-stone-500 text-xs">Planted</div>
-            <div className="text-stone-100 mt-0.5">{tree.planted_at ? new Date(tree.planted_at).toLocaleDateString() : '—'}</div>
+            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Planted</div>
+            <div className="text-slate-700 font-medium mt-1">{tree.planted_at ? new Date(tree.planted_at).toLocaleDateString() : '—'}</div>
           </div>
           {tree.lat && tree.lng && (
             <div className="col-span-2">
-              <div className="text-stone-500 text-xs">Location</div>
-              <div className="text-stone-100 mt-0.5 text-xs">{tree.lat.toFixed(4)}, {tree.lng.toFixed(4)}</div>
+              <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Location</div>
+              <div className="text-slate-600 mt-1 text-xs">{tree.lat.toFixed(4)}, {tree.lng.toFixed(4)}</div>
             </div>
           )}
           {tree.notes && (
             <div className="col-span-2">
-              <div className="text-stone-500 text-xs">Notes</div>
-              <div className="text-stone-300 mt-0.5 text-xs">{tree.notes}</div>
+              <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Notes</div>
+              <div className="text-slate-600 mt-1 text-xs">{tree.notes}</div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Log growth button */}
-      <button
-        onClick={() => setShowLog(!showLog)}
-        className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-3 rounded-xl mb-5 transition-colors text-sm"
-      >
+      {/* Log growth CTA */}
+      <button onClick={() => setShowLog(!showLog)}
+        className="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-3.5 rounded-xl mb-5 transition-all neu-raised-sm text-sm">
         📏 Log growth today (+30 XP)
       </button>
 
       {/* Log form */}
       {showLog && (
-        <form onSubmit={submitLog} className="bg-stone-900 border border-emerald-700 rounded-2xl p-4 mb-5 space-y-3">
-          <h3 className="text-stone-200 font-semibold text-sm">Today's check-in</h3>
+        <form onSubmit={submitLog} className="neu-pressed rounded-2xl p-5 mb-5 space-y-4" style={{ background: 'var(--neu-base)' }}>
+          <h3 className="text-slate-700 font-bold text-sm">Today's check-in</h3>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-stone-400 text-xs">Height (cm)</label>
-              <input type="number" value={logForm.height_cm} onChange={e => setLogForm(f => ({ ...f, height_cm: e.target.value }))}
+              <label className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Height (cm)</label>
+              <input type="number" value={logForm.height_cm}
+                onChange={e => setLogForm(f => ({ ...f, height_cm: e.target.value }))}
                 step="any" placeholder="e.g. 45"
-                className="w-full mt-1 bg-stone-800 border border-stone-600 rounded-lg px-3 py-2 text-sm text-stone-100 placeholder-stone-600 outline-none" />
+                className={inputCls} style={{ background: 'var(--neu-base)' }} />
             </div>
             <div>
-              <label className="text-stone-400 text-xs">Canopy (cm)</label>
-              <input type="number" value={logForm.canopy_cm} onChange={e => setLogForm(f => ({ ...f, canopy_cm: e.target.value }))}
+              <label className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Canopy (cm)</label>
+              <input type="number" value={logForm.canopy_cm}
+                onChange={e => setLogForm(f => ({ ...f, canopy_cm: e.target.value }))}
                 step="any" placeholder="e.g. 20"
-                className="w-full mt-1 bg-stone-800 border border-stone-600 rounded-lg px-3 py-2 text-sm text-stone-100 placeholder-stone-600 outline-none" />
+                className={inputCls} style={{ background: 'var(--neu-base)' }} />
             </div>
           </div>
           <div>
-            <label className="text-stone-400 text-xs">Health</label>
-            <select value={logForm.health} onChange={e => setLogForm(f => ({ ...f, health: e.target.value as TreeLog['health'] }))}
-              className="w-full mt-1 bg-stone-800 border border-stone-600 rounded-lg px-3 py-2 text-sm text-stone-100 outline-none">
+            <label className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Health</label>
+            <select value={logForm.health}
+              onChange={e => setLogForm(f => ({ ...f, health: e.target.value as TreeLog['health'] }))}
+              className={inputCls} style={{ background: 'var(--neu-base)' }}>
               <option value="excellent">Excellent 🌟</option>
               <option value="good">Good ✅</option>
               <option value="fair">Fair ⚠️</option>
@@ -136,34 +141,33 @@ export default function TreeDetail() {
             </select>
           </div>
           <textarea value={logForm.notes} onChange={e => setLogForm(f => ({ ...f, notes: e.target.value }))}
-            placeholder="Any observations..."
-            rows={2}
-            className="w-full bg-stone-800 border border-stone-600 rounded-lg px-3 py-2 text-sm text-stone-100 placeholder-stone-600 outline-none resize-none" />
+            placeholder="Any observations…" rows={2}
+            className="w-full rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none neu-pressed-sm resize-none"
+            style={{ background: 'var(--neu-base)' }} />
           <button type="submit" disabled={saving}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors">
-            {saving ? 'Saving...' : 'Save log'}
+            className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-all neu-raised-sm text-sm">
+            {saving ? 'Saving…' : 'Save log'}
           </button>
         </form>
       )}
 
-      {/* Log history */}
-      <h2 className="text-stone-300 font-semibold text-sm mb-3">Growth history ({logs.length} entries)</h2>
+      <h2 className="text-slate-600 font-semibold text-sm mb-3">Growth history ({logs.length} entries)</h2>
       {logs.length === 0 ? (
-        <p className="text-stone-600 text-sm text-center py-6">No logs yet. Log today's growth!</p>
+        <p className="text-slate-400 text-sm text-center py-6">No logs yet. Log today's growth!</p>
       ) : (
         <div className="space-y-3">
           {logs.map(log => (
-            <div key={log.id} className="bg-stone-900 border border-stone-700 rounded-xl p-3">
-              <div className="flex justify-between items-start mb-1">
-                <span className="text-stone-300 text-xs">{new Date(log.logged_at).toLocaleDateString()}</span>
-                <span className={`text-xs font-medium capitalize ${HEALTH_COLOR[log.health]}`}>{log.health}</span>
+            <div key={log.id} className="neu-raised-sm rounded-xl p-4" style={{ background: 'var(--neu-base)' }}>
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-slate-500 text-xs font-medium">{new Date(log.logged_at).toLocaleDateString()}</span>
+                <span className={`text-xs font-bold capitalize ${HEALTH_COLOR[log.health]}`}>{log.health}</span>
               </div>
-              <div className="text-stone-400 text-xs">
+              <div className="text-slate-500 text-xs">
                 {log.height_cm && `Height: ${log.height_cm}cm`}
                 {log.height_cm && log.canopy_cm && ' · '}
                 {log.canopy_cm && `Canopy: ${log.canopy_cm}cm`}
               </div>
-              {log.notes && <p className="text-stone-500 text-xs mt-1">{log.notes}</p>}
+              {log.notes && <p className="text-slate-400 text-xs mt-1">{log.notes}</p>}
             </div>
           ))}
         </div>

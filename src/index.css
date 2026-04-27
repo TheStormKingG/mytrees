@@ -6,13 +6,40 @@
   box-sizing: border-box;
 }
 
+:root {
+  --neu-base:         #e0e5ec;
+  --neu-dark:         #a3b1c6;
+  --neu-light:        #ffffff;
+  --neu-card:         rgba(255,255,255,0.45);
+  --neu-card-solid:   rgba(255,255,255,0.65);
+}
+
 body {
-  background: #0c1a0e;
-  color: #f0fdf4;
-  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--neu-base);
+  color: rgb(51, 65, 85);           /* slate-700 */
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-#root {
-  min-height: 100svh;
+#root { min-height: 100svh; }
+
+/* ── Neumorphic shadow utilities ── */
+.neu-raised-lg  { box-shadow: 10px 10px 20px var(--neu-dark), -10px -10px 20px var(--neu-light); }
+.neu-raised     { box-shadow:  6px  6px 12px var(--neu-dark),  -6px  -6px 12px var(--neu-light); }
+.neu-raised-sm  { box-shadow:  3px  3px  6px var(--neu-dark),  -3px  -3px  6px var(--neu-light); }
+.neu-pressed    { box-shadow: inset  6px  6px 12px var(--neu-dark), inset  -6px -6px 12px var(--neu-light); }
+.neu-pressed-sm { box-shadow: inset  3px  3px  6px var(--neu-dark), inset  -3px -3px  6px var(--neu-light); }
+.neu-nav-top    { box-shadow:  0  -4px  8px var(--neu-dark); }
+.neu-nav-bottom { box-shadow:  0   4px  8px var(--neu-dark); }
+
+/* ── Base card ── */
+.neu-card {
+  background: var(--neu-card);
+  border-radius: 1rem;
+}
+.neu-card-solid {
+  background: var(--neu-card-solid);
+  border-radius: 1rem;
 }

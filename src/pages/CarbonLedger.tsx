@@ -70,7 +70,7 @@ export default function CarbonLedger() {
   }, [])
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
+    <div className="flex items-center justify-center h-64" style={{ background: 'var(--neu-base)' }}>
       <div className="text-4xl animate-bounce">🌍</div>
     </div>
   )
@@ -78,41 +78,47 @@ export default function CarbonLedger() {
   const totalCO2 = trees.reduce((sum, t) => sum + estimateCO2(t), 0)
 
   return (
-    <div className="px-4 pt-6 pb-4">
-      <h1 className="text-xl font-bold text-emerald-400 mb-1">Carbon Ledger 🌍</h1>
-      <p className="text-stone-400 text-xs mb-6">Estimated CO₂ sequestered by your forest</p>
+    <div className="px-4 pt-6 pb-4" style={{ background: 'var(--neu-base)' }}>
+      <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1">Carbon Ledger 🌍</h1>
+      <p className="text-slate-400 text-sm mb-6">Estimated CO₂ sequestered by your forest</p>
 
-      {/* Total */}
-      <div className="bg-gradient-to-br from-emerald-900/60 to-stone-900 border border-emerald-700 rounded-2xl p-5 mb-6 text-center">
-        <div className="text-4xl font-bold text-emerald-300">{totalCO2.toFixed(1)}</div>
-        <div className="text-emerald-500 text-sm mt-1">kg CO₂e absorbed</div>
-        <div className="text-stone-500 text-xs mt-3">Equivalent to {(totalCO2 / 21000).toFixed(4)} car-years of emissions offset</div>
+      {/* Total hero card */}
+      <div className="neu-raised rounded-2xl p-6 mb-6 text-center" style={{ background: 'var(--neu-base)' }}>
+        <div
+          className="w-20 h-20 rounded-full flex items-center justify-center text-4xl mx-auto mb-3 neu-pressed"
+          style={{ background: 'var(--neu-base)' }}
+        >🌿</div>
+        <div className="text-5xl font-bold text-emerald-600 tracking-tight">{totalCO2.toFixed(1)}</div>
+        <div className="text-emerald-500 text-sm font-semibold mt-1">kg CO₂e absorbed</div>
+        <div className="text-slate-400 text-xs mt-3">
+          ≈ {(totalCO2 / 21000).toFixed(4)} car-years of emissions offset
+        </div>
       </div>
 
       {/* Disclaimer */}
-      <div className="bg-amber-900/30 border border-amber-700/50 rounded-xl p-3 mb-5 text-xs text-amber-300">
-        ⚠️ Estimates use simplified allometric equations. Actual sequestration varies by species, climate and soil. Verified measurements coming soon.
+      <div className="neu-pressed-sm rounded-xl p-3 mb-5 text-xs text-amber-600 font-medium" style={{ background: 'var(--neu-base)' }}>
+        ⚠️ Estimates use simplified allometric equations. Actual sequestration varies by species, climate and soil.
       </div>
 
-      {/* Per-tree breakdown */}
-      <h2 className="text-stone-300 font-semibold text-sm mb-3">Tree breakdown</h2>
+      <h2 className="text-slate-700 font-semibold text-sm mb-3">Tree breakdown</h2>
       {trees.length === 0 ? (
-        <p className="text-stone-500 text-sm text-center py-8">No trees yet — plant one to see your carbon impact!</p>
+        <p className="text-slate-400 text-sm text-center py-8">No trees yet — plant one to see your carbon impact!</p>
       ) : (
         <div className="space-y-3">
           {trees.map(tree => {
             const co2 = estimateCO2(tree)
             return (
-              <div key={tree.id} className="bg-stone-900 border border-stone-700 rounded-xl p-4 flex items-center justify-between">
+              <div key={tree.id} className="neu-raised-sm rounded-xl p-4 flex items-center justify-between"
+                style={{ background: 'var(--neu-base)' }}>
                 <div>
-                  <div className="text-stone-100 font-medium text-sm">{tree.name}</div>
-                  <div className="text-stone-500 text-xs">
+                  <div className="text-slate-800 font-semibold text-sm">{tree.name}</div>
+                  <div className="text-slate-400 text-xs mt-0.5">
                     {tree.species?.name ?? 'Unknown species'} · {tree.latest_height ? `${tree.latest_height}cm` : 'No height logged'}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-emerald-400 font-semibold text-sm">{co2.toFixed(2)} kg</div>
-                  <div className="text-stone-600 text-xs">CO₂e</div>
+                  <div className="text-emerald-600 font-bold text-sm">{co2.toFixed(2)} kg</div>
+                  <div className="text-slate-400 text-xs">CO₂e</div>
                 </div>
               </div>
             )
