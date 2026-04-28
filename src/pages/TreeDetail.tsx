@@ -202,7 +202,7 @@ function PostCard({ log, treeName }: { log: TreeLog; treeName: string }) {
 
         {/* Stats row */}
         {!isPlanting && (log.height_cm || log.canopy_cm || log.health) && (
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: log.notes ? 8 : 0 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 0 }}>
             {log.health && (
               <span style={{ fontSize: 11, fontWeight: 700, color: HEALTH_COLOR[log.health], background: `${HEALTH_COLOR[log.health]}18`, borderRadius: 8, padding: '3px 9px' }}>
                 {HEALTH_EMOJI[log.health]} {log.health}
@@ -220,10 +220,6 @@ function PostCard({ log, treeName }: { log: TreeLog; treeName: string }) {
             )}
           </div>
         )}
-        {!isPlanting && log.notes && (
-          <p style={{ fontSize: 13, color: 'var(--color-secondary)', margin: 0, lineHeight: 1.5 }}>{log.notes}</p>
-        )}
-
         {/* Date on planting post */}
         {isPlanting && (
           <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: 0 }}>🗓 {dateStr}</p>
@@ -235,7 +231,9 @@ function PostCard({ log, treeName }: { log: TreeLog; treeName: string }) {
 
 // ── Log form ──────────────────────────────────────────────────────────────
 function LogForm({ treeId, userId, onSaved }: { treeId: string; userId: string; onSaved: (log: TreeLog) => void }) {
-  const [form, setForm] = useState({ height_cm: '', canopy_cm: '', health: 'good' as TreeLog['health'], notes: '', caption: '' })
+  const [form, setForm] = useState({ height_cm: '', canopy_cm: '', health: 'good' as TreeLog['health'], caption: '' })
+  const captionWords  = form.caption.trim().split(/\s+/).filter(Boolean).length
+  const captionOk     = captionWords >= 15 && captionWords <= 45
   const [closeFile,   setCloseFile]   = useState<File | null>(null)
   const [closePreview, setClosePreview] = useState<string | null>(null)
   const [bodyFile,    setBodyFile]    = useState<File | null>(null)
@@ -252,8 +250,9 @@ function LogForm({ treeId, userId, onSaved }: { treeId: string; userId: string; 
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!closeFile) { setError('Close-up photo is required'); return }
-    if (!bodyFile)  { setError('Full-body photo is required'); return }
+    if (!closeFile)  { setError('Close-up photo is required'); return }
+    if (!bodyFile)   { setError('Full-body photo is required'); return }
+    if (!captionOk)  { setError('Caption must be 15–45 words'); return }
     setSaving(true); setError(null)
     // Composite the two photos into one 1:1 image
     const compositeBlob = await buildCompositeBlob(closeFile, bodyFile)
@@ -264,7 +263,7 @@ function LogForm({ treeId, userId, onSaved }: { treeId: string; userId: string; 
       height_cm: form.height_cm ? parseFloat(form.height_cm) : null,
       canopy_cm: form.canopy_cm ? parseFloat(form.canopy_cm) : null,
       health: form.health,
-      notes: form.notes || null,
+      notes: null,
       caption: form.caption || null,
       media_urls: mediaUrls,
       xp_awarded: 30,
@@ -324,19 +323,32 @@ function LogForm({ treeId, userId, onSaved }: { treeId: string; userId: string; 
           </select>
         </div>
 
-        <div style={{ marginBottom: 14 }}>
-          <label className="label">Caption (optional)</label>
-          <textarea className="input" value={form.caption} onChange={e => setForm(f => ({ ...f, caption: e.target.value }))} placeholder="How's it looking today?" rows={2} style={{ resize: 'none' }} />
-        </div>
-
         <div style={{ marginBottom: 18 }}>
-          <label className="label">Observations</label>
-          <textarea className="input" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Any notes…" rows={2} style={{ resize: 'none' }} />
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
+            <label className="label">Caption <span style={{ color: '#ef4444' }}>*</span></label>
+            <span style={{
+              fontSize: 11, fontWeight: 600,
+              color: captionWords === 0 ? 'var(--color-tertiary)'
+                   : captionOk          ? 'var(--accent)'
+                   : captionWords > 45  ? '#ef4444'
+                   : 'var(--color-tertiary)',
+            }}>
+              {captionWords} / 15–45 words
+            </span>
+          </div>
+          <textarea
+            className="input"
+            value={form.caption}
+            onChange={e => setForm(f => ({ ...f, caption: e.target.value }))}
+            placeholder="How is it looking today? Describe the growth, the spot, and how you're feeling about it… (15–45 words)"
+            rows={3}
+            style={{ resize: 'none', borderColor: captionWords > 0 && !captionOk ? '#ef4444' : undefined }}
+          />
         </div>
 
         {error && <p style={{ fontSize: 12, color: '#ef4444', marginBottom: 12 }}>{error}</p>}
 
-        <button type="submit" className="btn-primary" disabled={saving}>
+        <button type="submit" className="btn-primary" disabled={saving || !captionOk}>
           {saving ? 'Saving…' : '📏 Save log · +30 XP'}
         </button>
       </form>

@@ -39,8 +39,8 @@ const icons = {
 }
 
 const navItems = [
-  { to: '/dashboard',   icon: icons.forest,  label: 'MyTree'  },
   { to: '/add-tree',    icon: icons.plant,   label: 'Plant'   },
+  { to: '/dashboard',   icon: icons.forest,  label: 'MyTree'  },
   { to: '/carbon',      icon: icons.carbon,  label: 'Carbon'  },
   { to: '/leaderboard', icon: icons.leagues, label: 'Leagues' },
   { to: '/profile',     icon: icons.profile, label: 'Profile' },
