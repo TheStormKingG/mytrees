@@ -204,7 +204,6 @@ export const WORLD_SPECIES: LocalSpecies[] = [
   // ── IRELAND / SCANDINAVIA ────────────────────────────────────────────
   { common_name: 'Sessile Oak',        scientific_name: 'Quercus petraea',           carbon_coeff: 2.8,  native_countries: ['Ireland','United Kingdom','France','Germany','Spain','Norway','Sweden'], family: 'Fagaceae' },
   { common_name: 'Norway Maple',       scientific_name: 'Acer platanoides',          carbon_coeff: 2.2,  native_countries: ['Norway','Sweden','Finland','Germany','Poland','Czech Republic','Austria'], family: 'Sapindaceae' },
-]
 
   // ── FRUIT TREES — TROPICAL AMERICAS (inc. GUYANA) ───────────────────
   { common_name: 'Soursop',            scientific_name: 'Annona muricata',           carbon_coeff: 2.2,  native_countries: ['Guyana','Suriname','Trinidad and Tobago','Venezuela','Colombia','Brazil','Panama','Nicaragua','Costa Rica','Jamaica','Dominican Republic','Haiti'], family: 'Annonaceae' },
@@ -322,6 +321,7 @@ export const WORLD_SPECIES: LocalSpecies[] = [
   { common_name: 'Cacao (Medicinal)', scientific_name: 'Theobroma cacao',           carbon_coeff: 2.8,  native_countries: ['Colombia','Ecuador','Peru','Bolivia','Venezuela','Guyana','Suriname','Brazil','Panama','Costa Rica','Nicaragua','Mexico'], family: 'Malvaceae' },
   { common_name: 'Fever Tree',        scientific_name: 'Vachellia xanthophloea',    carbon_coeff: 3.5,  native_countries: ['Kenya','Tanzania','Uganda','South Africa','Mozambique','Zimbabwe','Zambia'], family: 'Fabaceae' },
   { common_name: 'Dragon Blood Tree', scientific_name: 'Dracaena cinnabari',        carbon_coeff: 1.5,  native_countries: ['Yemen'],                                              family: 'Asparagaceae' },
+]
 
 // Calculate XP from carbon coefficient
 // Formula: base 30 + coeff × 14, rounded to nearest 5, capped at 200
