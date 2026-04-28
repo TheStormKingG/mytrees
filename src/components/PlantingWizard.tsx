@@ -310,13 +310,13 @@ export default function PlantingWizard({ stage, treeName, onComplete, onCancel }
       <style>{`
         .wiz-backdrop { position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;padding:0; }
         @media(min-width:500px){.wiz-backdrop{align-items:center;padding:24px;}}
-        .wiz-sheet { width:100%;max-width:480px;background:var(--surface-solid);border-radius:24px 24px 0 0;overflow:hidden;max-height:92svh;display:flex;flex-direction:column;animation:wizUp .32s cubic-bezier(.4,0,.2,1) forwards; }
-        @media(min-width:500px){.wiz-sheet{border-radius:24px;max-height:86vh;}}
+        .wiz-sheet { width:100%;max-width:480px;background:var(--surface-solid);border-radius:24px 24px 0 0;overflow:hidden;height:92svh;max-height:92svh;display:flex;flex-direction:column;animation:wizUp .32s cubic-bezier(.4,0,.2,1) forwards; }
+        @media(min-width:500px){.wiz-sheet{border-radius:24px;height:auto;max-height:86vh;}}
         @keyframes wizUp{from{transform:translateY(50px);opacity:0;}to{transform:translateY(0);opacity:1;}}
         .wiz-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);flex-shrink:0;}
         .wiz-progress-track{height:3px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:8px;}
         .wiz-progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .35s ease;}
-        .wiz-body{flex:1;overflow:hidden;position:relative;}
+        .wiz-body{flex:1;overflow:hidden;position:relative;min-height:320px;}
         .wiz-scroll{padding:18px 20px 8px;height:100%;overflow-y:auto;}
         .wiz-fwd{animation:wizSlideRight .26s cubic-bezier(.4,0,.2,1) forwards;}
         .wiz-bck{animation:wizSlideLeft  .26s cubic-bezier(.4,0,.2,1) forwards;}

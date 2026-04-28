@@ -16,14 +16,7 @@ const STAGE_EMOJI:  Record<string, string> = { seed: '🌰', seedling: '🌱', s
 const HEALTH_COLOR: Record<string, string> = { excellent: '#3ab87a', good: '#5a9e6f', fair: '#d97706', poor: '#ef4444' }
 const HEALTH_EMOJI: Record<string, string> = { excellent: '🌟', good: '✅', fair: '⚠️', poor: '🚨' }
 
-// ── Share helpers ──────────────────────────────────────────────────────────
-const POST_PLATFORMS = [
-  { id: 'tiktok',    label: 'TikTok',    color: '#010101', icon: '♪',  fallback: 'https://www.tiktok.com/upload' },
-  { id: 'facebook',  label: 'Facebook',  color: '#1877F2', icon: 'f',  fallback: 'https://www.facebook.com/' },
-  { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2', icon: 'in', fallback: 'https://www.linkedin.com/feed/' },
-  { id: 'instagram', label: 'Instagram', color: '#E4405F', icon: '◈',  fallback: 'https://www.instagram.com/' },
-]
-
+// ── Download helper ────────────────────────────────────────────────────────
 async function fetchMediaFile(url: string): Promise<File | null> {
   try {
     const resp = await fetch(url)
@@ -127,118 +120,8 @@ async function buildCompositeBlob(close: File, body: File): Promise<Blob> {
   return new Promise(res => canvas.toBlob(b => res(b!), 'image/jpeg', 0.92))
 }
 
-// ── Share sheet ───────────────────────────────────────────────────────────
-function ShareSheet({ treeName, caption, urls, onClose }: {
-  treeName: string
-  caption?: string | null
-  urls: string[]
-  onClose: () => void
-}) {
-  const [fetching, setFetching] = useState(false)
-  const shareText = caption
-    ? `${caption} — planted ${treeName} on MyTrees 🌱`
-    : `I'm growing "${treeName}" and tracking it on MyTrees 🌱`
-
-  const getFile = async (): Promise<File | null> => {
-    if (!urls.length) return null
-    setFetching(true)
-    const file = await fetchMediaFile(urls[0])
-    setFetching(false)
-    return file
-  }
-
-  const handlePost = async (fallback: string) => {
-    const file = await getFile()
-    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: 'MyTrees', text: shareText }) } catch { /**/ }
-    } else if (file) {
-      // Desktop fallback: download the file then open the platform
-      const a = document.createElement('a')
-      a.href = URL.createObjectURL(file)
-      a.download = file.name
-      a.click()
-      setTimeout(() => window.open(fallback, '_blank'), 800)
-    } else {
-      window.open(fallback, '_blank')
-    }
-    onClose()
-  }
-
-  const handleWhatsApp = async () => {
-    const file = await getFile()
-    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: 'MyTrees', text: shareText }) } catch { /**/ }
-    } else if (file) {
-      const a = document.createElement('a')
-      a.href = URL.createObjectURL(file)
-      a.download = file.name
-      a.click()
-      setTimeout(() => window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank'), 800)
-    } else {
-      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank')
-    }
-    onClose()
-  }
-
-  return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 800,
-      background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
-      display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-    }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{
-        width: '100%', maxWidth: 480,
-        background: 'var(--surface-solid)', borderRadius: '20px 20px 0 0',
-        padding: '20px 20px calc(20px + env(safe-area-inset-bottom,0px))',
-        animation: 'slideUp 0.25s cubic-bezier(0.4,0,0.2,1) forwards',
-      }}>
-        <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
-
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-fg)', margin: 0 }}>Share your tree</p>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--color-tertiary)', lineHeight: 1 }}>×</button>
-        </div>
-
-        {/* Create a post with */}
-        <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-tertiary)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10 }}>Create a post with</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
-          {POST_PLATFORMS.map(p => (
-            <button key={p.id} onClick={() => handlePost(p.fallback)} disabled={fetching} style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-              padding: '12px 6px', borderRadius: 14,
-              background: 'var(--bg)', boxShadow: 'var(--neu-shadow-sm)',
-              border: 'none', cursor: fetching ? 'wait' : 'pointer', fontFamily: 'inherit',
-              opacity: fetching ? 0.6 : 1,
-            }}>
-              <span style={{
-                width: 42, height: 42, borderRadius: 12,
-                background: p.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 18, color: '#fff', fontWeight: 900,
-              }}>{p.icon}</span>
-              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-secondary)' }}>{p.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* WhatsApp Status */}
-        <button onClick={handleWhatsApp} disabled={fetching} style={{
-          width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
-          background: '#25D366', color: '#fff',
-          fontSize: 14, fontWeight: 700, cursor: fetching ? 'wait' : 'pointer',
-          fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          opacity: fetching ? 0.6 : 1,
-        }}>
-          <span style={{ fontSize: 18 }}>💬</span>
-          {fetching ? 'Preparing file…' : 'Create a WhatsApp Status'}
-        </button>
-      </div>
-    </div>
-  )
-}
-
 // ── Post card ─────────────────────────────────────────────────────────────
-function PostCard({ log, treeName, onShare }: { log: TreeLog; treeName: string; onShare: (log: TreeLog) => void }) {
+function PostCard({ log, treeName }: { log: TreeLog; treeName: string }) {
   const isPlanting  = log.log_type === 'planting'
   const urls        = log.media_urls ?? []
   const dateStr     = new Date(log.logged_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -278,35 +161,22 @@ function PostCard({ log, treeName, onShare }: { log: TreeLog; treeName: string; 
             {isPlanting ? '🌱 Planting day' : `📏 Growth check · ${dateStr}`}
           </p>
         </div>
-        {/* Action buttons */}
-        <div style={{ display: 'flex', gap: 6 }}>
-          {urls.length > 0 && (
-            <button onClick={handleDownload} disabled={downloading} style={{
-              display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px',
-              borderRadius: 20, border: '1px solid var(--border)',
-              background: 'var(--bg)', cursor: downloading ? 'wait' : 'pointer', fontFamily: 'inherit',
-              opacity: downloading ? 0.6 : 1,
-            }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-secondary)' }}>
-                <path d="M12 3v13M5 16l7 7 7-7"/><path d="M3 21h18"/>
-              </svg>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-secondary)' }}>
-                {downloading ? '…' : 'Save'}
-              </span>
-            </button>
-          )}
-          <button onClick={() => onShare(log)} style={{
-            display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px',
+        {/* Download button */}
+        {urls.length > 0 && (
+          <button onClick={handleDownload} disabled={downloading} style={{
+            display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px',
             borderRadius: 20, border: '1px solid var(--border)',
-            background: 'var(--bg)', cursor: 'pointer', fontFamily: 'inherit',
+            background: 'var(--bg)', cursor: downloading ? 'wait' : 'pointer', fontFamily: 'inherit',
+            opacity: downloading ? 0.6 : 1,
           }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-secondary)' }}>
-              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-secondary)' }}>
+              <path d="M12 3v13M5 16l7 7 7-7"/><path d="M3 21h18"/>
             </svg>
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-secondary)' }}>Share</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-secondary)' }}>
+              {downloading ? '…' : 'Save'}
+            </span>
           </button>
-        </div>
+        )}
       </div>
 
       {/* Media */}
@@ -484,7 +354,6 @@ export default function TreeDetail() {
   const [showLog,  setShowLog]  = useState(false)
   const [showCard, setShowCard] = useState(false)
   const [userId,   setUserId]   = useState<string | null>(null)
-  const [shareLog, setShareLog] = useState<TreeLog | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -570,15 +439,11 @@ export default function TreeDetail() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, paddingBottom: 8 }}>
           {logs.map(log => (
-            <PostCard key={log.id} log={log} treeName={tree.name} onShare={l => setShareLog(l)} />
+            <PostCard key={log.id} log={log} treeName={tree.name} />
           ))}
         </div>
       )}
 
-      {/* Share sheet */}
-      {shareLog && (
-        <ShareSheet treeName={tree.name} caption={shareLog.caption} urls={shareLog.media_urls ?? []} onClose={() => setShareLog(null)} />
-      )}
     </div>
   )
 }
