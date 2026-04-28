@@ -14,10 +14,11 @@ function App() {
   return (
     <BrowserRouter basename="/mytrees">
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/add-tree" replace />} />
         <Route path="/auth" element={<Auth />} />
+        {/* AddTree is public — auth gate is inside the submit handler */}
+        <Route path="/add-tree"    element={<Layout><AddTree /></Layout>} />
         <Route path="/dashboard"   element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
-        <Route path="/add-tree"    element={<ProtectedRoute><Layout><AddTree /></Layout></ProtectedRoute>} />
         <Route path="/tree/:id"    element={<ProtectedRoute><Layout><TreeDetail /></Layout></ProtectedRoute>} />
         <Route path="/carbon"      element={<ProtectedRoute><Layout><CarbonLedger /></Layout></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><Layout><Leaderboard /></Layout></ProtectedRoute>} />
