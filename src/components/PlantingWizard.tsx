@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { randomTrack, renderTrack } from '../lib/soundtrack'
 
 declare const google: {
   accounts: { id: { initialize: (cfg: object) => void; renderButton: (el: HTMLElement, opts: object) => void } }
@@ -43,6 +44,15 @@ function waitFrame(): Promise<void> {
   return new Promise(res => requestAnimationFrame(() => res()))
 }
 
+function loadImgFromUrl(url: string): Promise<HTMLImageElement | null> {
+  return new Promise(res => {
+    const img = new Image()
+    img.onload = () => res(img)
+    img.onerror = () => res(null)
+    img.src = url
+  })
+}
+
 // ── Slideshow MP4 generator ───────────────────────────────────────────────────
 // files[0,1,3,4] = photos   files[2] = video
 async function generateSlideshowVideo(
@@ -51,28 +61,65 @@ async function generateSlideshowVideo(
 ): Promise<Blob | null> {
   const SIZE = 720
   const FPS  = 30
-  const PHOTO_MS  = 3750   // per photo (4 photos × 3750ms = 15s)
-  const MAX_VID_MS = 15000
+  const PHOTO_MS   = 3750   // per photo (4 × 3750ms = 15s)
+  const MAX_VID_MS = 15000  // first 15s of video = 30s total
 
   const canvas = document.createElement('canvas')
   canvas.width = canvas.height = SIZE
   const ctx = canvas.getContext('2d')!
 
-  // Pick best supported mime type
+  // ── Load watermark assets ─────────────────────────────────────────────────
+  const [logoImg, wordmarkImg] = await Promise.all([
+    loadImgFromUrl('/mytrees/logo-icon.png'),
+    loadImgFromUrl('/mytrees/logo-wordmark.png'),
+  ])
+  const drawWatermark = () => {
+    const PAD = 14, LOGO = 44
+    ctx.save()
+    ctx.globalAlpha = 0.82
+    if (logoImg) ctx.drawImage(logoImg, PAD, PAD, LOGO, LOGO)
+    if (wordmarkImg) {
+      const WH = 20
+      const WW = wordmarkImg.naturalWidth * (WH / wordmarkImg.naturalHeight)
+      ctx.drawImage(wordmarkImg, SIZE - PAD - WW, SIZE - PAD - WH, WW, WH)
+    }
+    ctx.restore()
+  }
+
+  // ── Music synthesis & audio mixing ───────────────────────────────────────
+  const track = randomTrack()
+  let audioSource: AudioBufferSourceNode | null = null
+  let audioCtx: AudioContext | null = null
+  let combinedStream: MediaStream
+
+  try {
+    const audioBuffer = await renderTrack(track, 32)
+    audioCtx      = new AudioContext()
+    const audioDest  = audioCtx.createMediaStreamDestination()
+    audioSource   = audioCtx.createBufferSource()
+    audioSource.buffer = audioBuffer
+    audioSource.connect(audioDest)
+    const videoTrack = canvas.captureStream(FPS).getVideoTracks()[0]
+    const audioTrack = audioDest.stream.getAudioTracks()[0]
+    combinedStream = new MediaStream([videoTrack, ...(audioTrack ? [audioTrack] : [])])
+  } catch {
+    combinedStream = canvas.captureStream(FPS)
+  }
+
+  // ── MediaRecorder setup ───────────────────────────────────────────────────
   const mimeType = ['video/mp4', 'video/webm;codecs=vp8', 'video/webm']
     .find(t => MediaRecorder.isTypeSupported(t)) ?? 'video/webm'
-
-  const stream = canvas.captureStream(FPS)
-  const rec    = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 3_500_000 })
+  const rec    = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 3_500_000 })
   const chunks: Blob[] = []
   rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data) }
   rec.start(200)
+  audioSource?.start()
 
   // Compute total duration for progress
-  const photoCount  = [0, 1, 3, 4].filter(i => files[i]).length
-  const videoFile   = files[2]
-  let   totalMs     = photoCount * PHOTO_MS
-  let   elapsedMs   = 0
+  const photoCount = [0, 1, 3, 4].filter(i => files[i]).length
+  const videoFile  = files[2]
+  let   totalMs    = photoCount * PHOTO_MS
+  let   elapsedMs  = 0
 
   // ── Phase 1: photos (before video) — indices 0, 1
   for (const idx of [0, 1]) {
@@ -86,6 +133,7 @@ async function generateSlideshowVideo(
       ctx.translate(SIZE / 2, SIZE / 2); ctx.scale(s, s); ctx.translate(-SIZE / 2, -SIZE / 2)
       drawCover(ctx, img, img.naturalWidth, img.naturalHeight, SIZE)
       ctx.restore()
+      drawWatermark()
       await waitFrame()
     }
     URL.revokeObjectURL(img.src)
@@ -107,6 +155,7 @@ async function generateSlideshowVideo(
     const vt0 = performance.now()
     while (performance.now() - vt0 < clipMs && !vid.ended) {
       drawCover(ctx, vid, vid.videoWidth, vid.videoHeight, SIZE)
+      drawWatermark()
       await waitFrame()
     }
     vid.pause()
@@ -126,6 +175,7 @@ async function generateSlideshowVideo(
       ctx.translate(SIZE / 2, SIZE / 2); ctx.scale(s, s); ctx.translate(-SIZE / 2, -SIZE / 2)
       drawCover(ctx, img, img.naturalWidth, img.naturalHeight, SIZE)
       ctx.restore()
+      drawWatermark()
       await waitFrame()
     }
     URL.revokeObjectURL(img.src)
@@ -134,7 +184,9 @@ async function generateSlideshowVideo(
   }
 
   rec.stop()
+  try { audioSource?.stop() } catch { /**/ }
   await new Promise<void>(res => { rec.onstop = () => res() })
+  audioCtx?.close()
   onProgress(100)
   return new Blob(chunks, { type: mimeType.split(';')[0] })
 }
@@ -320,12 +372,24 @@ export default function PlantingWizard({ stage, treeName, onComplete, onCancel }
             {/* ── Generation progress screen ── */}
             {isGenerating && (
               <div className="wiz-gen-screen">
-                <div style={{ fontSize:56, marginBottom:12, animation:'pulse 1.5s ease-in-out infinite' }}>🎬</div>
+                {/* Tree: grey base, colour reveals from bottom up with progress */}
+                <div style={{ position:'relative', width:180, height:180, marginBottom:16, flexShrink:0 }}>
+                  <img src="/mytrees/tree-loading.png" alt="" style={{
+                    position:'absolute', inset:0, width:'100%', height:'100%',
+                    objectFit:'contain', filter:'grayscale(1) brightness(0.45)',
+                  }} />
+                  <img src="/mytrees/tree-loading.png" alt="" style={{
+                    position:'absolute', inset:0, width:'100%', height:'100%',
+                    objectFit:'contain',
+                    clipPath:`inset(${100 - genProgress}% 0 0 0)`,
+                    transition:'clip-path 0.35s ease',
+                  }} />
+                </div>
                 <p style={{ fontSize:17, fontWeight:800, color:'var(--color-fg)', margin:'0 0 6px', letterSpacing:-0.3 }}>
                   Building your planting video
                 </p>
                 <p style={{ fontSize:13, color:'var(--color-tertiary)', lineHeight:1.5, margin:'0 0 4px' }}>
-                  Compiling your photos and video clip into one slideshow…
+                  Adding music &amp; compiling your memories…
                 </p>
                 <p style={{ fontSize:11, color:'var(--color-tertiary)', margin:0 }}>Keep this screen open</p>
                 <div className="wiz-gen-bar-track">

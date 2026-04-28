@@ -36,6 +36,15 @@ async function fetchMediaFile(url: string): Promise<File | null> {
   } catch { return null }
 }
 
+function loadImgFromUrl(url: string): Promise<HTMLImageElement | null> {
+  return new Promise(res => {
+    const img = new Image()
+    img.onload = () => res(img)
+    img.onerror = () => res(null)
+    img.src = url
+  })
+}
+
 async function uploadLogFile(file: File | Blob, userId: string, treeId: string, suffix: string): Promise<string | null> {
   const isBlob  = !(file instanceof File)
   const ext     = isBlob ? (file.type.includes('jpeg') ? 'jpg' : 'webm') : (file.name.split('.').pop() ?? 'jpg')
@@ -98,9 +107,23 @@ async function buildCompositeBlob(close: File, body: File): Promise<Blob> {
   const ctx = canvas.getContext('2d')!
   ctx.fillStyle = '#1a1a1a'
   ctx.fillRect(0, 0, SIZE, SIZE)
-  const [img1, img2] = await Promise.all([loadImgEl(close), loadImgEl(body)])
-  drawHalf(ctx, img1, 0,        0, HALF - GAP / 2, SIZE)
+  const [img1, img2, logoImg, wordmarkImg] = await Promise.all([
+    loadImgEl(close), loadImgEl(body),
+    loadImgFromUrl('/mytrees/logo-icon.png'),
+    loadImgFromUrl('/mytrees/logo-wordmark.png'),
+  ])
+  drawHalf(ctx, img1, 0,              0, HALF - GAP / 2, SIZE)
   drawHalf(ctx, img2, HALF + GAP / 2, 0, HALF - GAP / 2, SIZE)
+  // Watermark — logo top-left, wordmark bottom-right
+  const PAD = 22, LOGO = 54
+  ctx.globalAlpha = 0.82
+  if (logoImg) ctx.drawImage(logoImg, PAD, PAD, LOGO, LOGO)
+  if (wordmarkImg) {
+    const WH = 26
+    const WW = wordmarkImg.naturalWidth * (WH / wordmarkImg.naturalHeight)
+    ctx.drawImage(wordmarkImg, SIZE - PAD - WW, SIZE - PAD - WH, WW, WH)
+  }
+  ctx.globalAlpha = 1
   return new Promise(res => canvas.toBlob(b => res(b!), 'image/jpeg', 0.92))
 }
 
@@ -216,9 +239,23 @@ function ShareSheet({ treeName, caption, urls, onClose }: {
 
 // ── Post card ─────────────────────────────────────────────────────────────
 function PostCard({ log, treeName, onShare }: { log: TreeLog; treeName: string; onShare: (log: TreeLog) => void }) {
-  const isPlanting = log.log_type === 'planting'
-  const urls = log.media_urls ?? []
-  const dateStr = new Date(log.logged_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const isPlanting  = log.log_type === 'planting'
+  const urls        = log.media_urls ?? []
+  const dateStr     = new Date(log.logged_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const [downloading, setDownloading] = useState(false)
+
+  const handleDownload = async () => {
+    if (!urls.length) return
+    setDownloading(true)
+    const file = await fetchMediaFile(urls[0])
+    setDownloading(false)
+    if (!file) return
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(file)
+    a.download = file.name
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 30000)
+  }
 
   return (
     <div style={{ background: 'var(--surface-solid)', borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--neu-shadow)', border: '1px solid rgba(212,219,229,0.4)' }}>
@@ -241,18 +278,35 @@ function PostCard({ log, treeName, onShare }: { log: TreeLog; treeName: string; 
             {isPlanting ? '🌱 Planting day' : `📏 Growth check · ${dateStr}`}
           </p>
         </div>
-        {/* Share button */}
-        <button onClick={() => onShare(log)} style={{
-          display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px',
-          borderRadius: 20, border: '1px solid var(--border)',
-          background: 'var(--bg)', cursor: 'pointer', fontFamily: 'inherit',
-        }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-secondary)' }}>
-            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-          </svg>
-          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-secondary)' }}>Share</span>
-        </button>
+        {/* Action buttons */}
+        <div style={{ display: 'flex', gap: 6 }}>
+          {urls.length > 0 && (
+            <button onClick={handleDownload} disabled={downloading} style={{
+              display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px',
+              borderRadius: 20, border: '1px solid var(--border)',
+              background: 'var(--bg)', cursor: downloading ? 'wait' : 'pointer', fontFamily: 'inherit',
+              opacity: downloading ? 0.6 : 1,
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-secondary)' }}>
+                <path d="M12 3v13M5 16l7 7 7-7"/><path d="M3 21h18"/>
+              </svg>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-secondary)' }}>
+                {downloading ? '…' : 'Save'}
+              </span>
+            </button>
+          )}
+          <button onClick={() => onShare(log)} style={{
+            display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px',
+            borderRadius: 20, border: '1px solid var(--border)',
+            background: 'var(--bg)', cursor: 'pointer', fontFamily: 'inherit',
+          }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-secondary)' }}>
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-secondary)' }}>Share</span>
+          </button>
+        </div>
       </div>
 
       {/* Media */}
