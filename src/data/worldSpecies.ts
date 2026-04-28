@@ -321,6 +321,140 @@ export const WORLD_SPECIES: LocalSpecies[] = [
   { common_name: 'Cacao (Medicinal)', scientific_name: 'Theobroma cacao',           carbon_coeff: 2.8,  native_countries: ['Colombia','Ecuador','Peru','Bolivia','Venezuela','Guyana','Suriname','Brazil','Panama','Costa Rica','Nicaragua','Mexico'], family: 'Malvaceae' },
   { common_name: 'Fever Tree',        scientific_name: 'Vachellia xanthophloea',    carbon_coeff: 3.5,  native_countries: ['Kenya','Tanzania','Uganda','South Africa','Mozambique','Zimbabwe','Zambia'], family: 'Fabaceae' },
   { common_name: 'Dragon Blood Tree', scientific_name: 'Dracaena cinnabari',        carbon_coeff: 1.5,  native_countries: ['Yemen'],                                              family: 'Asparagaceae' },
+
+  // ── CRITICAL OMISSIONS: SOUTH AMERICA / GUYANA ───────────────────────
+  // Pineapple — native to southern Brazil/Paraguay; spread by Amerindians across SA incl. Guyana pre-contact
+  { common_name: 'Pineapple',          scientific_name: 'Ananas comosus',            carbon_coeff: 0.4,  native_countries: ['Guyana','Suriname','Venezuela','Colombia','Brazil','Bolivia','Paraguay','Peru','Ecuador','Trinidad and Tobago'], family: 'Bromeliaceae' },
+  { common_name: 'Ice Cream Bean',     scientific_name: 'Inga edulis',               carbon_coeff: 3.5,  native_countries: ['Guyana','Suriname','Venezuela','Colombia','Brazil','Peru','Ecuador','Bolivia','Panama','Costa Rica','Nicaragua'], family: 'Fabaceae' },
+  { common_name: 'Tonka Bean',         scientific_name: 'Dipteryx odorata',          carbon_coeff: 6.0,  native_countries: ['Guyana','Suriname','Venezuela','Brazil','Colombia','Trinidad and Tobago'], family: 'Fabaceae' },
+  { common_name: 'Annatto / Achiote',  scientific_name: 'Bixa orellana',             carbon_coeff: 1.8,  native_countries: ['Guyana','Suriname','Venezuela','Colombia','Brazil','Trinidad and Tobago','Panama','Mexico','Belize','Costa Rica','Nicaragua','Peru','Ecuador','Bolivia'], family: 'Bixaceae' },
+  { common_name: 'Acerola / Barbados Cherry', scientific_name: 'Malpighia emarginata', carbon_coeff: 1.2, native_countries: ['Guyana','Suriname','Trinidad and Tobago','Venezuela','Colombia','Brazil','Panama','Mexico','Belize','Jamaica','Dominican Republic','Haiti'], family: 'Malpighiaceae' },
+  { common_name: 'Camu Camu',          scientific_name: 'Myrciaria dubia',           carbon_coeff: 1.5,  native_countries: ['Guyana','Suriname','Venezuela','Colombia','Brazil','Peru','Ecuador','Bolivia'], family: 'Myrtaceae' },
+  { common_name: 'Bacuri',             scientific_name: 'Platonia insignis',         carbon_coeff: 5.5,  native_countries: ['Guyana','Suriname','Brazil','Venezuela'],               family: 'Clusiaceae' },
+  { common_name: 'Murici',             scientific_name: 'Byrsonima crassifolia',     carbon_coeff: 2.5,  native_countries: ['Guyana','Suriname','Venezuela','Colombia','Brazil','Panama','Mexico','Belize','Trinidad and Tobago'], family: 'Malpighiaceae' },
+  { common_name: 'Mammee Apple',       scientific_name: 'Mammea americana',          carbon_coeff: 4.0,  native_countries: ['Guyana','Suriname','Trinidad and Tobago','Venezuela','Colombia','Panama','Jamaica','Dominican Republic','Haiti','Belize'], family: 'Calophyllaceae' },
+  { common_name: 'Surinam Cherry',     scientific_name: 'Eugenia uniflora',          carbon_coeff: 1.5,  native_countries: ['Guyana','Suriname','Brazil','Venezuela','Colombia','Trinidad and Tobago','Paraguay','Uruguay','Argentina'], family: 'Myrtaceae' },
+  { common_name: 'Custard Apple',      scientific_name: 'Annona reticulata',         carbon_coeff: 1.8,  native_countries: ['Guyana','Suriname','Trinidad and Tobago','Venezuela','Colombia','Brazil','Panama','Mexico','Belize','Jamaica','Dominican Republic','Haiti'], family: 'Annonaceae' },
+  { common_name: 'Pitanga',            scientific_name: 'Eugenia pitanga',           carbon_coeff: 1.2,  native_countries: ['Brazil','Guyana','Suriname','Venezuela','Colombia','Paraguay','Argentina','Uruguay'], family: 'Myrtaceae' },
+  { common_name: 'Wild Mango (Imbe)',  scientific_name: 'Garcinia humilis',          carbon_coeff: 3.5,  native_countries: ['Guyana','Suriname','Brazil','Venezuela','Trinidad and Tobago'], family: 'Clusiaceae' },
+  { common_name: 'Tucuma Palm',        scientific_name: 'Astrocaryum aculeatum',     carbon_coeff: 2.8,  native_countries: ['Guyana','Suriname','Brazil','Venezuela','Colombia'],   family: 'Arecaceae' },
+  { common_name: 'Buriti / Aguaje',    scientific_name: 'Mauritia flexuosa',         carbon_coeff: 3.2,  native_countries: ['Guyana','Suriname','Venezuela','Brazil','Colombia','Peru','Bolivia','Ecuador','Trinidad and Tobago'], family: 'Arecaceae' },
+  { common_name: 'Peach Palm / Pejibaye', scientific_name: 'Bactris gasipaes',       carbon_coeff: 2.5,  native_countries: ['Guyana','Suriname','Venezuela','Colombia','Brazil','Panama','Costa Rica','Nicaragua','Belize','Ecuador','Peru','Bolivia'], family: 'Arecaceae' },
+  { common_name: 'Passion Fruit Tree', scientific_name: 'Passiflora edulis',         carbon_coeff: 0.5,  native_countries: ['Brazil','Guyana','Suriname','Venezuela','Colombia','Paraguay','Argentina','Bolivia','Peru','Ecuador'], family: 'Passifloraceae' },
+  { common_name: 'Araçá / Cattley Guava', scientific_name: 'Psidium cattleianum',   carbon_coeff: 1.2,  native_countries: ['Brazil','Guyana','Suriname','Uruguay','Argentina','Paraguay'], family: 'Myrtaceae' },
+  { common_name: 'Velvet Tamarind',    scientific_name: 'Dialium guianense',         carbon_coeff: 5.5,  native_countries: ['Guyana','Suriname','Venezuela','Colombia','Brazil','Panama','Mexico','Belize'], family: 'Fabaceae' },
+  { common_name: 'Cocoplum',           scientific_name: 'Chrysobalanus icaco',       carbon_coeff: 1.5,  native_countries: ['Guyana','Suriname','Trinidad and Tobago','Venezuela','Colombia','Brazil','Panama','Mexico','Belize','Jamaica','Dominican Republic','Haiti'], family: 'Chrysobalanaceae' },
+
+  // ── AFRICA — INDIGENOUS FRUIT & FOOD TREES ──────────────────────────
+  { common_name: 'Kola Nut',           scientific_name: 'Cola nitida',               carbon_coeff: 3.8,  native_countries: ['Nigeria','Ghana','Ivory Coast','Sierra Leone','Liberia','Guinea','Cameroon'], family: 'Malvaceae' },
+  { common_name: 'African Pear / Ube', scientific_name: 'Dacryodes edulis',          carbon_coeff: 3.5,  native_countries: ['Nigeria','Cameroon','Ghana','Gabon','DR Congo','Congo','Equatorial Guinea','Angola'], family: 'Burseraceae' },
+  { common_name: 'Bitter Kola',        scientific_name: 'Garcinia kola',             carbon_coeff: 3.2,  native_countries: ['Nigeria','Cameroon','Ghana','Ivory Coast','Liberia','Sierra Leone'], family: 'Clusiaceae' },
+  { common_name: 'African Breadfruit', scientific_name: 'Treculia africana',         carbon_coeff: 5.0,  native_countries: ['Nigeria','Ghana','Cameroon','Ivory Coast','DR Congo','Uganda','Kenya','Tanzania','Sierra Leone','Liberia'], family: 'Moraceae' },
+  { common_name: 'Wild / Bush Mango',  scientific_name: 'Irvingia gabonensis',       carbon_coeff: 4.5,  native_countries: ['Nigeria','Cameroon','Ghana','Gabon','DR Congo','Congo','Equatorial Guinea','Ivory Coast'], family: 'Irvingiaceae' },
+  { common_name: 'Tamarind (Africa)',  scientific_name: 'Tamarindus indica',         carbon_coeff: 3.5,  native_countries: ['Sudan','Ethiopia','Kenya','Tanzania','Senegal','Mali','Niger','Burkina Faso','Nigeria','Ghana','Cameroon','Mozambique','Zimbabwe','South Africa'], family: 'Fabaceae' },
+  { common_name: 'Soursop (Africa)',   scientific_name: 'Annona muricata',           carbon_coeff: 2.2,  native_countries: ['Nigeria','Ghana','Cameroon','Kenya','Tanzania','Uganda','Rwanda','Ethiopia','Senegal'], family: 'Annonaceae' },
+  { common_name: 'Monkey Bread / Baobab Fruit', scientific_name: 'Adansonia gregorii', carbon_coeff: 7.5, native_countries: ['Australia'],                                          family: 'Malvaceae' },
+  { common_name: 'Monkey Orange',      scientific_name: 'Strychnos spinosa',         carbon_coeff: 2.5,  native_countries: ['South Africa','Zimbabwe','Mozambique','Tanzania','Kenya','Uganda','Zambia','Malawi','Botswana'], family: 'Loganiaceae' },
+  { common_name: 'African Velvet Tamarind', scientific_name: 'Dialium guineense',    carbon_coeff: 4.5,  native_countries: ['Nigeria','Ghana','Senegal','Gambia','Guinea','Sierra Leone','Liberia','Ivory Coast','Cameroon'], family: 'Fabaceae' },
+  { common_name: 'Agbalumo / African Star Apple', scientific_name: 'Chrysophyllum albidum', carbon_coeff: 4.0, native_countries: ['Nigeria','Ghana','Cameroon','Ivory Coast','Senegal','Guinea','Sierra Leone','Liberia','Benin','Togo'], family: 'Sapotaceae' },
+  { common_name: 'Neem (W. Africa)',   scientific_name: 'Azadirachta indica',        carbon_coeff: 3.5,  native_countries: ['Mali','Burkina Faso','Niger','Senegal','Gambia','Guinea','Guinea-Bissau','Chad','Sudan'], family: 'Meliaceae' },
+  { common_name: 'Ackee',              scientific_name: 'Blighia sapida',            carbon_coeff: 3.0,  native_countries: ['Ghana','Nigeria','Ivory Coast','Liberia','Sierra Leone','Guinea','Cameroon','Gabon'], family: 'Sapindaceae' },
+  { common_name: 'Lemon / Lemon Tree',  scientific_name: 'Citrus limon',             carbon_coeff: 1.2,  native_countries: ['India','Pakistan','Myanmar','China','Thailand','Vietnam','Malaysia','Indonesia'], family: 'Rutaceae' },
+
+  // ── SOUTH-EAST ASIA — MISSING FRUITS & CROPS ────────────────────────
+  { common_name: 'Banana / Plantain',  scientific_name: 'Musa acuminata',            carbon_coeff: 0.8,  native_countries: ['Malaysia','Indonesia','Philippines','Thailand','Myanmar','Vietnam','Laos','Cambodia','Papua New Guinea','India','Sri Lanka','Bangladesh'], family: 'Musaceae' },
+  { common_name: 'Starfruit / Carambola', scientific_name: 'Averrhoa carambola',     carbon_coeff: 1.5,  native_countries: ['Malaysia','Indonesia','Philippines','Thailand','Vietnam','Laos','Cambodia','Myanmar','China','India','Sri Lanka'], family: 'Oxalidaceae' },
+  { common_name: 'Jackfruit (SE Asia)',scientific_name: 'Artocarpus integer',        carbon_coeff: 3.5,  native_countries: ['Malaysia','Indonesia','Philippines','Thailand','Vietnam','Laos','Cambodia','Myanmar','Papua New Guinea'], family: 'Moraceae' },
+  { common_name: 'Langsat / Duku',     scientific_name: 'Lansium domesticum',        carbon_coeff: 2.5,  native_countries: ['Malaysia','Indonesia','Philippines','Thailand','Myanmar','Vietnam'], family: 'Meliaceae' },
+  { common_name: 'Malay Apple',        scientific_name: 'Syzygium malaccense',       carbon_coeff: 2.8,  native_countries: ['Malaysia','Indonesia','Philippines','Thailand','Vietnam','Papua New Guinea','Guyana','Suriname','Trinidad and Tobago','Jamaica'], family: 'Myrtaceae' },
+  { common_name: 'Java Apple / Wax Jambu', scientific_name: 'Syzygium samarangense', carbon_coeff: 2.2,  native_countries: ['Malaysia','Indonesia','Philippines','Thailand','Vietnam','Laos','Cambodia','Myanmar'], family: 'Myrtaceae' },
+  { common_name: 'Noni',               scientific_name: 'Morinda citrifolia',        carbon_coeff: 1.5,  native_countries: ['Philippines','Indonesia','Malaysia','Thailand','Vietnam','Papua New Guinea','Fiji','Samoa','Tonga','Kiribati'], family: 'Rubiaceae' },
+  { common_name: 'Dragon Fruit',       scientific_name: 'Selenicereus undatus',      carbon_coeff: 0.5,  native_countries: ['Mexico','Guatemala','Belize','Honduras','Nicaragua','Costa Rica','Colombia','Venezuela','Ecuador'], family: 'Cactaceae' },
+  { common_name: 'Tamarillo / Tree Tomato', scientific_name: 'Solanum betaceum',     carbon_coeff: 0.8,  native_countries: ['Ecuador','Colombia','Peru','Bolivia','Venezuela','Guyana','Suriname'], family: 'Solanaceae' },
+
+  // ── INDIA / SOUTH ASIA — ADDITIONAL FRUITS ───────────────────────────
+  { common_name: 'Wood Apple',         scientific_name: 'Limonia acidissima',        carbon_coeff: 2.0,  native_countries: ['India','Sri Lanka','Bangladesh','Myanmar','Thailand','Malaysia'], family: 'Rutaceae' },
+  { common_name: 'Bael / Bengal Quince', scientific_name: 'Aegle marmelos',          carbon_coeff: 2.5,  native_countries: ['India','Sri Lanka','Bangladesh','Nepal','Myanmar','Thailand'], family: 'Rutaceae' },
+  { common_name: 'Indian Gooseberry / Amla', scientific_name: 'Emblica officinalis', carbon_coeff: 1.8,  native_countries: ['India','Sri Lanka','Bangladesh','Nepal','Myanmar','China','Thailand'], family: 'Phyllanthaceae' },
+  { common_name: 'Kokum',              scientific_name: 'Garcinia indica',           carbon_coeff: 2.2,  native_countries: ['India','Sri Lanka'],                                  family: 'Clusiaceae' },
+  { common_name: 'Karanda',            scientific_name: 'Carissa carandas',          carbon_coeff: 0.8,  native_countries: ['India','Sri Lanka','Pakistan','Bangladesh','Nepal','Myanmar','Thailand'], family: 'Apocynaceae' },
+  { common_name: 'Elephant Apple',     scientific_name: 'Dillenia indica',           carbon_coeff: 3.5,  native_countries: ['India','Sri Lanka','Bangladesh','Myanmar','Thailand','Malaysia','Indonesia','Vietnam','Laos','China'], family: 'Dilleniaceae' },
+
+  // ── AUSTRALIA — NATIVE FRUITS & PLANTS ───────────────────────────────
+  { common_name: 'Macadamia Nut',      scientific_name: 'Macadamia integrifolia',    carbon_coeff: 3.2,  native_countries: ['Australia'],                                          family: 'Proteaceae' },
+  { common_name: 'Finger Lime',        scientific_name: 'Citrus australasica',       carbon_coeff: 0.8,  native_countries: ['Australia'],                                          family: 'Rutaceae' },
+  { common_name: 'Quandong',           scientific_name: 'Santalum acuminatum',       carbon_coeff: 1.5,  native_countries: ['Australia'],                                          family: 'Santalaceae' },
+  { common_name: 'Lemon Myrtle',       scientific_name: 'Backhousia citriodora',     carbon_coeff: 1.8,  native_countries: ['Australia'],                                          family: 'Myrtaceae' },
+  { common_name: 'Davidson\'s Plum',   scientific_name: 'Davidsonia jerseyana',      carbon_coeff: 2.0,  native_countries: ['Australia'],                                          family: 'Cunoniaceae' },
+  { common_name: 'Illawarra Plum',     scientific_name: 'Podocarpus elatus',         carbon_coeff: 3.5,  native_countries: ['Australia'],                                          family: 'Podocarpaceae' },
+  { common_name: 'Bunya Pine',         scientific_name: 'Araucaria bidwillii',       carbon_coeff: 5.0,  native_countries: ['Australia'],                                          family: 'Araucariaceae' },
+  { common_name: 'Kakadu Plum',        scientific_name: 'Terminalia ferdinandiana',  carbon_coeff: 2.0,  native_countries: ['Australia'],                                          family: 'Combretaceae' },
+
+  // ── USA / NORTH AMERICA — MISSING FRUIT & NATIVE TREES ───────────────
+  { common_name: 'Pecan',              scientific_name: 'Carya illinoinensis',       carbon_coeff: 3.8,  native_countries: ['United States','Mexico'],                             family: 'Juglandaceae' },
+  { common_name: 'American Persimmon', scientific_name: 'Diospyros virginiana',      carbon_coeff: 2.0,  native_countries: ['United States'],                                      family: 'Ebenaceae' },
+  { common_name: 'Pawpaw',             scientific_name: 'Asimina triloba',           carbon_coeff: 1.8,  native_countries: ['United States'],                                      family: 'Annonaceae' },
+  { common_name: 'Wild Plum',          scientific_name: 'Prunus americana',          carbon_coeff: 1.2,  native_countries: ['United States','Canada'],                             family: 'Rosaceae' },
+  { common_name: 'Serviceberry',       scientific_name: 'Amelanchier arborea',       carbon_coeff: 1.2,  native_countries: ['United States','Canada'],                             family: 'Rosaceae' },
+  { common_name: 'Chokecherry',        scientific_name: 'Prunus virginiana',         carbon_coeff: 1.0,  native_countries: ['United States','Canada'],                             family: 'Rosaceae' },
+  { common_name: 'American Hazelnut',  scientific_name: 'Corylus americana',         carbon_coeff: 0.8,  native_countries: ['United States','Canada'],                             family: 'Betulaceae' },
+
+  // ── NEW ZEALAND — ADDITIONAL ──────────────────────────────────────────
+  { common_name: 'Kowhai',             scientific_name: 'Sophora microphylla',       carbon_coeff: 1.8,  native_countries: ['New Zealand'],                                        family: 'Fabaceae' },
+  { common_name: 'Manuka',             scientific_name: 'Leptospermum scoparium',    carbon_coeff: 1.2,  native_countries: ['New Zealand','Australia'],                            family: 'Myrtaceae' },
+  { common_name: 'Cabbage Tree',       scientific_name: 'Cordyline australis',       carbon_coeff: 1.5,  native_countries: ['New Zealand'],                                        family: 'Asparagaceae' },
+
+  // ── PACIFIC ISLANDS ───────────────────────────────────────────────────
+  { common_name: 'Breadfruit (Pacific)',scientific_name: 'Artocarpus altilis',       carbon_coeff: 4.5,  native_countries: ['Papua New Guinea','Fiji','Samoa','Tonga','Vanuatu','Solomon Islands','Kiribati','Micronesia','Tuvalu','Palau','Marshall Islands','Nauru'], family: 'Moraceae' },
+  { common_name: 'Pandanus / Screw Pine', scientific_name: 'Pandanus tectorius',    carbon_coeff: 2.0,  native_countries: ['Fiji','Samoa','Tonga','Vanuatu','Solomon Islands','Kiribati','Micronesia','Tuvalu','Palau','Marshall Islands','Papua New Guinea','Philippines','Indonesia','Malaysia','Thailand'], family: 'Pandanaceae' },
+
+  // ── EUROPE — ADDITIONAL FRUIT & FLOWERING TREES ──────────────────────
+  { common_name: 'Medlar',             scientific_name: 'Mespilus germanica',        carbon_coeff: 1.0,  native_countries: ['Turkey','Iran','Greece','Bulgaria','Romania','France','Germany','Spain'], family: 'Rosaceae' },
+  { common_name: 'Quince',             scientific_name: 'Cydonia oblonga',           carbon_coeff: 1.2,  native_countries: ['Iran','Turkey','Greece','Bulgaria','Romania','Spain','Portugal'], family: 'Rosaceae' },
+  { common_name: 'Cornelian Cherry',   scientific_name: 'Cornus mas',                carbon_coeff: 1.0,  native_countries: ['Turkey','Greece','Bulgaria','Romania','Germany','France','Spain','Italy','Poland'], family: 'Cornaceae' },
+  { common_name: 'Wild Service Tree',  scientific_name: 'Sorbus torminalis',         carbon_coeff: 1.5,  native_countries: ['United Kingdom','France','Germany','Spain','Italy','Czech Republic','Romania'], family: 'Rosaceae' },
+  { common_name: 'Spindle Tree',       scientific_name: 'Euonymus europaeus',        carbon_coeff: 0.8,  native_countries: ['United Kingdom','Ireland','France','Germany','Spain','Italy','Poland'], family: 'Celastraceae' },
+  { common_name: 'Strawberry Tree',    scientific_name: 'Arbutus unedo',             carbon_coeff: 1.5,  native_countries: ['Ireland','United Kingdom','France','Spain','Portugal','Italy','Greece','Turkey','Morocco'], family: 'Ericaceae' },
+  { common_name: 'Mastic Tree',        scientific_name: 'Pistacia lentiscus',        carbon_coeff: 1.2,  native_countries: ['Greece','Turkey','Spain','Portugal','Italy','Morocco','Algeria','Tunisia','Libya'], family: 'Anacardiaceae' },
+
+  // ── CHINA / EAST ASIA — ADDITIONAL ───────────────────────────────────
+  { common_name: 'Jujube / Chinese Date', scientific_name: 'Ziziphus jujuba',        carbon_coeff: 1.5,  native_countries: ['China','Japan','South Korea','Taiwan','Vietnam','India','Pakistan','Iran','Turkey'], family: 'Rhamnaceae' },
+  { common_name: 'Asian Pear',         scientific_name: 'Pyrus pyrifolia',           carbon_coeff: 1.8,  native_countries: ['China','Japan','South Korea','Taiwan','Vietnam'],     family: 'Rosaceae' },
+  { common_name: 'Persimmon',          scientific_name: 'Diospyros kaki',            carbon_coeff: 1.8,  native_countries: ['China','Japan','South Korea','Taiwan','Vietnam'],     family: 'Ebenaceae' },
+  { common_name: 'Yuzu',               scientific_name: 'Citrus junos',              carbon_coeff: 0.8,  native_countries: ['China','Japan','South Korea'],                        family: 'Rutaceae' },
+  { common_name: 'Buddha\'s Hand Citron', scientific_name: 'Citrus medica',          carbon_coeff: 0.8,  native_countries: ['China','India','Bangladesh','Myanmar'],               family: 'Rutaceae' },
+  { common_name: 'Camphor Tree',       scientific_name: 'Cinnamomum camphora',       carbon_coeff: 4.5,  native_countries: ['China','Japan','South Korea','Taiwan','Vietnam'],     family: 'Lauraceae' },
+
+  // ── CARIBBEAN — ADDITIONAL MISSING SPECIES ────────────────────────────
+  { common_name: 'Ackee (Jamaica)',     scientific_name: 'Blighia sapida',           carbon_coeff: 3.0,  native_countries: ['Jamaica','Trinidad and Tobago','Guyana','Suriname'],  family: 'Sapindaceae' },
+  { common_name: 'June Plum / Ambarella', scientific_name: 'Spondias dulcis',        carbon_coeff: 3.5,  native_countries: ['Trinidad and Tobago','Jamaica','Guyana','Suriname','Venezuela','Colombia','Panama','Belize'], family: 'Anacardiaceae' },
+  { common_name: 'Tamarind (Caribbean)', scientific_name: 'Tamarindus indica',       carbon_coeff: 3.5,  native_countries: ['Trinidad and Tobago','Jamaica','Guyana','Dominican Republic','Haiti','Belize','Panama'], family: 'Fabaceae' },
+  { common_name: 'Poui (Yellow)',       scientific_name: 'Handroanthus chrysanthus', carbon_coeff: 3.8,  native_countries: ['Trinidad and Tobago','Guyana','Suriname','Venezuela','Colombia','Panama','Brazil'], family: 'Bignoniaceae' },
+
+  // ── CENTRAL AMERICA / MEXICO — ADDITIONAL ────────────────────────────
+  { common_name: 'Mamey Colorado',     scientific_name: 'Pouteria campechiana',      carbon_coeff: 3.0,  native_countries: ['Mexico','Guatemala','Belize','Honduras','Nicaragua','Costa Rica','Panama','Colombia','Venezuela'], family: 'Sapotaceae' },
+  { common_name: 'Nance / Golden Berry', scientific_name: 'Byrsonima crassifolia',   carbon_coeff: 2.5,  native_countries: ['Mexico','Guatemala','Belize','Honduras','Nicaragua','Costa Rica','Panama','Colombia','Venezuela','Guyana','Suriname'], family: 'Malpighiaceae' },
+  { common_name: 'Chico Zapote',       scientific_name: 'Manilkara chicle',          carbon_coeff: 4.0,  native_countries: ['Mexico','Guatemala','Belize'],                        family: 'Sapotaceae' },
+  { common_name: 'Cacao Blanco',       scientific_name: 'Theobroma bicolor',         carbon_coeff: 2.5,  native_countries: ['Mexico','Guatemala','Belize','Honduras','Nicaragua','Costa Rica','Panama','Colombia','Venezuela','Guyana','Brazil','Ecuador','Peru'], family: 'Malvaceae' },
+
+  // ── EAST AFRICA / HORN OF AFRICA — ADDITIONAL ────────────────────────
+  { common_name: 'Enset / Ethiopian Banana', scientific_name: 'Ensete ventricosum',  carbon_coeff: 1.5,  native_countries: ['Ethiopia','Kenya','Uganda','Tanzania','Rwanda'],     family: 'Musaceae' },
+  { common_name: 'Gesho / Hop Plant',  scientific_name: 'Rhamnus prinoides',         carbon_coeff: 1.0,  native_countries: ['Ethiopia','Kenya','Uganda','Tanzania','Rwanda','South Africa','Zimbabwe'], family: 'Rhamnaceae' },
+  { common_name: 'Anchote',            scientific_name: 'Coccinia abyssinica',       carbon_coeff: 0.5,  native_countries: ['Ethiopia','Kenya','Uganda'],                          family: 'Cucurbitaceae' },
+  { common_name: 'Wanza / Cordia',     scientific_name: 'Cordia africana',           carbon_coeff: 3.5,  native_countries: ['Ethiopia','Kenya','Uganda','Tanzania','Sudan','Eritrea'], family: 'Boraginaceae' },
+
+  // ── SOUTH ASIA — ADDITIONAL FLOWERING TREES ──────────────────────────
+  { common_name: 'Kadamba',            scientific_name: 'Neolamarckia cadamba',      carbon_coeff: 5.0,  native_countries: ['India','Sri Lanka','Bangladesh','Nepal','Myanmar','Thailand','Malaysia','Indonesia','Vietnam','China'], family: 'Rubiaceae' },
+  { common_name: 'Mahua / Indian Butter Tree', scientific_name: 'Madhuca longifolia', carbon_coeff: 4.0, native_countries: ['India','Sri Lanka','Bangladesh','Nepal','Myanmar'], family: 'Sapotaceae' },
+  { common_name: 'Silk Cotton (India)', scientific_name: 'Bombax ceiba',             carbon_coeff: 6.0,  native_countries: ['India','Sri Lanka','Bangladesh','Myanmar','Thailand','Malaysia','Indonesia','Philippines','Vietnam','China'], family: 'Malvaceae' },
+  { common_name: 'Palash / Flame of Forest', scientific_name: 'Butea monosperma',    carbon_coeff: 2.5,  native_countries: ['India','Sri Lanka','Bangladesh','Nepal','Pakistan','Myanmar','Thailand'], family: 'Fabaceae' },
+
+  // ── WEST AFRICA — ADDITIONAL ─────────────────────────────────────────
+  { common_name: 'Prekese / Aridan',   scientific_name: 'Tetrapleura tetraptera',    carbon_coeff: 4.5,  native_countries: ['Nigeria','Ghana','Cameroon','Ivory Coast','Sierra Leone','Liberia','Senegal','Guinea','Gabon','DR Congo'], family: 'Fabaceae' },
+  { common_name: 'Oha / Ora Tree',     scientific_name: 'Pterocarpus mildbraedii',   carbon_coeff: 5.0,  native_countries: ['Nigeria','Cameroon','DR Congo','Gabon'],              family: 'Fabaceae' },
+  { common_name: 'Garden Egg Tree',    scientific_name: 'Solanum aethiopicum',       carbon_coeff: 0.5,  native_countries: ['Nigeria','Ghana','Cameroon','Ivory Coast','DR Congo','Uganda','Tanzania','Kenya','Ethiopia'], family: 'Solanaceae' },
+  { common_name: 'Uziza / False Cubeb',scientific_name: 'Piper guineense',           carbon_coeff: 0.5,  native_countries: ['Nigeria','Ghana','Cameroon','Ivory Coast','DR Congo','Gabon'],      family: 'Piperaceae' },
+  { common_name: 'Locust Bean (African)', scientific_name: 'Parkia biglobosa',       carbon_coeff: 4.5,  native_countries: ['Nigeria','Ghana','Senegal','Gambia','Mali','Burkina Faso','Niger','Ivory Coast','Guinea','Sierra Leone','Liberia','Cameroon','Chad','Sudan'], family: 'Fabaceae' },
 ]
 
 // Calculate XP from carbon coefficient
