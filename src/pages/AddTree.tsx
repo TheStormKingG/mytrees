@@ -67,7 +67,7 @@ const SLIDES = [
   },
   {
     url: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=900&q=85&auto=format&fit=crop',
-    head: '2.7 million trees. Counting.',
+    head: 'Every tree counts.',
     sub: 'Join a global movement rooted in real action.',
   },
 ]
@@ -325,8 +325,8 @@ export default function AddTree() {
           <filter id="cartoon-filter" colorInterpolationFilters="sRGB">
             {/* Slight smoothing to remove grain */}
             <feGaussianBlur stdDeviation="0.6" result="blur" />
-            {/* Boost saturation for vivid colours */}
-            <feColorMatrix type="saturate" values="2.8" in="blur" result="saturated" />
+            {/* Boost saturation slightly — cartoon feel without oversaturation */}
+            <feColorMatrix type="saturate" values="1.4" in="blur" result="saturated" />
             {/* Posterize: reduce to flat colour bands */}
             <feComponentTransfer in="saturated" result="posterized">
               <feFuncR type="discrete" tableValues="0 0.25 0.5 0.75 1" />
@@ -344,7 +344,6 @@ export default function AddTree() {
         <div className="carousel-overlay" />
         <div className="carousel-stats">
           <span className="carousel-stat-pill">🌍 127 countries</span>
-          <span className="carousel-stat-pill">🌳 2.7M trees</span>
           <span className="carousel-stat-pill">✨ Growing daily</span>
         </div>
         <div className="carousel-dots">
