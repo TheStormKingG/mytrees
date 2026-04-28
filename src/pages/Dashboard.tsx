@@ -55,7 +55,7 @@ export default function Dashboard() {
           <img
             src="/mytrees/logo-wordmark.png"
             alt="MyTrees"
-            style={{ height: 43, width: 'auto' }}
+            style={{ height: 16, width: 'auto' }}
           />
         </div>
         <p className="page-subtitle" style={{ marginTop: 8 }}>

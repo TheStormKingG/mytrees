@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import type { Database } from '../types/database'
+import { COUNTRIES, DEFAULT_COUNTRY } from '../data/countries'
+import { WORLD_SPECIES, calcXP, DEFAULT_XP, type LocalSpecies } from '../data/worldSpecies'
 
-type Species   = Database['public']['Tables']['species']['Row']
 type TreeStage = 'seed' | 'seedling' | 'sapling' | 'tree'
 
 const STAGES: { value: TreeStage; label: string; emoji: string }[] = [
@@ -13,43 +13,119 @@ const STAGES: { value: TreeStage; label: string; emoji: string }[] = [
   { value: 'tree',     label: 'Tree',     emoji: '🌳' },
 ]
 
+// Ensure or create species in Supabase, return its UUID
+async function upsertSpecies(sp: LocalSpecies): Promise<string | null> {
+  try {
+    // Try to find by scientific name first
+    const { data: existing } = await supabase
+      .from('species')
+      .select('id')
+      .eq('scientific_name', sp.scientific_name)
+      .maybeSingle()
+    if (existing) return existing.id
+
+    // Insert new species
+    const { data: inserted, error } = await supabase
+      .from('species')
+      .insert({
+        name: sp.common_name,
+        scientific_name: sp.scientific_name,
+        category: 'native',
+        carbon_coeff_kg_per_cm: sp.carbon_coeff,
+      })
+      .select('id')
+      .single()
+    if (error) return null
+    return inserted.id
+  } catch { return null }
+}
+
 export default function AddTree() {
   const navigate = useNavigate()
-  const [species,  setSpecies]  = useState<Species[]>([])
-  const [form,     setForm]     = useState({
-    name: '', species_id: '', stage: 'seed' as TreeStage,
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  // Country comes first — required
+  const [country, setCountry]               = useState(DEFAULT_COUNTRY)
+  const [speciesQuery, setSpeciesQuery]     = useState('')
+  const [selectedSpecies, setSelectedSpecies] = useState<LocalSpecies | null>(null)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [form, setForm] = useState({
+    name: '',
+    stage: 'seed' as TreeStage,
     planted_at: new Date().toISOString().split('T')[0],
-    lat: '', lng: '', notes: '', is_public: true,
+    lat: '', lng: '', notes: '',
   })
   const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState<string | null>(null)
+  const [error, setError]     = useState<string | null>(null)
 
-  useEffect(() => {
-    supabase.from('species').select('*').order('name').then(({ data }) => setSpecies(data ?? []))
-  }, [])
+  // ── Species autocomplete ─────────────────────────────────────────────
+  const nativeSpecies = useMemo(
+    () => WORLD_SPECIES.filter(s => s.native_countries.includes(country)),
+    [country],
+  )
 
+  const suggestions = useMemo(() => {
+    const q = speciesQuery.trim().toLowerCase()
+    if (!q || q.length < 2) return []
+    return nativeSpecies
+      .filter(s =>
+        s.common_name.toLowerCase().includes(q) ||
+        s.scientific_name.toLowerCase().includes(q) ||
+        (s.family ?? '').toLowerCase().includes(q),
+      )
+      .slice(0, 8)
+  }, [nativeSpecies, speciesQuery])
+
+  // ── XP calculation ───────────────────────────────────────────────────
+  const xp = selectedSpecies ? calcXP(selectedSpecies.carbon_coeff) : DEFAULT_XP
+
+  // ── XP colour: green > 100, amber 60–100, default < 60 ───────────────
+  const xpColor = xp >= 100 ? '#16a34a' : xp >= 60 ? '#d97706' : 'white'
+
+  // ── GPS ──────────────────────────────────────────────────────────────
   const useGPS = () => {
     navigator.geolocation.getCurrentPosition(
       pos => setForm(f => ({ ...f, lat: String(pos.coords.latitude), lng: String(pos.coords.longitude) })),
-      () => setError('Could not get GPS location')
+      () => setError('Could not get GPS location'),
     )
   }
 
+  // ── Country change resets species ─────────────────────────────────────
+  const handleCountryChange = (c: string) => {
+    setCountry(c)
+    setSelectedSpecies(null)
+    setSpeciesQuery('')
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!country) { setError('Please select a country first'); return }
     setLoading(true); setError(null)
+
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setError('Not logged in'); setLoading(false); return }
+    if (!user) { setError('Not signed in'); setLoading(false); return }
+
+    // Resolve species_id
+    let species_id: string | null = null
+    if (selectedSpecies) {
+      species_id = await upsertSpecies(selectedSpecies)
+    }
+
     const { error: err } = await supabase.from('trees').insert({
-      user_id: user.id, name: form.name,
-      species_id: form.species_id || null, stage: form.stage,
+      user_id: user.id,
+      name: form.name,
+      species_id,
+      stage: form.stage,
       planted_at: form.planted_at || null,
       lat: form.lat ? parseFloat(form.lat) : null,
       lng: form.lng ? parseFloat(form.lng) : null,
-      notes: form.notes || null, is_public: form.is_public,
+      notes: form.notes || null,
+      is_public: true,
     })
     if (err) { setError(err.message); setLoading(false); return }
-    try { await supabase.rpc('award_xp', { user_id: user.id, amount: 50 }) } catch { /* */ }
+
+    try { await supabase.rpc('award_xp', { user_id: user.id, amount: xp }) } catch { /* */ }
     navigate('/dashboard')
   }
 
@@ -66,14 +142,40 @@ export default function AddTree() {
 
       <form onSubmit={handleSubmit}>
 
-        {/* Tree name */}
+        {/* ── 1. Tree name ─────────────────────────────────────────── */}
         <div className="field">
           <label className="label">Tree name *</label>
           <input className="input" type="text" placeholder="e.g. Grandma's Oak"
-            value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
+            value={form.name}
+            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            required />
         </div>
 
-        {/* Stage picker */}
+        {/* ── 2. Country (required, before species) ────────────────── */}
+        <div className="field">
+          <label className="label">Country *</label>
+          <p style={{ fontSize: 11, color: 'var(--color-tertiary)', marginBottom: 8 }}>
+            Select where you're planting — species list updates to native plants only
+          </p>
+          <select
+            className="input"
+            value={country}
+            onChange={e => handleCountryChange(e.target.value)}
+            required
+            style={{ cursor: 'pointer' }}
+          >
+            {COUNTRIES.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          {nativeSpecies.length > 0 && (
+            <p style={{ fontSize: 11, color: 'var(--accent)', marginTop: 6 }}>
+              🌿 {nativeSpecies.length} native species available for {country}
+            </p>
+          )}
+        </div>
+
+        {/* ── 3. Stage picker ───────────────────────────────────────── */}
         <div className="field">
           <label className="label">Current stage</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
@@ -81,10 +183,7 @@ export default function AddTree() {
               <button key={s.value} type="button"
                 onClick={() => setForm(f => ({ ...f, stage: s.value }))}
                 style={{
-                  padding: '14px 0',
-                  borderRadius: 14,
-                  border: 'none',
-                  cursor: 'pointer',
+                  padding: '14px 0', borderRadius: 14, border: 'none', cursor: 'pointer',
                   transition: 'all 0.15s',
                   background: form.stage === s.value ? 'var(--surface-solid)' : 'var(--bg)',
                   boxShadow: form.stage === s.value ? 'var(--neu-inset-sm)' : 'var(--neu-shadow-sm)',
@@ -98,39 +197,123 @@ export default function AddTree() {
           </div>
         </div>
 
-        {/* Species */}
-        {species.length > 0 && (
-          <div className="field">
-            <label className="label">Species</label>
-            <select className="input" value={form.species_id}
-              onChange={e => setForm(f => ({ ...f, species_id: e.target.value }))}>
-              <option value="">Unknown / not listed</option>
-              {species.map(sp => (
-                <option key={sp.id} value={sp.id}>
-                  {sp.name}{sp.scientific_name ? ` (${sp.scientific_name})` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+        {/* ── 4. Species search (native to selected country) ────────── */}
+        <div className="field">
+          <label className="label">Species</label>
+          <p style={{ fontSize: 11, color: 'var(--color-tertiary)', marginBottom: 8 }}>
+            {nativeSpecies.length === 0
+              ? `No species data yet for ${country} — you can still plant without selecting one`
+              : 'Start typing a common or scientific name'}
+          </p>
 
-        {/* Date planted */}
+          {/* Selected species chip */}
+          {selectedSpecies && (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'rgba(58,184,122,0.08)', border: '1px solid rgba(58,184,122,0.3)',
+              borderRadius: 12, padding: '10px 14px', marginBottom: 10,
+            }}>
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)', margin: 0 }}>
+                  {selectedSpecies.common_name}
+                </p>
+                <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: 0 }}>
+                  {selectedSpecies.scientific_name} · CO₂ coeff {selectedSpecies.carbon_coeff}
+                </p>
+              </div>
+              <button type="button"
+                onClick={() => { setSelectedSpecies(null); setSpeciesQuery('') }}
+                style={{
+                  width: 28, height: 28, borderRadius: '50%', border: 'none',
+                  background: 'rgba(163,177,198,0.3)', color: 'var(--color-secondary)',
+                  fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>×</button>
+            </div>
+          )}
+
+          {/* Search input */}
+          {!selectedSpecies && (
+            <div style={{ position: 'relative' }}>
+              <input
+                ref={searchRef}
+                className="input"
+                type="text"
+                placeholder={nativeSpecies.length > 0 ? `Search ${nativeSpecies.length} native species…` : 'No species data for this country'}
+                value={speciesQuery}
+                disabled={nativeSpecies.length === 0}
+                onChange={e => { setSpeciesQuery(e.target.value); setShowSuggestions(true) }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                autoComplete="off"
+              />
+
+              {/* Autocomplete dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
+                  background: 'var(--surface-solid)',
+                  border: '1px solid rgba(212,219,229,0.8)',
+                  borderRadius: 14, marginTop: 4,
+                  boxShadow: 'var(--neu-shadow)',
+                  overflow: 'hidden',
+                }}>
+                  {suggestions.map((sp, i) => (
+                    <button
+                      key={sp.scientific_name}
+                      type="button"
+                      onMouseDown={() => { setSelectedSpecies(sp); setSpeciesQuery(''); setShowSuggestions(false) }}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        width: '100%', padding: '11px 14px', border: 'none',
+                        background: 'transparent', cursor: 'pointer', textAlign: 'left',
+                        borderBottom: i < suggestions.length - 1 ? '1px solid rgba(212,219,229,0.4)' : 'none',
+                      }}
+                    >
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-fg)', margin: 0,
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {sp.common_name}
+                        </p>
+                        <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: 0 }}>
+                          {sp.scientific_name}
+                        </p>
+                      </div>
+                      <span style={{
+                        flexShrink: 0, marginLeft: 8, fontSize: 11, fontWeight: 700,
+                        color: calcXP(sp.carbon_coeff) >= 100 ? '#16a34a' : '#d97706',
+                        background: 'rgba(58,184,122,0.08)', borderRadius: 8, padding: '2px 6px',
+                      }}>
+                        +{calcXP(sp.carbon_coeff)} XP
+                      </span>
+                    </button>
+                  ))}
+
+                  {speciesQuery.length >= 2 && suggestions.length === 0 && (
+                    <p style={{ padding: '12px 14px', fontSize: 13, color: 'var(--color-tertiary)', margin: 0 }}>
+                      No native species found for "{speciesQuery}" in {country}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ── 5. Date planted ───────────────────────────────────────── */}
         <div className="field">
           <label className="label">Date planted</label>
           <input className="input" type="date" value={form.planted_at}
             onChange={e => setForm(f => ({ ...f, planted_at: e.target.value }))} />
         </div>
 
-        {/* Location */}
+        {/* ── 6. GPS location (optional) ────────────────────────────── */}
         <div className="field">
-          <label className="label">Location (optional)</label>
+          <label className="label">GPS coordinates (optional)</label>
           <div style={{ display: 'flex', gap: 8 }}>
             <input className="input" type="number" placeholder="Latitude" value={form.lat}
-              onChange={e => setForm(f => ({ ...f, lat: e.target.value }))} step="any"
-              style={{ flex: 1 }} />
+              onChange={e => setForm(f => ({ ...f, lat: e.target.value }))} step="any" style={{ flex: 1 }} />
             <input className="input" type="number" placeholder="Longitude" value={form.lng}
-              onChange={e => setForm(f => ({ ...f, lng: e.target.value }))} step="any"
-              style={{ flex: 1 }} />
+              onChange={e => setForm(f => ({ ...f, lng: e.target.value }))} step="any" style={{ flex: 1 }} />
             <button type="button" onClick={useGPS}
               style={{
                 width: 50, flexShrink: 0, borderRadius: 14, border: 'none',
@@ -140,7 +323,7 @@ export default function AddTree() {
           </div>
         </div>
 
-        {/* Notes */}
+        {/* ── 7. Notes ──────────────────────────────────────────────── */}
         <div className="field">
           <label className="label">Notes</label>
           <textarea className="input" placeholder="Soil type, location, how you got the seed…"
@@ -148,40 +331,33 @@ export default function AddTree() {
             rows={3} style={{ resize: 'none' }} />
         </div>
 
-        {/* Public toggle */}
-        <div className="field">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}
-            onClick={() => setForm(f => ({ ...f, is_public: !f.is_public }))}>
-            <div style={{
-              width: 52, height: 30, borderRadius: 15, position: 'relative', cursor: 'pointer',
-              background: form.is_public ? 'var(--accent)' : 'var(--bg)',
-              boxShadow: form.is_public ? '0 2px 10px var(--accent-shadow)' : 'var(--neu-inset-sm)',
-              transition: 'all 0.2s', flexShrink: 0,
-            }}>
-              <div style={{
-                position: 'absolute', top: 3,
-                left: form.is_public ? 24 : 3,
-                width: 24, height: 24, borderRadius: '50%',
-                background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
-                transition: 'left 0.2s',
-              }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-fg)' }}>Public tree profile</div>
-              <div style={{ fontSize: 12, color: 'var(--color-tertiary)', marginTop: 1 }}>
-                Show this tree on the community map
-              </div>
-            </div>
-          </div>
-        </div>
-
         {error && (
           <p style={{ fontSize: 13, color: '#ef4444', marginBottom: 16 }}>{error}</p>
         )}
 
-        <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? 'Planting…' : '🌳 Plant this tree · +50 XP'}
+        {/* ── 8. Dynamic XP submit button ───────────────────────────── */}
+        <button type="submit" className="btn-primary" disabled={loading}
+          style={{ position: 'relative', overflow: 'hidden' }}>
+          {loading ? 'Planting…' : (
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+              <span>🌱 Plant this tree</span>
+              <span style={{
+                background: 'rgba(255,255,255,0.18)', borderRadius: 8,
+                padding: '3px 10px', fontSize: 14, fontWeight: 700, color: xpColor,
+              }}>
+                +{xp} XP
+              </span>
+            </span>
+          )}
         </button>
+
+        {selectedSpecies && (
+          <p style={{ fontSize: 11, color: 'var(--color-tertiary)', textAlign: 'center', marginTop: 10 }}>
+            XP based on {selectedSpecies.common_name}'s estimated CO₂ absorption capacity
+            (coeff {selectedSpecies.carbon_coeff} kg/m/yr)
+          </p>
+        )}
+
       </form>
     </div>
   )
