@@ -2,9 +2,13 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../types/database'
+import TreeNFTCard from '../components/TreeNFTCard'
 
 type Tree    = Database['public']['Tables']['trees']['Row']
 type TreeLog = Database['public']['Tables']['tree_logs']['Row']
+
+// Species row extended with carbon_coeff (joined via species_id)
+type SpeciesRow = { id: string; name: string; scientific_name: string; carbon_coeff_kg_per_cm: number | null }
 
 const STAGE_EMOJI: Record<string, string> = { seed: '🌰', seedling: '🌱', sapling: '🌿', tree: '🌳' }
 const HEALTH_COLOR: Record<string, string> = { excellent: '#3ab87a', good: '#5a9e6f', fair: '#d97706', poor: '#ef4444' }
@@ -12,18 +16,27 @@ const HEALTH_COLOR: Record<string, string> = { excellent: '#3ab87a', good: '#5a9
 export default function TreeDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [tree,    setTree]    = useState<Tree | null>(null)
-  const [logs,    setLogs]    = useState<TreeLog[]>([])
-  const [showLog, setShowLog] = useState(false)
-  const [logForm, setLogForm] = useState({ height_cm: '', canopy_cm: '', health: 'good' as TreeLog['health'], notes: '' })
-  const [saving,  setSaving]  = useState(false)
+  const [tree,       setTree]       = useState<Tree | null>(null)
+  const [species,    setSpecies]    = useState<SpeciesRow | null>(null)
+  const [logs,       setLogs]       = useState<TreeLog[]>([])
+  const [showLog,    setShowLog]    = useState(false)
+  const [showCard,   setShowCard]   = useState(false)
+  const [logForm,    setLogForm]    = useState({ height_cm: '', canopy_cm: '', health: 'good' as TreeLog['health'], notes: '' })
+  const [saving,     setSaving]     = useState(false)
 
   useEffect(() => {
     if (!id) return
     Promise.all([
       supabase.from('trees').select('*').eq('id', id).single(),
       supabase.from('tree_logs').select('*').eq('tree_id', id).order('logged_at', { ascending: false }),
-    ]).then(([{ data: t }, { data: l }]) => { setTree(t); setLogs(l ?? []) })
+    ]).then(async ([{ data: t }, { data: l }]) => {
+      setTree(t); setLogs(l ?? [])
+      // Fetch species for carbon data
+      if (t?.species_id) {
+        const { data: sp } = await supabase.from('species').select('id,name,scientific_name,carbon_coeff_kg_per_cm').eq('id', t.species_id).single()
+        setSpecies(sp)
+      }
+    })
   }, [id])
 
   const submitLog = async (e: React.FormEvent) => {
@@ -84,10 +97,48 @@ export default function TreeDetail() {
         </div>
       </div>
 
+      {/* NFT Card CTA */}
+      <button
+        className="btn-primary"
+        onClick={() => setShowCard(true)}
+        style={{ marginBottom: 12, background: 'linear-gradient(135deg, #1e003c, #7c3aed)', border: 'none' }}
+      >
+        ✨ View NFT Card
+      </button>
+
       {/* Log CTA */}
       <button className="btn-primary" onClick={() => setShowLog(!showLog)} style={{ marginBottom: 20 }}>
         📏 Log growth today · +30 XP
       </button>
+
+      {/* NFT Card Modal */}
+      {showCard && (
+        <div
+          onClick={() => setShowCard(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            padding: 24,
+          }}
+        >
+          <div onClick={e => e.stopPropagation()}>
+            <TreeNFTCard
+              treeId={tree.id}
+              treeName={tree.name}
+              stage={tree.stage}
+              plantedAt={tree.planted_at}
+              speciesName={species ? `${species.name} · ${species.scientific_name}` : null}
+              carbonCoeff={species?.carbon_coeff_kg_per_cm ?? null}
+              heightCm={logs.find(l => l.height_cm)?.height_cm ?? null}
+            />
+          </div>
+          <p style={{ marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>
+            Tap outside the card to close
+          </p>
+        </div>
+      )}
 
       {/* Log form */}
       {showLog && (
