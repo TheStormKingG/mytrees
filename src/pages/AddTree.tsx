@@ -5,6 +5,15 @@ import { COUNTRIES, DEFAULT_COUNTRY } from '../data/countries'
 import { WORLD_SPECIES, calcXP, DEFAULT_XP, type LocalSpecies } from '../data/worldSpecies'
 import { countryFlag } from '../data/countryFlags'
 
+// ── Rarity helpers (mirrors TreeNFTCard logic) ────────────────────────────────
+type Rarity = { tier: string; color: string; bg: string; glow: string; stars: string }
+function getRarity(coeff: number | null): Rarity {
+  if (!coeff || coeff < 1.8) return { tier: 'Common',    color: '#3ab87a', bg: 'linear-gradient(135deg,#0a2a1a,#0d3d22)', glow: 'rgba(58,184,122,0.4)',  stars: '⭐' }
+  if (coeff < 3.5)           return { tier: 'Rare',      color: '#60a5fa', bg: 'linear-gradient(135deg,#0a1a3a,#0d2d6e)', glow: 'rgba(96,165,250,0.4)',  stars: '⭐⭐' }
+  if (coeff < 6.0)           return { tier: 'Epic',      color: '#c084fc', bg: 'linear-gradient(135deg,#1a0a3a,#3d0d6e)', glow: 'rgba(192,132,252,0.4)', stars: '⭐⭐⭐' }
+  return                            { tier: 'Legendary', color: '#fbbf24', bg: 'linear-gradient(135deg,#2a1a00,#6e4a00)', glow: 'rgba(251,191,36,0.5)',  stars: '⭐⭐⭐⭐' }
+}
+
 type TreeStage = 'seed' | 'seedling' | 'sapling' | 'tree'
 
 const STAGES: { value: TreeStage; label: string; emoji: string }[] = [
@@ -269,6 +278,56 @@ export default function AddTree() {
           white-space: nowrap;
         }
 
+        /* ── Species preview card ────────────────────────────────────── */
+        .species-card {
+          margin-top: 12px;
+          border-radius: 18px;
+          overflow: hidden;
+          animation: flagFadeIn 0.35s ease;
+          box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+        }
+        .species-card-inner {
+          padding: 16px 18px;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .species-card-badge {
+          flex-shrink: 0;
+          width: 48px; height: 48px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+          background: rgba(255,255,255,0.1);
+        }
+        .species-card-stats {
+          display: flex;
+          gap: 8px;
+          margin-top: 10px;
+          padding: 10px 18px;
+          background: rgba(0,0,0,0.2);
+          border-top: 1px solid rgba(255,255,255,0.07);
+        }
+        .species-stat {
+          flex: 1;
+          text-align: center;
+        }
+        .species-stat-val {
+          font-size: 15px;
+          font-weight: 800;
+          line-height: 1;
+          margin-bottom: 3px;
+        }
+        .species-stat-lbl {
+          font-size: 9px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          opacity: 0.6;
+        }
+
         /* ── Country flag reveal ──────────────────────────────────────── */
         .flag-reveal {
           display: flex;
@@ -379,30 +438,76 @@ export default function AddTree() {
               : 'Start typing a common or scientific name'}
           </p>
 
-          {/* Selected species chip */}
-          {selectedSpecies && (
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              background: 'rgba(58,184,122,0.08)', border: '1px solid rgba(58,184,122,0.3)',
-              borderRadius: 12, padding: '10px 14px', marginBottom: 10,
-            }}>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)', margin: 0 }}>
-                  {selectedSpecies.common_name}
-                </p>
-                <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: 0 }}>
-                  {selectedSpecies.scientific_name} · CO₂ coeff {selectedSpecies.carbon_coeff}
-                </p>
-              </div>
-              <button type="button"
-                onClick={() => { setSelectedSpecies(null); setSpeciesQuery('') }}
-                style={{
-                  width: 28, height: 28, borderRadius: '50%', border: 'none',
-                  background: 'rgba(163,177,198,0.3)', color: 'var(--color-secondary)',
-                  fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>×</button>
-            </div>
-          )}
+          {/* Selected species — chip + preview card */}
+          {selectedSpecies && (() => {
+            const r = getRarity(selectedSpecies.carbon_coeff)
+            const earnedXP = calcXP(selectedSpecies.carbon_coeff)
+            const annualKg = (selectedSpecies.carbon_coeff * 2.0).toFixed(1)  // estimate at tree stage (2m)
+            return (
+              <>
+                {/* Chip row with × */}
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  background: 'rgba(58,184,122,0.08)', border: '1px solid rgba(58,184,122,0.3)',
+                  borderRadius: 12, padding: '10px 14px', marginBottom: 8,
+                }}>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)', margin: 0 }}>
+                      {selectedSpecies.common_name}
+                    </p>
+                    <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: 0 }}>
+                      {selectedSpecies.scientific_name}
+                    </p>
+                  </div>
+                  <button type="button"
+                    onClick={() => { setSelectedSpecies(null); setSpeciesQuery('') }}
+                    style={{
+                      width: 28, height: 28, borderRadius: '50%', border: 'none',
+                      background: 'rgba(163,177,198,0.3)', color: 'var(--color-secondary)',
+                      fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>×</button>
+                </div>
+
+                {/* Rarity preview card */}
+                <div className="species-card" style={{ background: r.bg, boxShadow: `0 8px 28px ${r.glow}` }}>
+                  <div className="species-card-inner">
+                    <div className="species-card-badge" style={{ boxShadow: `0 0 16px ${r.glow}` }}>🌳</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}>
+                        <span style={{
+                          fontSize: 10, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase',
+                          color: r.color, background: `${r.color}22`, borderRadius: 6, padding: '2px 8px',
+                        }}>{r.tier}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{r.stars}</span>
+                      </div>
+                      <p style={{ fontSize: 15, fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.2 }}>
+                        {selectedSpecies.common_name}
+                      </p>
+                      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', margin: '3px 0 0', fontStyle: 'italic' }}>
+                        {selectedSpecies.scientific_name}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="species-card-stats">
+                    <div className="species-stat">
+                      <div className="species-stat-val" style={{ color: r.color }}>{selectedSpecies.carbon_coeff}</div>
+                      <div className="species-stat-lbl" style={{ color: '#fff' }}>CO₂ coeff</div>
+                    </div>
+                    <div style={{ width: 1, background: 'rgba(255,255,255,0.1)' }} />
+                    <div className="species-stat">
+                      <div className="species-stat-val" style={{ color: r.color }}>{annualKg}kg</div>
+                      <div className="species-stat-lbl" style={{ color: '#fff' }}>annual CO₂</div>
+                    </div>
+                    <div style={{ width: 1, background: 'rgba(255,255,255,0.1)' }} />
+                    <div className="species-stat">
+                      <div className="species-stat-val" style={{ color: r.color }}>+{earnedXP}</div>
+                      <div className="species-stat-lbl" style={{ color: '#fff' }}>XP earned</div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )
+          })()}
 
           {/* Search input */}
           {!selectedSpecies && (
