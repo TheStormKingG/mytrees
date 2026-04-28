@@ -31,12 +31,16 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
       <style>{`
         .guest-blur-wrap {
           position: relative;
+        }
+        /* Block interaction on page content only */
+        .guest-blur-wrap .page-container {
           pointer-events: none;
           user-select: none;
         }
-        .guest-blur-wrap > * {
-          filter: blur(1.5px) grayscale(1);
-          opacity: 0.6;
+        /* Only blur the page content — NOT the bottom nav */
+        .guest-blur-wrap .page-container {
+          filter: blur(1px) grayscale(1);
+          opacity: 0.65;
         }
         .guest-overlay {
           position: fixed;
