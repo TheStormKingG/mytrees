@@ -428,7 +428,8 @@ export default function TreeDetail() {
             <TreeNFTCard treeId={tree.id} treeName={tree.name} stage={tree.stage} plantedAt={tree.planted_at}
               speciesName={species ? `${species.name} · ${species.scientific_name}` : null}
               carbonCoeff={species?.carbon_coeff_kg_per_cm ?? null}
-              heightCm={logs.find(l => l.height_cm)?.height_cm ?? null} />
+              heightCm={logs.find(l => l.height_cm)?.height_cm ?? null}
+              logCount={logs.length} />
           </div>
           <p style={{ marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>Tap outside to close</p>
         </div>

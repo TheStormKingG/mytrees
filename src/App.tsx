@@ -23,7 +23,7 @@ function App() {
         <Route path="/carbon"      element={<ProtectedRoute><Layout><CarbonLedger /></Layout></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><Layout><Leaderboard /></Layout></ProtectedRoute>} />
         <Route path="/profile"     element={<ProtectedRoute><Layout><ProfilePage /></Layout></ProtectedRoute>} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/add-tree" replace />} />
       </Routes>
     </BrowserRouter>
   )

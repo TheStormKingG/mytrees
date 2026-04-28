@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { COUNTRIES, DEFAULT_COUNTRY } from '../data/countries'
+import { getCountryBlurb } from '../data/countryBlurbs'
 import { WORLD_SPECIES, calcXP, DEFAULT_XP, type LocalSpecies } from '../data/worldSpecies'
 import { countryFlag } from '../data/countryFlags'
 import PlantingWizard from '../components/PlantingWizard'
@@ -389,16 +390,24 @@ export default function AddTree() {
             {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           {country && (
-            <div className="flag-reveal">
-              <span className="flag-emoji">{flag}</span>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-fg)', margin: 0 }}>{country}</p>
-                {nativeSpecies.length > 0 && (
-                  <p style={{ fontSize: 12, color: 'var(--accent)', margin: '2px 0 0' }}>
-                    🌿 {nativeSpecies.length} native species available
-                  </p>
-                )}
+            <div className="flag-reveal" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="flag-emoji">{flag}</span>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-fg)', margin: 0 }}>{country}</p>
+                  {nativeSpecies.length > 0 && (
+                    <p style={{ fontSize: 12, color: 'var(--accent)', margin: '2px 0 0' }}>
+                      🌿 {nativeSpecies.length} native species available
+                    </p>
+                  )}
+                </div>
               </div>
+              <p style={{
+                fontSize: 12, color: 'var(--color-secondary)', lineHeight: 1.55, margin: 0,
+                borderTop: '1px solid rgba(58,184,122,0.15)', paddingTop: 10,
+              }}>
+                {getCountryBlurb(country)}
+              </p>
             </div>
           )}
         </div>

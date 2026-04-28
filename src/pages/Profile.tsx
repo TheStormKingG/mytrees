@@ -5,12 +5,13 @@ import type { Database } from '../types/database'
 type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function ProfilePage() {
-  const [profile,     setProfile]     = useState<Profile | null>(null)
-  const [email,       setEmail]       = useState('')
-  const [username,    setUsername]    = useState('')
-  const [schoolGroup, setSchoolGroup] = useState('')
-  const [saving,      setSaving]      = useState(false)
-  const [message,     setMessage]     = useState('')
+  const [profile,      setProfile]      = useState<Profile | null>(null)
+  const [email,        setEmail]        = useState('')
+  const [username,     setUsername]     = useState('')
+  const [schoolGroup,  setSchoolGroup]  = useState('')
+  const [organisation, setOrganisation] = useState('')
+  const [saving,       setSaving]       = useState(false)
+  const [message,      setMessage]      = useState('')
 
   useEffect(() => {
     async function load() {
@@ -18,7 +19,12 @@ export default function ProfilePage() {
       if (!user) return
       setEmail(user.email ?? '')
       const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-      if (data) { setProfile(data); setUsername(data.username ?? ''); setSchoolGroup(data.school_group ?? '') }
+      if (data) {
+        setProfile(data)
+        setUsername(data.username ?? '')
+        setSchoolGroup(data.school_group ?? '')
+        setOrganisation(data.organisation ?? '')
+      }
     }
     load()
   }, [])
@@ -27,7 +33,12 @@ export default function ProfilePage() {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    await supabase.from('profiles').upsert({ id: user.id, username: username || null, school_group: schoolGroup || null })
+    await supabase.from('profiles').upsert({
+      id: user.id,
+      username: username || null,
+      school_group: schoolGroup || null,
+      organisation: organisation || null,
+    })
     setMessage('Saved!'); setTimeout(() => setMessage(''), 2000); setSaving(false)
   }
 
@@ -73,6 +84,12 @@ export default function ProfilePage() {
         <label className="label">School / youth group</label>
         <input className="input" type="text" value={schoolGroup}
           onChange={e => setSchoolGroup(e.target.value)} placeholder="e.g. Green High School" />
+      </div>
+
+      <div className="field">
+        <label className="label">Organisation</label>
+        <input className="input" type="text" value={organisation}
+          onChange={e => setOrganisation(e.target.value)} placeholder="e.g. Scouts, WWF, Green Earth NGO" />
       </div>
 
       {email && (

@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           id: string
           level: number
+          organisation: string | null
           school_group: string | null
           streak_days: number
           streak_last_date: string | null
@@ -31,6 +32,7 @@ export type Database = {
           created_at?: string
           id: string
           level?: number
+          organisation?: string | null
           school_group?: string | null
           streak_days?: number
           streak_last_date?: string | null
@@ -42,6 +44,7 @@ export type Database = {
           created_at?: string
           id?: string
           level?: number
+          organisation?: string | null
           school_group?: string | null
           streak_days?: number
           streak_last_date?: string | null

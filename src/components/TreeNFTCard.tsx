@@ -8,7 +8,8 @@ export interface NFTCardProps {
   plantedAt:   string | null
   speciesName: string | null
   carbonCoeff: number | null   // kg CO₂ / m / yr
-  heightCm:    number | null   // latest logged height
+  heightCm:    number | null   // latest LOGGED height (most recent log)
+  logCount?:   number          // total number of growth logs
 }
 
 // ── Rarity tiers ─────────────────────────────────────────────────────────────
@@ -22,32 +23,55 @@ interface Rarity {
   stars:    number
 }
 
-function getRarity(coeff: number | null): Rarity {
-  const c = coeff ?? 1
-  if (c >= 6.0) return {
-    tier: 'LEGENDARY', color: '#FFD700',
-    bg:   'linear-gradient(145deg,#0d0d0d 0%,#1a0a00 20%,#3d1f00 45%,#7c4a00 65%,#c68c00 80%,#FFD700 100%)',
-    shimmer: 'linear-gradient(105deg, transparent 30%, rgba(255,215,0,0.35) 50%, transparent 70%)',
-    glow: 'rgba(255,215,0,0.6)', badge: '#FFD700', stars: 5,
-  }
-  if (c >= 3.5) return {
-    tier: 'EPIC', color: '#c084fc',
-    bg:   'linear-gradient(145deg,#0d0020 0%,#1e003c 25%,#4c1d95 55%,#7c3aed 75%,#a855f7 100%)',
-    shimmer: 'linear-gradient(105deg, transparent 30%, rgba(192,132,252,0.35) 50%, transparent 70%)',
-    glow: 'rgba(168,85,247,0.6)', badge: '#c084fc', stars: 4,
-  }
-  if (c >= 1.8) return {
-    tier: 'RARE', color: '#60a5fa',
-    bg:   'linear-gradient(145deg,#000d1a 0%,#001f3d 25%,#0c4a6e 55%,#0369a1 75%,#38bdf8 100%)',
-    shimmer: 'linear-gradient(105deg, transparent 30%, rgba(96,165,250,0.35) 50%, transparent 70%)',
-    glow: 'rgba(59,130,246,0.6)', badge: '#60a5fa', stars: 3,
-  }
-  return {
-    tier: 'COMMON', color: '#86efac',
-    bg:   'linear-gradient(145deg,#0a1a0e 0%,#052e16 25%,#14532d 55%,#166534 75%,#22c55e 100%)',
-    shimmer: 'linear-gradient(105deg, transparent 30%, rgba(134,239,172,0.25) 50%, transparent 70%)',
-    glow: 'rgba(34,197,94,0.4)', badge: '#86efac', stars: 2,
-  }
+/**
+ * Rarity is determined by species carbon coefficient PLUS growth tracking.
+ * A well-logged tree with real height data earns a rarity boost:
+ *   +1 tier if logCount >= 5 and heightCm >= 50
+ *   +1 tier if logCount >= 10 and heightCm >= 150  (can stack once)
+ * This means the NFT card literally levels up as you measure your tree.
+ */
+function getRarity(coeff: number | null, heightCm?: number | null, logCount?: number): Rarity {
+  const c       = coeff ?? 1
+  const logs    = logCount ?? 0
+  const hcm     = heightCm ?? 0
+
+  // Base tier from species coefficient
+  let tierIndex = 0                         // 0=COMMON, 1=RARE, 2=EPIC, 3=LEGENDARY
+  if (c >= 6.0) tierIndex = 3
+  else if (c >= 3.5) tierIndex = 2
+  else if (c >= 1.8) tierIndex = 1
+
+  // Growth tracking boost — rewards consistent logging
+  if (logs >= 5  && hcm >= 50)  tierIndex = Math.min(3, tierIndex + 1)
+  if (logs >= 10 && hcm >= 150) tierIndex = Math.min(3, tierIndex + 1)
+
+  const TIERS: Rarity[] = [
+    {
+      tier: 'COMMON', color: '#86efac',
+      bg:   'linear-gradient(145deg,#0a1a0e 0%,#052e16 25%,#14532d 55%,#166534 75%,#22c55e 100%)',
+      shimmer: 'linear-gradient(105deg, transparent 30%, rgba(134,239,172,0.25) 50%, transparent 70%)',
+      glow: 'rgba(34,197,94,0.4)', badge: '#86efac', stars: 2,
+    },
+    {
+      tier: 'RARE', color: '#60a5fa',
+      bg:   'linear-gradient(145deg,#000d1a 0%,#001f3d 25%,#0c4a6e 55%,#0369a1 75%,#38bdf8 100%)',
+      shimmer: 'linear-gradient(105deg, transparent 30%, rgba(96,165,250,0.35) 50%, transparent 70%)',
+      glow: 'rgba(59,130,246,0.6)', badge: '#60a5fa', stars: 3,
+    },
+    {
+      tier: 'EPIC', color: '#c084fc',
+      bg:   'linear-gradient(145deg,#0d0020 0%,#1e003c 25%,#4c1d95 55%,#7c3aed 75%,#a855f7 100%)',
+      shimmer: 'linear-gradient(105deg, transparent 30%, rgba(192,132,252,0.35) 50%, transparent 70%)',
+      glow: 'rgba(168,85,247,0.6)', badge: '#c084fc', stars: 4,
+    },
+    {
+      tier: 'LEGENDARY', color: '#FFD700',
+      bg:   'linear-gradient(145deg,#0d0d0d 0%,#1a0a00 20%,#3d1f00 45%,#7c4a00 65%,#c68c00 80%,#FFD700 100%)',
+      shimmer: 'linear-gradient(105deg, transparent 30%, rgba(255,215,0,0.35) 50%, transparent 70%)',
+      glow: 'rgba(255,215,0,0.6)', badge: '#FFD700', stars: 5,
+    },
+  ]
+  return TIERS[tierIndex]
 }
 
 const STAGE_EMOJI: Record<string, string> = {
@@ -87,9 +111,11 @@ export default function TreeNFTCard(props: NFTCardProps) {
   const [flipped, setFlipped] = useState(false)
   const [shimPos, setShimPos] = useState({ x: 50, y: 50 })
 
-  const { treeId, treeName, stage, plantedAt, speciesName, carbonCoeff, heightCm } = props
-  const rarity  = getRarity(carbonCoeff)
+  const { treeId, treeName, stage, plantedAt, speciesName, carbonCoeff, heightCm, logCount = 0 } = props
+  const rarity  = getRarity(carbonCoeff, heightCm, logCount)
   const stats   = calcCarbonStats(carbonCoeff, heightCm, stage, plantedAt)
+  // Height is "logged" if we have an actual measurement, otherwise it's estimated from stage
+  const heightIsLogged = heightCm != null && heightCm > 0
   const tokenId = treeId.replace(/-/g, '').slice(-8).toUpperCase()
 
   // Subtle holographic shimmer follows pointer on desktop
@@ -291,12 +317,14 @@ export default function TreeNFTCard(props: NFTCardProps) {
           {/* Stats grid */}
           <div style={{ padding: '14px 16px', position: 'relative', zIndex: 4 }}>
             {[
-              { label: 'CO₂ Absorbed (total)',  value: `${stats.totalKg.toFixed(2)} kg`,         color: '#4ade80' },
-              { label: 'CO₂ / Year',            value: `${stats.annualKg.toFixed(2)} kg/yr`,     color: rarity.color },
-              { label: 'Carbon Value (est.)',   value: `$${stats.valueUSD < 0.01 ? '<0.01' : stats.valueUSD.toFixed(3)} USD`, color: '#fbbf24' },
-              { label: 'Height (est.)',         value: `${(stats.heightM * 100).toFixed(0)} cm`, color: 'rgba(255,255,255,0.7)' },
-              { label: 'Age',                   value: `${stats.yearsOld < 1 ? Math.round(stats.yearsOld * 12) + ' mo' : stats.yearsOld.toFixed(1) + ' yr'}`, color: 'rgba(255,255,255,0.7)' },
-              { label: 'Carbon Coeff',          value: carbonCoeff ? `${carbonCoeff} kg/m/yr` : 'Unknown', color: 'rgba(255,255,255,0.7)' },
+              { label: 'CO₂ Absorbed (total)',            value: `${stats.totalKg.toFixed(2)} kg`,         color: '#4ade80' },
+              { label: 'CO₂ / Year',                     value: `${stats.annualKg.toFixed(2)} kg/yr`,     color: rarity.color },
+              { label: 'Carbon Value (est.)',             value: `$${stats.valueUSD < 0.01 ? '<0.01' : stats.valueUSD.toFixed(3)} USD`, color: '#fbbf24' },
+              { label: heightIsLogged ? 'Height ✓ Logged' : 'Height (est.)',
+                                                         value: `${(stats.heightM * 100).toFixed(0)} cm`, color: heightIsLogged ? '#4ade80' : 'rgba(255,255,255,0.7)' },
+              { label: 'Growth logs',                    value: `${logCount} log${logCount !== 1 ? 's' : ''}`, color: logCount >= 5 ? rarity.color : 'rgba(255,255,255,0.7)' },
+              { label: 'Age',                            value: `${stats.yearsOld < 1 ? Math.round(stats.yearsOld * 12) + ' mo' : stats.yearsOld.toFixed(1) + ' yr'}`, color: 'rgba(255,255,255,0.7)' },
+              { label: 'Carbon Coeff',                   value: carbonCoeff ? `${carbonCoeff} kg/m/yr` : 'Unknown', color: 'rgba(255,255,255,0.7)' },
             ].map(row => (
               <div key={row.label} style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
