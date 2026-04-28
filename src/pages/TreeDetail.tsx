@@ -8,7 +8,7 @@ type Tree    = Database['public']['Tables']['trees']['Row']
 type TreeLog = Database['public']['Tables']['tree_logs']['Row']
 
 // Species row extended with carbon_coeff (joined via species_id)
-type SpeciesRow = { id: string; name: string; scientific_name: string; carbon_coeff_kg_per_cm: number | null }
+type SpeciesRow = { id: string; name: string; scientific_name: string | null; carbon_coeff_kg_per_cm: number | null }
 
 const STAGE_EMOJI: Record<string, string> = { seed: '🌰', seedling: '🌱', sapling: '🌿', tree: '🌳' }
 const HEALTH_COLOR: Record<string, string> = { excellent: '#3ab87a', good: '#5a9e6f', fair: '#d97706', poor: '#ef4444' }
