@@ -1,20 +1,74 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
+// Google Identity Services global type
+declare const google: {
+  accounts: {
+    id: {
+      initialize: (cfg: object) => void
+      renderButton: (el: HTMLElement, opts: object) => void
+      prompt: () => void
+    }
+  }
+}
+
+const GOOGLE_CLIENT_ID = '421417281434-druc31nk2guo1t0oomt8g44d886m9m1k.apps.googleusercontent.com'
+
 export default function Auth() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
+  const googleBtnRef = useRef<HTMLDivElement>(null)
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [isSignUp, setIsSignUp] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
+  const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState<string | null>(null)
+  const [message, setMessage]   = useState<string | null>(null)
 
+  // Redirect if already signed in
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate('/dashboard', { replace: true })
     })
+  }, [navigate])
+
+  // Initialise Google Identity Services
+  useEffect(() => {
+    const initGoogle = () => {
+      if (typeof google === 'undefined' || !googleBtnRef.current) return
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async (response: { credential: string }) => {
+          setLoading(true)
+          setError(null)
+          const { error } = await supabase.auth.signInWithIdToken({
+            provider: 'google',
+            token: response.credential,
+          })
+          if (error) { setError(error.message); setLoading(false) }
+          else navigate('/dashboard', { replace: true })
+        },
+      })
+      google.accounts.id.renderButton(googleBtnRef.current, {
+        theme: 'outline',
+        size: 'large',
+        width: googleBtnRef.current.offsetWidth || 340,
+        text: 'continue_with',
+        shape: 'rectangular',
+        logo_alignment: 'left',
+      })
+    }
+
+    // If GIS already loaded, init immediately; otherwise wait for the script
+    if (typeof google !== 'undefined') {
+      initGoogle()
+    } else {
+      const script = document.querySelector('script[src*="accounts.google.com/gsi/client"]')
+      if (script) {
+        script.addEventListener('load', initGoogle)
+        return () => script.removeEventListener('load', initGoogle)
+      }
+    }
   }, [navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +76,6 @@ export default function Auth() {
     setLoading(true)
     setError(null)
     setMessage(null)
-
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({ email, password })
       if (error) setError(error.message)
@@ -56,6 +109,17 @@ export default function Auth() {
           {isSignUp ? 'Create account' : 'Welcome back'}
         </h2>
 
+        {/* ── Google Sign-In button ──────────────────────────────── */}
+        <div ref={googleBtnRef} className="w-full mb-1" style={{ minHeight: 44 }} />
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-5">
+          <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
+          <span className="text-xs font-medium" style={{ color: 'var(--color-tertiary)' }}>or continue with email</span>
+          <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
+        </div>
+
+        {/* ── Email / password form ─────────────────────────────── */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
@@ -76,7 +140,7 @@ export default function Auth() {
             style={{ background: 'var(--neu-base)' }}
           />
 
-          {error && <p className="text-red-500 text-xs">{error}</p>}
+          {error   && <p className="text-red-500 text-xs">{error}</p>}
           {message && <p className="text-emerald-600 text-xs">{message}</p>}
 
           <button
@@ -84,7 +148,7 @@ export default function Auth() {
             disabled={loading}
             className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-all text-sm neu-raised-sm"
           >
-            {loading ? '...' : isSignUp ? 'Plant your first seed 🌱' : 'Sign in'}
+            {loading ? '…' : isSignUp ? 'Plant your first seed 🌱' : 'Sign in'}
           </button>
         </form>
 
