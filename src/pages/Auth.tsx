@@ -318,7 +318,7 @@ function formContent({
   setEmail: (v:string)=>void; setPassword: (v:string)=>void
   setIsSignUp: (v:boolean)=>void; setError: (v:string|null)=>void; setMessage: (v:string|null)=>void
   handleSubmit: (e:React.FormEvent)=>void
-  googleBtnRef: React.RefObject<HTMLDivElement>
+  googleBtnRef: React.RefObject<HTMLDivElement | null>
 }) {
   return (
     <>
