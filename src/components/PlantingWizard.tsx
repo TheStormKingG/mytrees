@@ -51,8 +51,8 @@ async function generateSlideshowVideo(
 ): Promise<Blob | null> {
   const SIZE = 720
   const FPS  = 30
-  const PHOTO_MS  = 3500   // per photo
-  const MAX_VID_MS = 30000
+  const PHOTO_MS  = 3750   // per photo (4 photos × 3750ms = 15s)
+  const MAX_VID_MS = 15000
 
   const canvas = document.createElement('canvas')
   canvas.width = canvas.height = SIZE

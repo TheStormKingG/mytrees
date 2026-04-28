@@ -17,26 +17,23 @@ const HEALTH_COLOR: Record<string, string> = { excellent: '#3ab87a', good: '#5a9
 const HEALTH_EMOJI: Record<string, string> = { excellent: '🌟', good: '✅', fair: '⚠️', poor: '🚨' }
 
 // ── Share helpers ──────────────────────────────────────────────────────────
-const SHARE_PLATFORMS = [
-  { id: 'facebook',  label: 'Facebook',  color: '#1877F2', icon: '𝒻' },
-  { id: 'whatsapp',  label: 'WhatsApp',  color: '#25D366', icon: '💬' },
-  { id: 'x',         label: 'X',         color: '#000000', icon: '𝕏' },
-  { id: 'instagram', label: 'Instagram', color: '#E1306C', icon: '📸' },
-  { id: 'tiktok',    label: 'TikTok',    color: '#010101', icon: '🎵' },
-  { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2', icon: 'in' },
+const POST_PLATFORMS = [
+  { id: 'tiktok',    label: 'TikTok',    color: '#010101', icon: '♪',  fallback: 'https://www.tiktok.com/upload' },
+  { id: 'facebook',  label: 'Facebook',  color: '#1877F2', icon: 'f',  fallback: 'https://www.facebook.com/' },
+  { id: 'linkedin',  label: 'LinkedIn',  color: '#0A66C2', icon: 'in', fallback: 'https://www.linkedin.com/feed/' },
+  { id: 'instagram', label: 'Instagram', color: '#E4405F', icon: '◈',  fallback: 'https://www.instagram.com/' },
 ]
 
-function buildShareUrl(platform: string, text: string, url: string): string {
-  const enc = encodeURIComponent
-  switch (platform) {
-    case 'facebook':  return `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}&quote=${enc(text)}`
-    case 'whatsapp':  return `https://wa.me/?text=${enc(text + ' ' + url)}`
-    case 'x':         return `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`
-    case 'instagram': return 'https://www.instagram.com/' // deep link not possible; open app
-    case 'tiktok':    return 'https://www.tiktok.com/'    // same
-    case 'linkedin':  return `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}&summary=${enc(text)}`
-    default: return url
-  }
+async function fetchMediaFile(url: string): Promise<File | null> {
+  try {
+    const resp = await fetch(url)
+    const blob = await resp.blob()
+    const ext  = blob.type.includes('mp4')  ? 'mp4'
+               : blob.type.includes('webm') ? 'webm'
+               : blob.type.includes('jpeg') ? 'jpg'
+               : 'jpg'
+    return new File([blob], `mytrees_post.${ext}`, { type: blob.type })
+  } catch { return null }
 }
 
 async function uploadLogFile(file: File | Blob, userId: string, treeId: string, suffix: string): Promise<string | null> {
@@ -108,23 +105,56 @@ async function buildCompositeBlob(close: File, body: File): Promise<Blob> {
 }
 
 // ── Share sheet ───────────────────────────────────────────────────────────
-function ShareSheet({ treeName, caption, onClose }: { treeName: string; caption?: string | null; onClose: () => void }) {
-  const pageUrl = window.location.href
-  const text = caption
+function ShareSheet({ treeName, caption, urls, onClose }: {
+  treeName: string
+  caption?: string | null
+  urls: string[]
+  onClose: () => void
+}) {
+  const [fetching, setFetching] = useState(false)
+  const shareText = caption
     ? `${caption} — planted ${treeName} on MyTrees 🌱`
-    : `Check out my tree "${treeName}" on MyTrees! 🌱`
+    : `I'm growing "${treeName}" and tracking it on MyTrees 🌱`
 
-  const handleShare = async (platform: string) => {
-    if (platform === 'instagram' || platform === 'tiktok') {
-      // Use native share if available for these (can't deep link to create post)
-      if (navigator.share) {
-        try { await navigator.share({ title: 'MyTrees', text, url: pageUrl }) } catch { /**/ }
-      } else {
-        window.open(buildShareUrl(platform, text, pageUrl), '_blank')
-      }
-      return
+  const getFile = async (): Promise<File | null> => {
+    if (!urls.length) return null
+    setFetching(true)
+    const file = await fetchMediaFile(urls[0])
+    setFetching(false)
+    return file
+  }
+
+  const handlePost = async (fallback: string) => {
+    const file = await getFile()
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'MyTrees', text: shareText }) } catch { /**/ }
+    } else if (file) {
+      // Desktop fallback: download the file then open the platform
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(file)
+      a.download = file.name
+      a.click()
+      setTimeout(() => window.open(fallback, '_blank'), 800)
+    } else {
+      window.open(fallback, '_blank')
     }
-    window.open(buildShareUrl(platform, text, pageUrl), '_blank', 'width=600,height=500')
+    onClose()
+  }
+
+  const handleWhatsApp = async () => {
+    const file = await getFile()
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'MyTrees', text: shareText }) } catch { /**/ }
+    } else if (file) {
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(file)
+      a.download = file.name
+      a.click()
+      setTimeout(() => window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank'), 800)
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank')
+    }
+    onClose()
   }
 
   return (
@@ -140,33 +170,45 @@ function ShareSheet({ treeName, caption, onClose }: { treeName: string; caption?
         animation: 'slideUp 0.25s cubic-bezier(0.4,0,0.2,1) forwards',
       }}>
         <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-          <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-fg)', margin: 0 }}>Share this post</p>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-fg)', margin: 0 }}>Share your tree</p>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--color-tertiary)', lineHeight: 1 }}>×</button>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-          {SHARE_PLATFORMS.map(p => (
-            <button key={p.id} onClick={() => handleShare(p.id)} style={{
+
+        {/* Create a post with */}
+        <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-tertiary)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10 }}>Create a post with</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+          {POST_PLATFORMS.map(p => (
+            <button key={p.id} onClick={() => handlePost(p.fallback)} disabled={fetching} style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-              padding: '14px 8px', borderRadius: 14,
+              padding: '12px 6px', borderRadius: 14,
               background: 'var(--bg)', boxShadow: 'var(--neu-shadow-sm)',
-              border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              border: 'none', cursor: fetching ? 'wait' : 'pointer', fontFamily: 'inherit',
+              opacity: fetching ? 0.6 : 1,
             }}>
               <span style={{
-                width: 40, height: 40, borderRadius: 12,
+                width: 42, height: 42, borderRadius: 12,
                 background: p.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 16, color: '#fff', fontWeight: 900,
+                fontSize: 18, color: '#fff', fontWeight: 900,
               }}>{p.icon}</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-secondary)' }}>{p.label}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-secondary)' }}>{p.label}</span>
             </button>
           ))}
         </div>
-        {navigator.share && (
-          <button onClick={async () => { try { await navigator.share({ title: 'MyTrees', text, url: pageUrl }) } catch { /**/ } onClose() }}
-            style={{ width: '100%', marginTop: 12, padding: '13px 0', borderRadius: 12, border: 'none', background: 'var(--accent)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-            More options…
-          </button>
-        )}
+
+        {/* WhatsApp Status */}
+        <button onClick={handleWhatsApp} disabled={fetching} style={{
+          width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
+          background: '#25D366', color: '#fff',
+          fontSize: 14, fontWeight: 700, cursor: fetching ? 'wait' : 'pointer',
+          fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          opacity: fetching ? 0.6 : 1,
+        }}>
+          <span style={{ fontSize: 18 }}>💬</span>
+          {fetching ? 'Preparing file…' : 'Create a WhatsApp Status'}
+        </button>
       </div>
     </div>
   )
@@ -481,7 +523,7 @@ export default function TreeDetail() {
 
       {/* Share sheet */}
       {shareLog && (
-        <ShareSheet treeName={tree.name} caption={shareLog.caption} onClose={() => setShareLog(null)} />
+        <ShareSheet treeName={tree.name} caption={shareLog.caption} urls={shareLog.media_urls ?? []} onClose={() => setShareLog(null)} />
       )}
     </div>
   )
