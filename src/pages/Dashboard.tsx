@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../types/database'
@@ -20,6 +20,27 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [trees,   setTrees]   = useState<Tree[]>([])
   const [loading, setLoading] = useState(true)
+
+  // ── Remove tree ───────────────────────────────────────────────────────
+  const [removeTarget,  setRemoveTarget]  = useState<Tree | null>(null)
+  const [removeConfirm, setRemoveConfirm] = useState('')
+  const [removeLoading, setRemoveLoading] = useState(false)
+  const removeInputRef = useRef<HTMLInputElement>(null)
+  const CONFIRM_PHRASE = 'remove this tree'
+
+  const openRemove = (e: React.MouseEvent, tree: Tree) => {
+    e.preventDefault(); e.stopPropagation()
+    setRemoveTarget(tree); setRemoveConfirm('')
+    setTimeout(() => removeInputRef.current?.focus(), 120)
+  }
+
+  const handleRemove = async () => {
+    if (!removeTarget || removeConfirm.toLowerCase() !== CONFIRM_PHRASE) return
+    setRemoveLoading(true)
+    await supabase.from('trees').delete().eq('id', removeTarget.id)
+    setTrees(ts => ts.filter(t => t.id !== removeTarget.id))
+    setRemoveTarget(null); setRemoveConfirm(''); setRemoveLoading(false)
+  }
 
   useEffect(() => {
     async function load() {
@@ -129,29 +150,119 @@ export default function Dashboard() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {trees.map(tree => (
-            <Link key={tree.id} to={`/tree/${tree.id}`}
-              style={{ textDecoration: 'none', display: 'block' }}>
-              <div className="card-sm" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, transition: 'transform 0.15s' }}>
-                <div style={{
-                  width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-                  background: 'var(--bg)', boxShadow: 'var(--neu-inset-sm)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
-                }}>
-                  {STAGE_EMOJI[tree.stage] ?? '🌱'}
+            <div key={tree.id} style={{ position: 'relative' }}>
+              <Link to={`/tree/${tree.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+                <div className="card-sm" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, paddingRight: 52 }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+                    background: 'var(--bg)', boxShadow: 'var(--neu-inset-sm)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+                  }}>
+                    {STAGE_EMOJI[tree.stage] ?? '🌱'}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {tree.name}
+                    </p>
+                    <p style={{ fontSize: 12, color: 'var(--color-tertiary)', marginTop: 2, textTransform: 'capitalize' }}>
+                      {tree.stage} · {tree.planted_at ? new Date(tree.planted_at).toLocaleDateString() : 'Not planted yet'}
+                    </p>
+                  </div>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {tree.name}
-                  </p>
-                  <p style={{ fontSize: 12, color: 'var(--color-tertiary)', marginTop: 2, textTransform: 'capitalize' }}>
-                    {tree.stage} · {tree.planted_at ? new Date(tree.planted_at).toLocaleDateString() : 'Not planted yet'}
-                  </p>
-                </div>
-                <span style={{ fontSize: 18, color: 'var(--border)', fontWeight: 300 }}>›</span>
-              </div>
-            </Link>
+              </Link>
+              {/* Delete button — outside Link so it doesn't navigate */}
+              <button
+                onClick={e => openRemove(e, tree)}
+                style={{
+                  position: 'absolute', top: '50%', right: 14,
+                  transform: 'translateY(-50%)',
+                  width: 30, height: 30, borderRadius: 8, border: 'none',
+                  background: 'var(--bg)', boxShadow: 'var(--neu-shadow-sm)',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 14, color: 'var(--color-tertiary)',
+                  transition: 'color 0.15s, box-shadow 0.15s',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#ef4444' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-tertiary)' }}
+                title="Remove tree"
+              >
+                🗑
+              </button>
+            </div>
           ))}
         </div>
+      )}
+
+      {/* ── Remove confirmation modal ────────────────────────────────────── */}
+      {removeTarget && (
+        <>
+          <style>{`
+            .remove-backdrop {
+              position: fixed; inset: 0; z-index: 700;
+              background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
+              display: flex; align-items: center; justify-content: center;
+              padding: 24px;
+            }
+            .remove-modal {
+              width: 100%; max-width: 360px;
+              background: var(--surface-solid);
+              border-radius: 20px;
+              padding: 28px 24px 24px;
+              box-shadow: var(--neu-shadow-lg);
+              animation: removeUp 0.25s cubic-bezier(0.4,0,0.2,1) forwards;
+            }
+            @keyframes removeUp {
+              from { opacity: 0; transform: scale(0.94) translateY(8px); }
+              to   { opacity: 1; transform: scale(1)    translateY(0);    }
+            }
+          `}</style>
+          <div className="remove-backdrop" onClick={() => setRemoveTarget(null)}>
+            <div className="remove-modal" onClick={e => e.stopPropagation()}>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>🗑️</div>
+              <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-fg)', marginBottom: 6 }}>
+                Remove "{removeTarget.name}"?
+              </p>
+              <p style={{ fontSize: 13, color: 'var(--color-secondary)', marginBottom: 18, lineHeight: 1.5 }}>
+                This cannot be undone. Type <strong>remove this tree</strong> to confirm.
+              </p>
+              <input
+                ref={removeInputRef}
+                className="input"
+                type="text"
+                placeholder="remove this tree"
+                value={removeConfirm}
+                onChange={e => setRemoveConfirm(e.target.value)}
+                style={{ marginBottom: 14 }}
+              />
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  onClick={() => { setRemoveTarget(null); setRemoveConfirm('') }}
+                  style={{
+                    flex: 1, padding: '13px 0', borderRadius: 12, border: 'none',
+                    background: 'var(--bg)', boxShadow: 'var(--neu-shadow-sm)',
+                    fontSize: 14, fontWeight: 600, color: 'var(--color-secondary)',
+                    cursor: 'pointer', fontFamily: 'inherit',
+                  }}>
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRemove}
+                  disabled={removeConfirm.toLowerCase() !== CONFIRM_PHRASE || removeLoading}
+                  style={{
+                    flex: 1, padding: '13px 0', borderRadius: 12, border: 'none',
+                    background: removeConfirm.toLowerCase() === CONFIRM_PHRASE ? '#ef4444' : 'var(--bg)',
+                    boxShadow: removeConfirm.toLowerCase() === CONFIRM_PHRASE ? '0 4px 14px rgba(239,68,68,0.35)' : 'var(--neu-shadow-sm)',
+                    fontSize: 14, fontWeight: 700,
+                    color: removeConfirm.toLowerCase() === CONFIRM_PHRASE ? '#fff' : 'var(--color-tertiary)',
+                    cursor: removeConfirm.toLowerCase() === CONFIRM_PHRASE ? 'pointer' : 'not-allowed',
+                    fontFamily: 'inherit', transition: 'all 0.2s',
+                  }}>
+                  {removeLoading ? 'Removing…' : 'Remove'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

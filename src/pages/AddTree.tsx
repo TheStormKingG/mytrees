@@ -118,25 +118,6 @@ export default function AddTree() {
   // ── Planting wizard ───────────────────────────────────────────────────
   const [showWizard, setShowWizard] = useState(false)
 
-  // Restore pending tree from sessionStorage after auth redirect
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('verify') !== '1') return
-    const raw = sessionStorage.getItem('pendingTree')
-    if (!raw) return
-    try {
-      const { country: c, form: f, speciesScientificName } = JSON.parse(raw)
-      if (c) setCountry(c)
-      if (f) setForm(f)
-      if (speciesScientificName) {
-        const sp = WORLD_SPECIES.find(s => s.scientific_name === speciesScientificName)
-        if (sp) setSelectedSpecies(sp)
-      }
-      sessionStorage.removeItem('pendingTree')
-      setShowWizard(true)
-    } catch { /**/ }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
   // ── Card flip + Wikipedia back-image ──────────────────────────────────
   const [cardFlipped,  setCardFlipped]  = useState(false)
   const [wikiImage,    setWikiImage]    = useState<string | null>(null)
@@ -172,19 +153,10 @@ export default function AddTree() {
     setCountry(c); setSelectedSpecies(null); setSpeciesQuery('')
   }
 
-  // ── Submit (auth-gated → open wizard) ───────────────────────────────
-  const handleSubmit = async (e: React.FormEvent) => {
+  // ── Submit — open wizard for everyone (auth handled inside wizard) ───
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!country) { setError('Please select a country first'); return }
-    setLoading(true); setError(null)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      sessionStorage.setItem('pendingTree', JSON.stringify({
-        country, form, speciesScientificName: selectedSpecies?.scientific_name ?? null,
-      }))
-      navigate('/auth'); return
-    }
-    setLoading(false)
     setShowWizard(true)
   }
 

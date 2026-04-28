@@ -1,4 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { supabase } from '../lib/supabase'
+
+declare const google: {
+  accounts: { id: { initialize: (cfg: object) => void; renderButton: (el: HTMLElement, opts: object) => void } }
+}
+const GOOGLE_CLIENT_ID = '421417281434-druc31nk2guo1t0oomt8g44d886m9m1k.apps.googleusercontent.com'
 
 type Stage = 'seed' | 'seedling' | 'sapling' | 'tree'
 
@@ -58,11 +64,62 @@ const STEPS = [
 
 export default function PlantingWizard({ stage, treeName, onComplete, onCancel }: Props) {
   const [step,       setStep]       = useState(0)
-  const [dir,        setDir]        = useState(1)   // 1 = forward, -1 = back
+  const [dir,        setDir]        = useState(1)
   const [completing, setCompleting] = useState(false)
   const [files,      setFiles]      = useState<(File | null)[]>([null, null, null, null, null])
   const [previews,   setPreviews]   = useState<(string | null)[]>([null, null, null, null, null])
   const [caption,    setCaption]    = useState('')
+
+  // ── Inline login gate ─────────────────────────────────────────────────
+  const [showLoginGate, setShowLoginGate] = useState(false)
+  const [loginEmail,    setLoginEmail]    = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [loginError,    setLoginError]    = useState<string | null>(null)
+  const [loginLoading,  setLoginLoading]  = useState(false)
+  const [isSignUp,      setIsSignUp]      = useState(false)
+  const googleBtnRef = useRef<HTMLDivElement>(null)
+
+  // Listen for auth changes while gate is open → auto-complete on success
+  useEffect(() => {
+    if (!showLoginGate) return
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, session) => {
+      if (!session) return
+      setShowLoginGate(false)
+      setCompleting(true)
+      try { await onComplete() } catch { setCompleting(false) }
+    })
+    return () => subscription.unsubscribe()
+  }, [showLoginGate, onComplete])
+
+  // Render Google button when gate opens
+  useEffect(() => {
+    if (!showLoginGate) return
+    const init = () => {
+      if (typeof google === 'undefined' || !googleBtnRef.current) return
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async (response: { credential: string }) => {
+          setLoginLoading(true); setLoginError(null)
+          const { error } = await supabase.auth.signInWithIdToken({ provider: 'google', token: response.credential })
+          if (error) { setLoginError(error.message); setLoginLoading(false) }
+        },
+      })
+      google.accounts.id.renderButton(googleBtnRef.current!, {
+        theme: 'outline', size: 'large',
+        width: googleBtnRef.current!.offsetWidth || 320,
+        text: isSignUp ? 'signup_with' : 'continue_with',
+        shape: 'pill', logo_alignment: 'left',
+      })
+    }
+    const t = setTimeout(() => {
+      if (typeof google !== 'undefined') init()
+      else {
+        const s = document.querySelector('script[src*="accounts.google.com/gsi/client"]')
+        if (s) s.addEventListener('load', init)
+      }
+    }, 80)
+    return () => clearTimeout(t)
+  }, [showLoginGate, isSignUp])
 
   const current    = STEPS[step]
   const isLastStep = step === STEPS.length - 1
@@ -84,8 +141,24 @@ export default function PlantingWizard({ stage, treeName, onComplete, onCancel }
 
   const handleComplete = async () => {
     if (!captionOk) return
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setShowLoginGate(true); return }
     setCompleting(true)
     try { await onComplete() } catch { setCompleting(false) }
+  }
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoginLoading(true); setLoginError(null)
+    if (isSignUp) {
+      const { error } = await supabase.auth.signUp({ email: loginEmail, password: loginPassword })
+      if (error) { setLoginError(error.message); setLoginLoading(false) }
+      else setLoginError('Check your email to confirm, then come back here.')
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPassword })
+      if (error) { setLoginError(error.message); setLoginLoading(false) }
+      // auth state change listener handles success case
+    }
   }
 
   const pct = Math.round(((step + 1) / STEPS.length) * 100)
@@ -191,6 +264,30 @@ export default function PlantingWizard({ stage, treeName, onComplete, onCancel }
           transition: opacity 0.15s;
         }
         .wiz-btn-next:disabled { opacity: 0.32; cursor: not-allowed; box-shadow: none; }
+
+        /* ── Login gate overlay ── */
+        .wiz-login-gate {
+          position: absolute; inset: 0; z-index: 10;
+          background: var(--surface-solid);
+          display: flex; flex-direction: column;
+          padding: 28px 24px 24px;
+          overflow-y: auto;
+          animation: wizUp 0.25s cubic-bezier(0.4,0,0.2,1) forwards;
+        }
+        .wiz-login-divider {
+          display: flex; align-items: center; gap: 10px; margin: 14px 0;
+        }
+        .wiz-login-divider-line { flex: 1; height: 1px; background: var(--border); }
+        .wiz-login-divider-text {
+          font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+          color: var(--color-tertiary); text-transform: uppercase;
+        }
+        .wiz-login-input-wrap { position: relative; margin-bottom: 10px; }
+        .wiz-login-input-icon {
+          position: absolute; left: 14px; top: 50%;
+          transform: translateY(-50%); font-size: 14px; pointer-events: none;
+        }
+        .wiz-login-input-wrap .input { padding-left: 42px; }
       `}</style>
 
       <div className="wiz-backdrop" onClick={e => { if (e.target === e.currentTarget) onCancel() }}>
@@ -200,9 +297,9 @@ export default function PlantingWizard({ stage, treeName, onComplete, onCancel }
           <div className="wiz-header">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 20 }}>{current.icon}</span>
+                <span style={{ fontSize: 20 }}>{showLoginGate ? '🔐' : current.icon}</span>
                 <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-fg)', margin: 0, letterSpacing: -0.3 }}>
-                  {current.title}
+                  {showLoginGate ? 'Login to submit' : current.title}
                 </p>
               </div>
               <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-tertiary)', letterSpacing: 0.5 }}>
@@ -216,6 +313,76 @@ export default function PlantingWizard({ stage, treeName, onComplete, onCancel }
 
           {/* ── Body ── */}
           <div className="wiz-body">
+
+            {/* Login gate — slides over body when user isn't authed */}
+            {showLoginGate && (
+              <div className="wiz-login-gate">
+                <div style={{ marginBottom: 20 }}>
+                  <p style={{ fontSize: 17, fontWeight: 800, color: 'var(--color-fg)', margin: '0 0 6px', letterSpacing: -0.3 }}>
+                    {isSignUp ? 'Create an account to plant' : 'Sign in to plant'}
+                  </p>
+                  <p style={{ fontSize: 13, color: 'var(--color-tertiary)', lineHeight: 1.5 }}>
+                    Your 6 steps are saved. Sign in and your tree will be submitted automatically.
+                  </p>
+                </div>
+
+                {/* Google button */}
+                <div ref={googleBtnRef} style={{ width: '100%', minHeight: 44, marginBottom: 4 }} />
+
+                {/* Divider */}
+                <div className="wiz-login-divider">
+                  <div className="wiz-login-divider-line" />
+                  <span className="wiz-login-divider-text">or email</span>
+                  <div className="wiz-login-divider-line" />
+                </div>
+
+                {/* Email form */}
+                <form onSubmit={handleLoginSubmit}>
+                  <div className="wiz-login-input-wrap">
+                    <span className="wiz-login-input-icon">📧</span>
+                    <input className="input" type="email" placeholder="Email address"
+                      value={loginEmail} onChange={e => setLoginEmail(e.target.value)} required />
+                  </div>
+                  <div className="wiz-login-input-wrap">
+                    <span className="wiz-login-input-icon">🔒</span>
+                    <input className="input" type="password" placeholder="Password"
+                      value={loginPassword} onChange={e => setLoginPassword(e.target.value)} required />
+                  </div>
+
+                  {loginError && (
+                    <p style={{
+                      fontSize: 12, margin: '2px 0 10px',
+                      color: loginError.startsWith('Check') ? 'var(--accent)' : '#ef4444',
+                    }}>{loginError}</p>
+                  )}
+
+                  <button type="submit" className="btn-primary" disabled={loginLoading} style={{ marginTop: 4 }}>
+                    {loginLoading ? '…' : isSignUp ? '🌱 Create account & plant' : 'Sign in & plant my tree'}
+                  </button>
+                </form>
+
+                {/* Toggle */}
+                <div style={{ marginTop: 16, textAlign: 'center' }}>
+                  <span style={{ fontSize: 13, color: 'var(--color-tertiary)' }}>
+                    {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
+                  </span>
+                  <button onClick={() => { setIsSignUp(!isSignUp); setLoginError(null) }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer',
+                      fontSize: 13, fontWeight: 700, color: 'var(--accent)',
+                      padding: 0, fontFamily: 'inherit' }}>
+                    {isSignUp ? 'Sign in' : 'Sign up'}
+                  </button>
+                </div>
+
+                {/* Back */}
+                <button onClick={() => setShowLoginGate(false)}
+                  style={{ marginTop: 20, background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 13, color: 'var(--color-tertiary)', fontFamily: 'inherit' }}>
+                  ← Back to caption
+                </button>
+              </div>
+            )}
+
             <div key={step} className={`wiz-scroll ${dir > 0 ? 'wiz-fwd' : 'wiz-bck'}`}>
 
               {/* Instruction */}
@@ -306,20 +473,22 @@ export default function PlantingWizard({ stage, treeName, onComplete, onCancel }
             </div>
           </div>
 
-          {/* ── Footer ── */}
-          <div className="wiz-footer">
-            <button className="wiz-btn-back" onClick={step > 0 ? goBack : onCancel}>
-              {step > 0 ? '← Back' : 'Cancel'}
-            </button>
-            {isLastStep
-              ? <button className="wiz-btn-next" disabled={!captionOk || completing} onClick={handleComplete}>
-                  {completing ? 'Planting…' : '🌱 Plant my tree'}
-                </button>
-              : <button className="wiz-btn-next" disabled={!canProceed} onClick={goNext}>
-                  Next →
-                </button>
-            }
-          </div>
+          {/* ── Footer (hidden while login gate is showing) ── */}
+          {!showLoginGate && (
+            <div className="wiz-footer">
+              <button className="wiz-btn-back" onClick={step > 0 ? goBack : onCancel}>
+                {step > 0 ? '← Back' : 'Cancel'}
+              </button>
+              {isLastStep
+                ? <button className="wiz-btn-next" disabled={!captionOk || completing} onClick={handleComplete}>
+                    {completing ? 'Planting…' : '🌱 Plant my tree'}
+                  </button>
+                : <button className="wiz-btn-next" disabled={!canProceed} onClick={goNext}>
+                    Next →
+                  </button>
+              }
+            </div>
+          )}
 
         </div>
       </div>
