@@ -35,8 +35,8 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
           user-select: none;
         }
         .guest-blur-wrap > * {
-          filter: blur(5px) grayscale(0.3);
-          opacity: 0.45;
+          filter: blur(1.5px) grayscale(1);
+          opacity: 0.6;
         }
         .guest-overlay {
           position: fixed;
