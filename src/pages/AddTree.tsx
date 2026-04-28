@@ -16,7 +16,6 @@ const STAGES: { value: TreeStage; label: string; emoji: string }[] = [
 // Ensure or create species in Supabase, return its UUID
 async function upsertSpecies(sp: LocalSpecies): Promise<string | null> {
   try {
-    // Try to find by scientific name first
     const { data: existing } = await supabase
       .from('species')
       .select('id')
@@ -24,7 +23,6 @@ async function upsertSpecies(sp: LocalSpecies): Promise<string | null> {
       .maybeSingle()
     if (existing) return existing.id
 
-    // Insert new species
     const { data: inserted, error } = await supabase
       .from('species')
       .insert({
@@ -44,16 +42,14 @@ export default function AddTree() {
   const navigate = useNavigate()
   const searchRef = useRef<HTMLInputElement>(null)
 
-  // Country comes first — required
-  const [country, setCountry]               = useState(DEFAULT_COUNTRY)
-  const [speciesQuery, setSpeciesQuery]     = useState('')
+  const [country, setCountry]                 = useState(DEFAULT_COUNTRY)
+  const [speciesQuery, setSpeciesQuery]       = useState('')
   const [selectedSpecies, setSelectedSpecies] = useState<LocalSpecies | null>(null)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [form, setForm] = useState({
     name: '',
     stage: 'seed' as TreeStage,
     planted_at: new Date().toISOString().split('T')[0],
-    lat: '', lng: '', notes: '',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState<string | null>(null)
@@ -78,17 +74,7 @@ export default function AddTree() {
 
   // ── XP calculation ───────────────────────────────────────────────────
   const xp = selectedSpecies ? calcXP(selectedSpecies.carbon_coeff) : DEFAULT_XP
-
-  // ── XP colour: green > 100, amber 60–100, default < 60 ───────────────
   const xpColor = xp >= 100 ? '#16a34a' : xp >= 60 ? '#d97706' : 'white'
-
-  // ── GPS ──────────────────────────────────────────────────────────────
-  const useGPS = () => {
-    navigator.geolocation.getCurrentPosition(
-      pos => setForm(f => ({ ...f, lat: String(pos.coords.latitude), lng: String(pos.coords.longitude) })),
-      () => setError('Could not get GPS location'),
-    )
-  }
 
   // ── Country change resets species ─────────────────────────────────────
   const handleCountryChange = (c: string) => {
@@ -106,7 +92,6 @@ export default function AddTree() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setError('Not signed in'); setLoading(false); return }
 
-    // Resolve species_id
     let species_id: string | null = null
     if (selectedSpecies) {
       species_id = await upsertSpecies(selectedSpecies)
@@ -118,9 +103,9 @@ export default function AddTree() {
       species_id,
       stage: form.stage,
       planted_at: form.planted_at || null,
-      lat: form.lat ? parseFloat(form.lat) : null,
-      lng: form.lng ? parseFloat(form.lng) : null,
-      notes: form.notes || null,
+      lat: null,
+      lng: null,
+      notes: null,
       is_public: true,
     })
     if (err) { setError(err.message); setLoading(false); return }
@@ -142,16 +127,7 @@ export default function AddTree() {
 
       <form onSubmit={handleSubmit}>
 
-        {/* ── 1. Tree name ─────────────────────────────────────────── */}
-        <div className="field">
-          <label className="label">Tree name *</label>
-          <input className="input" type="text" placeholder="e.g. Grandma's Oak"
-            value={form.name}
-            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            required />
-        </div>
-
-        {/* ── 2. Country (required, before species) ────────────────── */}
+        {/* ── 1. Country (required, before species) ────────────────── */}
         <div className="field">
           <label className="label">Country *</label>
           <p style={{ fontSize: 11, color: 'var(--color-tertiary)', marginBottom: 8 }}>
@@ -175,29 +151,7 @@ export default function AddTree() {
           )}
         </div>
 
-        {/* ── 3. Stage picker ───────────────────────────────────────── */}
-        <div className="field">
-          <label className="label">Current stage</label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-            {STAGES.map(s => (
-              <button key={s.value} type="button"
-                onClick={() => setForm(f => ({ ...f, stage: s.value }))}
-                style={{
-                  padding: '14px 0', borderRadius: 14, border: 'none', cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  background: form.stage === s.value ? 'var(--surface-solid)' : 'var(--bg)',
-                  boxShadow: form.stage === s.value ? 'var(--neu-inset-sm)' : 'var(--neu-shadow-sm)',
-                  color: form.stage === s.value ? 'var(--accent)' : 'var(--color-secondary)',
-                  textAlign: 'center',
-                }}>
-                <div style={{ fontSize: 26, lineHeight: 1, marginBottom: 6 }}>{s.emoji}</div>
-                <div style={{ fontSize: 11, fontWeight: 600 }}>{s.label}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ── 4. Species search (native to selected country) ────────── */}
+        {/* ── 2. Species search (native to selected country) ────────── */}
         <div className="field">
           <label className="label">Species</label>
           <p style={{ fontSize: 11, color: 'var(--color-tertiary)', marginBottom: 8 }}>
@@ -299,43 +253,49 @@ export default function AddTree() {
           )}
         </div>
 
-        {/* ── 5. Date planted ───────────────────────────────────────── */}
+        {/* ── 3. Stage picker ───────────────────────────────────────── */}
+        <div className="field">
+          <label className="label">Current stage</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+            {STAGES.map(s => (
+              <button key={s.value} type="button"
+                onClick={() => setForm(f => ({ ...f, stage: s.value }))}
+                style={{
+                  padding: '14px 0', borderRadius: 14, border: 'none', cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  background: form.stage === s.value ? 'var(--surface-solid)' : 'var(--bg)',
+                  boxShadow: form.stage === s.value ? 'var(--neu-inset-sm)' : 'var(--neu-shadow-sm)',
+                  color: form.stage === s.value ? 'var(--accent)' : 'var(--color-secondary)',
+                  textAlign: 'center',
+                }}>
+                <div style={{ fontSize: 26, lineHeight: 1, marginBottom: 6 }}>{s.emoji}</div>
+                <div style={{ fontSize: 11, fontWeight: 600 }}>{s.label}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── 4. Date planted ───────────────────────────────────────── */}
         <div className="field">
           <label className="label">Date planted</label>
           <input className="input" type="date" value={form.planted_at}
             onChange={e => setForm(f => ({ ...f, planted_at: e.target.value }))} />
         </div>
 
-        {/* ── 6. GPS location (optional) ────────────────────────────── */}
+        {/* ── 5. Tree name ──────────────────────────────────────────── */}
         <div className="field">
-          <label className="label">GPS coordinates (optional)</label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input className="input" type="number" placeholder="Latitude" value={form.lat}
-              onChange={e => setForm(f => ({ ...f, lat: e.target.value }))} step="any" style={{ flex: 1 }} />
-            <input className="input" type="number" placeholder="Longitude" value={form.lng}
-              onChange={e => setForm(f => ({ ...f, lng: e.target.value }))} step="any" style={{ flex: 1 }} />
-            <button type="button" onClick={useGPS}
-              style={{
-                width: 50, flexShrink: 0, borderRadius: 14, border: 'none',
-                background: 'var(--surface-solid)', boxShadow: 'var(--neu-shadow-sm)',
-                fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>📍</button>
-          </div>
-        </div>
-
-        {/* ── 7. Notes ──────────────────────────────────────────────── */}
-        <div className="field">
-          <label className="label">Notes</label>
-          <textarea className="input" placeholder="Soil type, location, how you got the seed…"
-            value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-            rows={3} style={{ resize: 'none' }} />
+          <label className="label">Name your tree *</label>
+          <input className="input" type="text" placeholder="e.g. Grandma's Oak"
+            value={form.name}
+            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            required />
         </div>
 
         {error && (
           <p style={{ fontSize: 13, color: '#ef4444', marginBottom: 16 }}>{error}</p>
         )}
 
-        {/* ── 8. Dynamic XP submit button ───────────────────────────── */}
+        {/* ── 6. Dynamic XP submit button ───────────────────────────── */}
         <button type="submit" className="btn-primary" disabled={loading}
           style={{ position: 'relative', overflow: 'hidden' }}>
           {loading ? 'Planting…' : (
