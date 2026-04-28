@@ -160,18 +160,24 @@ export default function AddTree() {
     setShowWizard(true)
   }
 
-  // ── Plant confirmed (called after wizard completes) ───────────────────
-  const handlePlantConfirmed = async () => {
+  // ── Plant confirmed (called after wizard completes with uploaded media) ──
+  const handlePlantConfirmed = async (mediaUrls: string[], caption: string) => {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setLoading(false); return }
     let species_id: string | null = null
     if (selectedSpecies) species_id = await upsertSpecies(selectedSpecies)
-    const { error: err } = await supabase.from('trees').insert({
+    const { data: tree, error: err } = await supabase.from('trees').insert({
       user_id: user.id, name: form.name, species_id, stage: form.stage,
       planted_at: form.planted_at || null, lat: null, lng: null, notes: null, is_public: true,
+    }).select('id').single()
+    if (err || !tree) { setError(err?.message ?? 'Insert failed'); setLoading(false); return }
+    // Create the initial "planting" post log
+    await supabase.from('tree_logs').insert({
+      tree_id: tree.id, log_type: 'planting',
+      media_urls: mediaUrls, caption,
+      health: 'good', xp_awarded: xp,
     })
-    if (err) { setError(err.message); setLoading(false); return }
     try { await supabase.rpc('award_xp', { user_id: user.id, amount: xp }) } catch { /**/ }
     navigate('/dashboard')
   }
@@ -648,7 +654,7 @@ export default function AddTree() {
         <PlantingWizard
           stage={form.stage}
           treeName={form.name}
-          onComplete={handlePlantConfirmed}
+          onComplete={(mediaUrls, caption) => handlePlantConfirmed(mediaUrls, caption)}
           onCancel={() => setShowWizard(false)}
         />
       )}
