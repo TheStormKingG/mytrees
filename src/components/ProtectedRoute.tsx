@@ -44,20 +44,20 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         }
         .guest-overlay {
           position: fixed;
-          /* sits above the nav bar (z-index) but below the tab bar */
-          bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-          right: 20px;
+          bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+          left: 0; right: 0;
+          display: flex;
+          justify-content: center;
           z-index: 200;
+          pointer-events: none;
         }
         .guest-login-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
+          pointer-events: all;
           background: var(--accent);
           color: #fff;
           font-size: 14px;
           font-weight: 700;
-          padding: 13px 20px;
+          padding: 13px 32px;
           border-radius: 50px;
           border: none;
           cursor: pointer;
@@ -68,7 +68,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         }
         .guest-login-btn:hover {
           transform: translateY(-2px);
-          box-shadow: 0 10px 28px rgba(58,184,122,0.5), 0 3px 10px rgba(0,0,0,0.15);
+          box-shadow: 0 10px 28px rgba(58,184,122,0.5);
         }
         .guest-login-btn:active { transform: scale(0.97); }
       `}</style>
@@ -81,8 +81,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
       {/* Floating CTA */}
       <div className="guest-overlay">
         <button className="guest-login-btn" onClick={() => navigate('/auth')}>
-          <span>🔓</span>
-          <span>Login to view</span>
+          Login to view
         </button>
       </div>
     </>

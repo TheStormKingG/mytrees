@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { COUNTRIES, DEFAULT_COUNTRY } from '../data/countries'
 import { WORLD_SPECIES, calcXP, DEFAULT_XP, type LocalSpecies } from '../data/worldSpecies'
 import { countryFlag } from '../data/countryFlags'
+import PlantingWizard from '../components/PlantingWizard'
 
 // ── Rarity helpers ────────────────────────────────────────────────────────────
 type Rarity = { tier: string; color: string; bg: string; glow: string; stars: string; fallbackImg: string }
@@ -114,6 +115,28 @@ export default function AddTree() {
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState<string | null>(null)
 
+  // ── Planting wizard ───────────────────────────────────────────────────
+  const [showWizard, setShowWizard] = useState(false)
+
+  // Restore pending tree from sessionStorage after auth redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('verify') !== '1') return
+    const raw = sessionStorage.getItem('pendingTree')
+    if (!raw) return
+    try {
+      const { country: c, form: f, speciesScientificName } = JSON.parse(raw)
+      if (c) setCountry(c)
+      if (f) setForm(f)
+      if (speciesScientificName) {
+        const sp = WORLD_SPECIES.find(s => s.scientific_name === speciesScientificName)
+        if (sp) setSelectedSpecies(sp)
+      }
+      sessionStorage.removeItem('pendingTree')
+      setShowWizard(true)
+    } catch { /**/ }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Card flip + Wikipedia back-image ──────────────────────────────────
   const [cardFlipped,  setCardFlipped]  = useState(false)
   const [wikiImage,    setWikiImage]    = useState<string | null>(null)
@@ -149,7 +172,7 @@ export default function AddTree() {
     setCountry(c); setSelectedSpecies(null); setSpeciesQuery('')
   }
 
-  // ── Submit (auth-gated) ───────────────────────────────────────────────
+  // ── Submit (auth-gated → open wizard) ───────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!country) { setError('Please select a country first'); return }
@@ -161,6 +184,15 @@ export default function AddTree() {
       }))
       navigate('/auth'); return
     }
+    setLoading(false)
+    setShowWizard(true)
+  }
+
+  // ── Plant confirmed (called after wizard completes) ───────────────────
+  const handlePlantConfirmed = async () => {
+    setLoading(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setLoading(false); return }
     let species_id: string | null = null
     if (selectedSpecies) species_id = await upsertSpecies(selectedSpecies)
     const { error: err } = await supabase.from('trees').insert({
@@ -639,6 +671,15 @@ export default function AddTree() {
         )}
 
       </form>
+
+      {showWizard && (
+        <PlantingWizard
+          stage={form.stage}
+          treeName={form.name}
+          onComplete={handlePlantConfirmed}
+          onCancel={() => setShowWizard(false)}
+        />
+      )}
     </>
   )
 }

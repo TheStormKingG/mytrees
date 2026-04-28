@@ -84,7 +84,10 @@ export default function Auth() {
             provider: 'google', token: response.credential,
           })
           if (error) { setError(error.message); setLoading(false) }
-          else navigate('/dashboard', { replace: true })
+          else {
+            const dest = sessionStorage.getItem('pendingTree') ? '/add-tree?verify=1' : '/dashboard'
+            navigate(dest, { replace: true })
+          }
         },
       })
       google.accounts.id.renderButton(googleBtnRef.current, {
@@ -113,7 +116,10 @@ export default function Auth() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(error.message)
-      else navigate('/dashboard', { replace: true })
+      else {
+        const dest = sessionStorage.getItem('pendingTree') ? '/add-tree?verify=1' : '/dashboard'
+        navigate(dest, { replace: true })
+      }
     }
     setLoading(false)
   }
