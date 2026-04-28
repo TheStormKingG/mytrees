@@ -302,6 +302,12 @@ export default function AddTree() {
           position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 14px 12px;
         }
 
+        /* ── Cartoon filter on front-face image ──────────────────────── */
+        .cartoon-img {
+          width: 100%; height: 100%; object-fit: cover; display: block;
+          filter: url(#cartoon-filter) contrast(1.35) brightness(1.08);
+        }
+
         /* ── Country flag reveal ──────────────────────────────────────── */
         .flag-reveal {
           display: flex; align-items: center; gap: 12px;
@@ -312,6 +318,24 @@ export default function AddTree() {
         }
         .flag-emoji { font-size: 36px; line-height: 1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2)); }
       `}</style>
+
+      {/* ── SVG cartoon filter (hidden, referenced by CSS) ───────────────── */}
+      <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none' }}>
+        <defs>
+          <filter id="cartoon-filter" colorInterpolationFilters="sRGB">
+            {/* Slight smoothing to remove grain */}
+            <feGaussianBlur stdDeviation="0.6" result="blur" />
+            {/* Boost saturation for vivid colours */}
+            <feColorMatrix type="saturate" values="2.8" in="blur" result="saturated" />
+            {/* Posterize: reduce to flat colour bands */}
+            <feComponentTransfer in="saturated" result="posterized">
+              <feFuncR type="discrete" tableValues="0 0.25 0.5 0.75 1" />
+              <feFuncG type="discrete" tableValues="0 0.25 0.5 0.75 1" />
+              <feFuncB type="discrete" tableValues="0 0.25 0.5 0.75 1" />
+            </feComponentTransfer>
+          </filter>
+        </defs>
+      </svg>
 
       {/* ── Carousel ──────────────────────────────────────────────────────── */}
       <div className="carousel-root">
@@ -444,17 +468,18 @@ export default function AddTree() {
                           </p>
                         </div>
 
-                        {/* Image zone */}
+                        {/* Image zone — cartoon filter applied here */}
                         <div className="poke-image-zone" style={{ border: `1px solid ${r.color}30` }}>
                           {wikiLoading
                             ? <span style={{ fontSize: 32, opacity: 0.4 }}>🌿</span>
                             : wikiImage
-                              ? <img src={wikiImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ? <img src={wikiImage} alt="" className="cartoon-img" />
                               : <span>🌳</span>
                           }
+                          {/* Vignette edge blend into card bg */}
                           <div style={{
-                            position: 'absolute', inset: 0,
-                            background: `radial-gradient(ellipse at center, transparent 40%, ${r.bg.split(',')[0].replace('linear-gradient(160deg,', '')}88 100%)`,
+                            position: 'absolute', inset: 0, pointerEvents: 'none',
+                            background: `radial-gradient(ellipse at center, transparent 45%, ${r.bg.split(',')[0].replace('linear-gradient(160deg,', '')}99 100%)`,
                           }} />
                         </div>
 
