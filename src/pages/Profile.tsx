@@ -1,8 +1,86 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { applyTheme, getStoredTheme } from '../lib/theme'
+import type { Theme } from '../lib/theme'
 import type { Database } from '../types/database'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
+
+// ── Animated theme toggle switch ─────────────────────────────────────────────
+function ThemeToggle({ theme, onToggle }: { theme: Theme; onToggle: () => void }) {
+  const isDark = theme === 'dark'
+  return (
+    <button
+      onClick={onToggle}
+      aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: 0,
+        width: '100%',
+        fontFamily: 'inherit',
+      }}
+    >
+      {/* Track */}
+      <div style={{
+        position: 'relative',
+        width: 54,
+        height: 30,
+        borderRadius: 99,
+        background: isDark
+          ? 'linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%)'
+          : 'var(--bg)',
+        boxShadow: isDark
+          ? '0 2px 12px var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,0.2)'
+          : 'var(--neu-inset-sm)',
+        transition: 'background 0.28s ease, box-shadow 0.28s ease',
+        flexShrink: 0,
+      }}>
+        {/* Thumb */}
+        <div style={{
+          position: 'absolute',
+          top: 3,
+          left: isDark ? 'calc(100% - 27px)' : 3,
+          width: 24,
+          height: 24,
+          borderRadius: '50%',
+          background: isDark ? '#fff' : 'var(--surface-solid)',
+          boxShadow: isDark
+            ? '0 2px 8px rgba(0,0,0,0.20)'
+            : '2px 2px 5px rgba(140,168,140,0.35), -2px -2px 5px rgba(255,255,255,0.90)',
+          transition: 'left 0.28s cubic-bezier(0.34,1.56,0.64,1), background 0.28s ease',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 13,
+        }}>
+          {isDark ? '🌿' : '☀️'}
+        </div>
+      </div>
+
+      {/* Label */}
+      <div>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 14,
+          fontWeight: 600,
+          color: 'var(--color-fg)',
+          margin: 0,
+          letterSpacing: '-0.01em',
+        }}>
+          {isDark ? 'Forest (dark)' : 'Light'}
+        </p>
+        <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: '2px 0 0' }}>
+          {isDark ? 'Sage green — default' : 'Near-white with a hint of green'}
+        </p>
+      </div>
+    </button>
+  )
+}
 
 export default function ProfilePage() {
   const [profile,     setProfile]     = useState<Profile | null>(null)
@@ -11,6 +89,7 @@ export default function ProfilePage() {
   const [schoolGroup, setSchoolGroup] = useState('')
   const [saving,      setSaving]      = useState(false)
   const [message,     setMessage]     = useState('')
+  const [theme,       setTheme]       = useState<Theme>(getStoredTheme)
 
   useEffect(() => {
     async function load() {
@@ -39,6 +118,12 @@ export default function ProfilePage() {
     setMessage('Saved!'); setTimeout(() => setMessage(''), 2000); setSaving(false)
   }
 
+  const toggleTheme = () => {
+    const next: Theme = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    applyTheme(next)
+  }
+
   const signOut = async () => {
     await supabase.auth.signOut(); window.location.href = '/mytrees/'
   }
@@ -47,7 +132,7 @@ export default function ProfilePage() {
     <div>
       <header className="page-header">
         <p className="page-eyebrow">Account</p>
-        <h1 className="page-title">Profile 👤</h1>
+        <h1 className="page-title">Profile</h1>
       </header>
 
       {/* Avatar card */}
@@ -58,19 +143,19 @@ export default function ProfilePage() {
           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30,
         }}>🌳</div>
         <div>
-          <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-fg)', lineHeight: 1.2 }}>
+          <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 20, fontWeight: 700, color: 'var(--color-fg)', lineHeight: 1.2, letterSpacing: '-0.03em' }}>
             {username || 'Forest keeper'}
           </p>
-          <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)', marginTop: 4 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', marginTop: 4 }}>
             Level {profile?.level ?? 1} · {profile?.xp ?? 0} XP
           </p>
-          <p style={{ fontSize: 12, color: '#d97706', marginTop: 2 }}>
+          <p style={{ fontSize: 12, color: 'var(--xp, #e89e00)', marginTop: 2 }}>
             🔥 {profile?.streak_days ?? 0} day streak
           </p>
         </div>
       </div>
 
-      {/* Fields */}
+      {/* ── Profile fields ──────────────────────────────────────────────── */}
       <div className="field">
         <label className="label">Display name</label>
         <input className="input" type="text" value={username}
@@ -92,12 +177,86 @@ export default function ProfilePage() {
       )}
 
       {message && (
-        <p style={{ fontSize: 13, color: 'var(--accent)', marginBottom: 16, fontWeight: 500 }}>{message}</p>
+        <p style={{ fontSize: 13, color: 'var(--accent)', marginBottom: 16, fontWeight: 600 }}>{message}</p>
       )}
 
-      <button className="btn-primary" onClick={save} disabled={saving} style={{ marginBottom: 12 }}>
+      <button className="btn-primary" onClick={save} disabled={saving} style={{ marginBottom: 24 }}>
         {saving ? 'Saving…' : 'Save changes'}
       </button>
+
+      {/* ── Settings ────────────────────────────────────────────────────── */}
+      <div style={{ marginBottom: 24 }}>
+        <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 18, fontWeight: 700, color: 'var(--color-fg)', letterSpacing: '-0.03em', marginBottom: 14 }}>
+          Appearance
+        </p>
+        <div className="card" style={{ padding: '18px 20px' }}>
+          <p className="label" style={{ marginBottom: 14 }}>Theme</p>
+
+          {/* Light option */}
+          <button
+            onClick={() => { setTheme('light'); applyTheme('light') }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              width: '100%', background: 'none', border: 'none',
+              cursor: 'pointer', padding: '12px 14px', borderRadius: 16,
+              marginBottom: 8, fontFamily: 'inherit',
+              boxShadow: theme === 'light' ? 'var(--neu-inset-sm)' : 'var(--neu-shadow-xs)',
+              background: theme === 'light' ? 'var(--bg)' : 'var(--surface-solid)',
+              transition: 'box-shadow 0.2s, background 0.2s',
+            } as React.CSSProperties}
+          >
+            {/* Swatch */}
+            <div style={{
+              width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+              background: 'linear-gradient(135deg, #f4fbf4 0%, #e8f5e8 100%)',
+              border: '2px solid ' + (theme === 'light' ? 'var(--accent)' : 'transparent'),
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              transition: 'border-color 0.2s',
+            }} />
+            <div style={{ flex: 1, textAlign: 'left' }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-fg)', margin: 0 }}>Light</p>
+              <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: '2px 0 0' }}>Near-white with a hint of green</p>
+            </div>
+            {theme === 'light' && (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            )}
+          </button>
+
+          {/* Dark option */}
+          <button
+            onClick={() => { setTheme('dark'); applyTheme('dark') }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              width: '100%', background: 'none', border: 'none',
+              cursor: 'pointer', padding: '12px 14px', borderRadius: 16,
+              fontFamily: 'inherit',
+              boxShadow: theme === 'dark' ? 'var(--neu-inset-sm)' : 'var(--neu-shadow-xs)',
+              background: theme === 'dark' ? 'var(--bg)' : 'var(--surface-solid)',
+              transition: 'box-shadow 0.2s, background 0.2s',
+            } as React.CSSProperties}
+          >
+            {/* Swatch */}
+            <div style={{
+              width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+              background: 'linear-gradient(135deg, #e2ece2 0%, #c8dcc8 100%)',
+              border: '2px solid ' + (theme === 'dark' ? 'var(--accent)' : 'transparent'),
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              transition: 'border-color 0.2s',
+            }} />
+            <div style={{ flex: 1, textAlign: 'left' }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-fg)', margin: 0 }}>Forest</p>
+              <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: '2px 0 0' }}>Sage green — default</p>
+            </div>
+            {theme === 'dark' && (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
 
       {email && (
         <button className="btn-ghost" onClick={signOut}>Sign out</button>

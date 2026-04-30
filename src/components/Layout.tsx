@@ -1,37 +1,44 @@
 import { Link, useLocation } from 'react-router-dom'
 
-// Clean stroke SVG icons — no emojis
+// ── Refined SVG icons — consistent 22px, 1.7 stroke weight ─────────────────
 const icons = {
-  forest: (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2L8 8H4l4 6H5l7 8 7-8h-3l4-6h-4L12 2z"/>
-    </svg>
-  ),
+  // Plant / add: seedling sprouting from soil
   plant: (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-      <circle cx="12" cy="12" r="9"/>
-      <line x1="12" y1="7" x2="12" y2="17"/>
-      <line x1="7" y1="12" x2="17" y2="12"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22V10"/>
+      <path d="M12 10C12 10 8 8.5 7 5c2.5-1 5 .5 5 5z"/>
+      <path d="M12 10C12 10 16 8.5 17 5c-2.5-1-5 .5-5 5z"/>
+      <path d="M9 22h6"/>
     </svg>
   ),
+  // MyTree / forest: stylised tree
+  forest: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3L8 9H5l5 7H7l5 7 5-7h-3l5-7h-3L12 3z"/>
+    </svg>
+  ),
+  // Carbon: leaf
   carbon: (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="9"/>
-      <path d="M3 12h18"/>
-      <path d="M12 3c-3 4-3 14 0 18"/>
-      <path d="M12 3c3 4 3 14 0 18"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6.5 17.5C6.5 17.5 4 14 4 10c0-5 4-8 8-8 4.5 0 8 3 8 8 0 4.5-3 7.5-3 7.5"/>
+      <path d="M12 2v18"/>
+      <path d="M12 14l-3-4"/>
+      <path d="M12 10l3-4"/>
     </svg>
   ),
+  // Leagues: trophy cup
   leagues: (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 3h12l-2 7H8L6 3z"/>
-      <path d="M8 10c0 4 4 7 4 7s4-3 4-7"/>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 3h8v9a4 4 0 0 1-8 0V3z"/>
+      <path d="M8 5H5a2 2 0 0 0 0 4h3"/>
+      <path d="M16 5h3a2 2 0 0 1 0 4h-3"/>
       <path d="M9 21h6"/>
       <path d="M12 17v4"/>
     </svg>
   ),
+  // Profile: person silhouette
   profile: (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="8" r="4"/>
       <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
     </svg>
@@ -55,59 +62,74 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
+      {/* ── Floating island nav ──────────────────────────────────────────── */}
       <nav className="bottom-nav">
-        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '8px 4px 6px' }}>
+        <div className="nav-island">
           {navItems.map(item => {
             const active = pathname.startsWith(item.to)
             return (
               <Link
                 key={item.to}
                 to={item.to}
+                aria-label={item.label}
                 style={{
+                  flex: active ? '1.8' : '1',
                   display: 'flex',
-                  flexDirection: 'column',
+                  flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 4,
-                  padding: '4px 10px 2px',
+                  justifyContent: 'center',
+                  gap: active ? 7 : 0,
+                  minHeight: 52,
+                  borderRadius: 20,
                   textDecoration: 'none',
-                  minWidth: 54,
+                  padding: active ? '0 14px' : '0',
+                  // Active: solid gradient green — feels like a real button
+                  background: active
+                    ? 'linear-gradient(148deg, var(--accent-light) 0%, var(--accent) 50%, var(--accent-dark) 100%)'
+                    : 'transparent',
+                  boxShadow: active
+                    ? '0 4px 18px var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,0.24), inset 0 -1px 0 rgba(0,0,0,0.08)'
+                    : 'none',
+                  transition: 'flex 0.32s cubic-bezier(0.34,1.2,0.64,1), background 0.22s ease, box-shadow 0.22s ease, padding 0.32s cubic-bezier(0.34,1.2,0.64,1)',
+                  overflow: 'hidden',
                   position: 'relative',
                 }}
               >
-                {/* Active bg pill */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0, left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: 50, height: 38,
-                  borderRadius: 12,
-                  background: active ? 'var(--accent-mid)' : 'transparent',
-                  border: active ? '1px solid rgba(36,160,96,0.16)' : '1px solid transparent',
-                  transition: 'background 0.22s ease, border-color 0.22s ease',
-                  zIndex: 0,
-                }} />
+                {/* Subtle inner sheen on active */}
+                {active && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0,
+                    height: '50%',
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.14) 0%, transparent 100%)',
+                    borderRadius: '20px 20px 0 0',
+                    pointerEvents: 'none',
+                  }} />
+                )}
 
                 {/* Icon */}
                 <div style={{
-                  color: active ? 'var(--accent)' : 'var(--color-tertiary)',
+                  color: active ? '#fff' : 'var(--color-tertiary)',
                   lineHeight: 0,
-                  position: 'relative', zIndex: 1,
-                  transition: 'color 0.18s ease, transform 0.20s cubic-bezier(0.34,1.56,0.64,1)',
-                  transform: active ? 'scale(1.12) translateY(-1px)' : 'scale(1) translateY(0)',
+                  flexShrink: 0,
+                  transition: 'color 0.20s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1)',
+                  transform: active ? 'scale(1.08)' : 'scale(1)',
                 }}>
                   {item.icon}
                 </div>
 
-                {/* Label */}
+                {/* Label — only visible on active, slides in with overflow hidden */}
                 <span style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 10,
-                  fontWeight: active ? 700 : 500,
-                  letterSpacing: active ? '-0.01em' : '0.01em',
-                  lineHeight: 1,
-                  color: active ? 'var(--accent)' : 'var(--color-tertiary)',
-                  position: 'relative', zIndex: 1,
-                  transition: 'color 0.18s ease',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  letterSpacing: '-0.015em',
+                  color: '#fff',
+                  whiteSpace: 'nowrap',
+                  maxWidth: active ? 80 : 0,
+                  opacity: active ? 1 : 0,
+                  overflow: 'hidden',
+                  transition: 'max-width 0.30s cubic-bezier(0.34,1.2,0.64,1), opacity 0.22s ease',
                 }}>
                   {item.label}
                 </span>
