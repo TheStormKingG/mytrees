@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { COUNTRIES, DEFAULT_COUNTRY } from '../data/countries'
-import { getCountryBlurb } from '../data/countryBlurbs'
+import { getCountryInfo } from '../data/countryBlurbs'
 import { WORLD_SPECIES, calcXP, DEFAULT_XP, type LocalSpecies } from '../data/worldSpecies'
 import { countryFlag } from '../data/countryFlags'
 import PlantingWizard from '../components/PlantingWizard'
@@ -183,7 +183,8 @@ export default function AddTree() {
     navigate('/dashboard')
   }
 
-  const flag = countryFlag(country)
+  const flag        = countryFlag(country)
+  const countryInfo = getCountryInfo(country)
 
   return (
     <>
@@ -390,11 +391,13 @@ export default function AddTree() {
             {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           {country && (
-            <div className="flag-reveal" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
+            <div className="flag-reveal" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+
+              {/* ── Header row: flag + country name + species count ── */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="flag-emoji">{flag}</span>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-fg)', margin: 0 }}>{country}</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-fg)', margin: 0 }}>{country}</p>
                   {nativeSpecies.length > 0 && (
                     <p style={{ fontSize: 12, color: 'var(--accent)', margin: '2px 0 0' }}>
                       🌿 {nativeSpecies.length} native species available
@@ -402,12 +405,56 @@ export default function AddTree() {
                   )}
                 </div>
               </div>
+
+              {/* ── National animal + plant tiles ── */}
+              <div style={{ display: 'flex', gap: 10, width: '100%' }}>
+                {/* National Animal */}
+                <div style={{
+                  flex: 1, borderRadius: 14,
+                  background: 'rgba(36,160,96,0.07)',
+                  border: '1px solid rgba(36,160,96,0.18)',
+                  padding: '12px 10px', textAlign: 'center',
+                }}>
+                  <div style={{ fontSize: 36, lineHeight: 1, marginBottom: 6 }}>
+                    {countryInfo.nationalAnimal.emoji}
+                  </div>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', margin: '0 0 2px',
+                    textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    National Animal
+                  </p>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-fg)', margin: 0, lineHeight: 1.3 }}>
+                    {countryInfo.nationalAnimal.name}
+                  </p>
+                </div>
+
+                {/* National Plant */}
+                <div style={{
+                  flex: 1, borderRadius: 14,
+                  background: 'rgba(36,160,96,0.07)',
+                  border: '1px solid rgba(36,160,96,0.18)',
+                  padding: '12px 10px', textAlign: 'center',
+                }}>
+                  <div style={{ fontSize: 36, lineHeight: 1, marginBottom: 6 }}>
+                    {countryInfo.nationalPlant.emoji}
+                  </div>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', margin: '0 0 2px',
+                    textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    National Plant
+                  </p>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-fg)', margin: 0, lineHeight: 1.3 }}>
+                    {countryInfo.nationalPlant.name}
+                  </p>
+                </div>
+              </div>
+
+              {/* ── Country blurb ── */}
               <p style={{
-                fontSize: 12, color: 'var(--color-secondary)', lineHeight: 1.55, margin: 0,
-                borderTop: '1px solid rgba(58,184,122,0.15)', paddingTop: 10,
+                fontSize: 12, color: 'var(--color-secondary)', lineHeight: 1.6, margin: 0,
+                borderTop: '1px solid rgba(36,160,96,0.15)', paddingTop: 12,
               }}>
-                {getCountryBlurb(country)}
+                {countryInfo.blurb}
               </p>
+
             </div>
           )}
         </div>
