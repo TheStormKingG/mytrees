@@ -82,16 +82,17 @@ async function saveAvatarUrl(userId: string, url: string): Promise<void> {
 }
 
 // ── Avatar editor sheet ────────────────────────────────────────────────────────
-type AvatarTab = 'choose' | 'upload' | 'camera'
+type AvatarTab = 'choose' | 'upload' | 'camera' | 'email'
 
 function AvatarEditor({
-  userId, onSaved, onClose,
+  userId, oauthPhotoUrl, onSaved, onClose,
 }: {
   userId: string
+  oauthPhotoUrl: string | null
   onSaved: (url: string) => void
   onClose: () => void
 }) {
-  const [tab,       setTab]       = useState<AvatarTab>('choose')
+  const [tab,       setTab]       = useState<AvatarTab>(oauthPhotoUrl ? 'email' : 'choose')
   const [saving,    setSaving]    = useState(false)
   const [cameraErr, setCameraErr] = useState('')
   const fileRef   = useRef<HTMLInputElement>(null)
@@ -156,6 +157,7 @@ function AvatarEditor({
   }
 
   const tabs: { id: AvatarTab; label: string; icon: string }[] = [
+    ...(oauthPhotoUrl ? [{ id: 'email' as AvatarTab, label: 'Email Photo', icon: '✉️' }] : []),
     { id: 'choose', label: 'Animals', icon: '🐾' },
     { id: 'upload', label: 'Upload',  icon: '📁' },
     { id: 'camera', label: 'Selfie',  icon: '📸' },
@@ -198,6 +200,28 @@ function AvatarEditor({
 
         {/* Tab content */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px' }}>
+          {/* ── EMAIL PHOTO ── */}
+          {tab === 'email' && oauthPhotoUrl && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, paddingTop: 20 }}>
+              <img src={oauthPhotoUrl} alt="Email profile"
+                style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover',
+                  border: '3px solid var(--accent)', boxShadow: 'var(--neu-shadow)' }} />
+              <p style={{ fontSize: 14, color: 'var(--color-secondary)', textAlign: 'center', margin: 0 }}>
+                Use the profile photo from your email account
+              </p>
+              <button className="btn-primary" disabled={saving}
+                onClick={async () => {
+                  setSaving(true)
+                  await saveAvatarUrl(userId, oauthPhotoUrl)
+                  onSaved(oauthPhotoUrl)
+                  setSaving(false)
+                }}
+                style={{ width: '100%', maxWidth: 240 }}>
+                {saving ? 'Saving…' : 'Use email photo'}
+              </button>
+            </div>
+          )}
+
           {/* ── CHOOSE ANIMAL ── */}
           {tab === 'choose' && (
             <div>
@@ -280,6 +304,7 @@ export default function ProfilePage() {
   const [username,     setUsername]     = useState('')
   const [schoolGroup,  setSchoolGroup]  = useState('')
   const [avatarUrl,    setAvatarUrl]    = useState<string | null>(null)
+  const [oauthPhoto,   setOauthPhoto]   = useState<string | null>(null)
   const [userId,       setUserId]       = useState<string | null>(null)
   const [saving,       setSaving]       = useState(false)
   const [message,      setMessage]      = useState('')
@@ -293,17 +318,19 @@ export default function ProfilePage() {
       setEmail(user.email ?? '')
       setUserId(user.id)
       const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      // Always capture the OAuth provider photo separately so user can revert to it
+      const oauth =
+        (user.user_metadata?.avatar_url as string | undefined) ||
+        (user.user_metadata?.picture    as string | undefined) ||
+        null
+      setOauthPhoto(oauth)
+
       if (data) {
         setProfile(data)
         setUsername(data.username ?? '')
         setSchoolGroup(data.school_group ?? '')
-        // Use stored avatar_url, or fall back to Google/OAuth provider photo
-        setAvatarUrl(
-          data.avatar_url ||
-          (user.user_metadata?.avatar_url as string | undefined) ||
-          (user.user_metadata?.picture    as string | undefined) ||
-          null
-        )
+        // Prefer stored custom avatar; fall back to OAuth photo on first login
+        setAvatarUrl(data.avatar_url || oauth || null)
       }
     }
     load()
@@ -479,6 +506,7 @@ export default function ProfilePage() {
       {showEditor && userId && (
         <AvatarEditor
           userId={userId}
+          oauthPhotoUrl={oauthPhoto}
           onSaved={url => { setAvatarUrl(url); setShowEditor(false) }}
           onClose={() => setShowEditor(false)}
         />
