@@ -374,7 +374,18 @@ export default function AddTree() {
 
       {/* ── Page header ───────────────────────────────────────────────────── */}
       <div style={{ marginBottom: 28 }}>
-        <p className="page-eyebrow">New tree</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 }}>
+          <img
+            src="/mytrees/logo-icon.png"
+            alt="groluv icon"
+            style={{ width: 56, height: 56, flexShrink: 0 }}
+          />
+          <img
+            src="/mytrees/logo-wordmark.png"
+            alt="groluv"
+            style={{ height: 36, width: 'auto' }}
+          />
+        </div>
         <h1 className="page-title" style={{ fontSize: 24 }}>Plant a tree 🌱</h1>
       </div>
 
