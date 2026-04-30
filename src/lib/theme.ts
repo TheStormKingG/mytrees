@@ -1,6 +1,6 @@
 export type Theme = 'light' | 'dark'
 
-const KEY = 'mytrees-theme'
+const KEY = 'groluv-theme'
 
 export function getStoredTheme(): Theme {
   try {

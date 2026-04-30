@@ -70,12 +70,12 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 4 }}>
           <img
             src="/mytrees/logo-icon.png"
-            alt="MyTrees icon"
+            alt="groluv icon"
             style={{ width: 70, height: 70, flexShrink: 0 }}
           />
           <img
             src="/mytrees/logo-wordmark.png"
-            alt="MyTrees"
+            alt="groluv"
             style={{ height: 28, width: 'auto' }}
           />
         </div>

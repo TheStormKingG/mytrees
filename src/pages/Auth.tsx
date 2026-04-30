@@ -249,7 +249,7 @@ export default function Auth() {
               <span style={{ fontSize: 32, lineHeight: 1, filter: 'drop-shadow(0 2px 8px rgba(36,160,96,0.3))' }}>🌳</span>
               <div>
                 <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 22, fontWeight: 800, color: 'var(--color-fg)', lineHeight: 1.1, letterSpacing: '-0.04em' }}>
-                  {isSignUp ? 'Join MyTrees' : 'Welcome back'}
+                  {isSignUp ? 'Join groluv' : 'Welcome back'}
                 </p>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'var(--color-tertiary)', marginTop: 4 }}>
                   {isSignUp ? 'Start your personal forest today' : 'Sign in to your forest'}

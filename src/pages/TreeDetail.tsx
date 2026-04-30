@@ -25,7 +25,7 @@ async function fetchMediaFile(url: string): Promise<File | null> {
                : blob.type.includes('webm') ? 'webm'
                : blob.type.includes('jpeg') ? 'jpg'
                : 'jpg'
-    return new File([blob], `mytrees_post.${ext}`, { type: blob.type })
+    return new File([blob], `groluv_post.${ext}`, { type: blob.type })
   } catch { return null }
 }
 

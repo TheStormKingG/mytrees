@@ -186,7 +186,7 @@ export default function TreeNFTCard(props: NFTCardProps) {
           }}>
             <div>
               <p style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: rarity.color, opacity: 0.9, textTransform: 'uppercase', marginBottom: 1 }}>
-                MyTrees NFT
+                groluv NFT
               </p>
               <Stars count={rarity.stars} color={rarity.color} />
             </div>
