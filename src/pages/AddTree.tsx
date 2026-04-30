@@ -147,7 +147,7 @@ export default function AddTree() {
     ).slice(0, 8)
   }, [nativeSpecies, speciesQuery])
 
-  const xp      = selectedSpecies ? calcXP(selectedSpecies.carbon_coeff) : DEFAULT_XP
+  const xp      = selectedSpecies ? calcXP(selectedSpecies.carbon_coeff, selectedSpecies.conservation_status) : DEFAULT_XP
   const xpColor = xp >= 100 ? '#16a34a' : xp >= 60 ? '#d97706' : 'white'
 
   const handleCountryChange = (c: string) => {
@@ -470,7 +470,7 @@ export default function AddTree() {
 
           {selectedSpecies ? (() => {
             const r         = getRarity(selectedSpecies.carbon_coeff)
-            const earnedXP  = calcXP(selectedSpecies.carbon_coeff)
+            const earnedXP  = calcXP(selectedSpecies.carbon_coeff, selectedSpecies.conservation_status)
             const annualKg  = (selectedSpecies.carbon_coeff * 2.0).toFixed(1)
             const backImg   = wikiImage ?? r.fallbackImg
             const barPct    = Math.min(100, (selectedSpecies.carbon_coeff / 10) * 100)
@@ -484,9 +484,28 @@ export default function AddTree() {
                   borderRadius: 12, padding: '10px 14px', marginBottom: 8,
                 }}>
                   <div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)', margin: 0 }}>
-                      {selectedSpecies.common_name}
-                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)', margin: 0 }}>
+                        {selectedSpecies.common_name}
+                      </p>
+                      {selectedSpecies.conservation_status && (() => {
+                        const sc =
+                          selectedSpecies.conservation_status === 'CR' ? '#dc2626' :
+                          selectedSpecies.conservation_status === 'EN' ? '#ea580c' :
+                          selectedSpecies.conservation_status === 'VU' ? '#d97706' : '#65a30d'
+                        const label =
+                          selectedSpecies.conservation_status === 'CR' ? 'Critically Endangered' :
+                          selectedSpecies.conservation_status === 'EN' ? 'Endangered' :
+                          selectedSpecies.conservation_status === 'VU' ? 'Vulnerable' : 'Near Threatened'
+                        return (
+                          <span style={{
+                            fontSize: 9, fontWeight: 800, letterSpacing: 0.8, textTransform: 'uppercase',
+                            color: sc, background: `${sc}18`, border: `1px solid ${sc}50`,
+                            borderRadius: 4, padding: '1px 5px', flexShrink: 0,
+                          }}>⚠ {label}</span>
+                        )
+                      })()}
+                    </div>
                     <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: 0 }}>
                       {selectedSpecies.scientific_name}
                     </p>
@@ -612,7 +631,14 @@ export default function AddTree() {
                   background: 'var(--surface-solid)', border: '1px solid rgba(212,219,229,0.8)',
                   borderRadius: 14, marginTop: 4, boxShadow: 'var(--neu-shadow)', overflow: 'hidden',
                 }}>
-                  {suggestions.map((sp, i) => (
+                  {suggestions.map((sp, i) => {
+                    const spXP = calcXP(sp.carbon_coeff, sp.conservation_status)
+                    const statusColor =
+                      sp.conservation_status === 'CR' ? '#dc2626' :
+                      sp.conservation_status === 'EN' ? '#ea580c' :
+                      sp.conservation_status === 'VU' ? '#d97706' :
+                      sp.conservation_status === 'NT' ? '#65a30d' : null
+                    return (
                     <button key={sp.scientific_name} type="button"
                       onMouseDown={() => { setSelectedSpecies(sp); setSpeciesQuery(''); setShowSuggestions(false) }}
                       style={{
@@ -622,21 +648,32 @@ export default function AddTree() {
                         borderBottom: i < suggestions.length - 1 ? '1px solid rgba(212,219,229,0.4)' : 'none',
                       }}>
                       <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-fg)', margin: 0,
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {sp.common_name}
-                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-fg)', margin: 0,
+                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {sp.common_name}
+                          </p>
+                          {sp.conservation_status && statusColor && (
+                            <span style={{
+                              fontSize: 9, fontWeight: 800, letterSpacing: 0.8, textTransform: 'uppercase',
+                              color: statusColor, background: `${statusColor}18`,
+                              border: `1px solid ${statusColor}50`,
+                              borderRadius: 4, padding: '1px 5px', flexShrink: 0,
+                            }}>{sp.conservation_status}</span>
+                          )}
+                        </div>
                         <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: 0 }}>
                           {sp.scientific_name}
                         </p>
                       </div>
                       <span style={{
                         flexShrink: 0, marginLeft: 8, fontSize: 11, fontWeight: 700,
-                        color: calcXP(sp.carbon_coeff) >= 100 ? '#16a34a' : '#d97706',
+                        color: spXP >= 100 ? '#16a34a' : '#d97706',
                         background: 'rgba(58,184,122,0.08)', borderRadius: 8, padding: '2px 6px',
-                      }}>+{calcXP(sp.carbon_coeff)} XP</span>
+                      }}>+{spXP} XP</span>
                     </button>
-                  ))}
+                    )
+                  })}
                   {speciesQuery.length >= 2 && suggestions.length === 0 && (
                     <p style={{ padding: '12px 14px', fontSize: 13, color: 'var(--color-tertiary)', margin: 0 }}>
                       No native species found for "{speciesQuery}" in {country}

@@ -8,18 +8,22 @@ export interface LocalSpecies {
   carbon_coeff: number       // used for XP + CarbonLedger
   native_countries: string[] // country names matching countries.ts
   family?: string
+  /** IUCN Red List category — drives XP multiplier and UI badge */
+  conservation_status?: 'NT' | 'VU' | 'EN' | 'CR'
+  /** Override image URL — used when Wikipedia API returns no image */
+  image_url?: string
 }
 
 export const WORLD_SPECIES: LocalSpecies[] = [
   // ── GUYANA (default country) ─────────────────────────────────────────
-  { common_name: 'Greenheart',         scientific_name: 'Chlorocardium rodiei',      carbon_coeff: 9.0,  native_countries: ['Guyana','Suriname','Venezuela'],                       family: 'Lauraceae' },
+  { common_name: 'Greenheart',         scientific_name: 'Chlorocardium rodiei',      carbon_coeff: 9.0,  native_countries: ['Guyana','Suriname','Venezuela'],                       family: 'Lauraceae',    conservation_status: 'VU' },
   { common_name: 'Mora',               scientific_name: 'Mora excelsa',              carbon_coeff: 8.2,  native_countries: ['Guyana','Trinidad and Tobago','Venezuela','Suriname'],  family: 'Fabaceae' },
   { common_name: 'Purple Heart',       scientific_name: 'Peltogyne venosa',          carbon_coeff: 7.5,  native_countries: ['Guyana','Suriname','Brazil','Venezuela'],               family: 'Fabaceae' },
   { common_name: 'Bullet Wood',        scientific_name: 'Manilkara bidentata',       carbon_coeff: 7.8,  native_countries: ['Guyana','Trinidad and Tobago','Brazil','Suriname','Venezuela','Colombia'], family: 'Sapotaceae' },
   { common_name: 'Wallaba',            scientific_name: 'Eperua falcata',            carbon_coeff: 6.8,  native_countries: ['Guyana','Suriname','Venezuela'],                       family: 'Fabaceae' },
   { common_name: 'Crabwood',           scientific_name: 'Carapa guianensis',         carbon_coeff: 6.2,  native_countries: ['Guyana','Suriname','Brazil','Trinidad and Tobago','Venezuela','Colombia'], family: 'Meliaceae' },
-  { common_name: 'Wamara',             scientific_name: 'Swartzia leiocalycina',     carbon_coeff: 7.0,  native_countries: ['Guyana','Suriname','Brazil'],                          family: 'Fabaceae' },
-  { common_name: 'Letterwood',         scientific_name: 'Piratinera guianensis',     carbon_coeff: 5.8,  native_countries: ['Guyana','Suriname','Brazil'],                          family: 'Moraceae' },
+  { common_name: 'Wamara',             scientific_name: 'Swartzia leiocalycina',     carbon_coeff: 7.0,  native_countries: ['Guyana','Suriname','Brazil'],                          family: 'Fabaceae',     conservation_status: 'EN' },
+  { common_name: 'Letterwood',         scientific_name: 'Piratinera guianensis',     carbon_coeff: 5.8,  native_countries: ['Guyana','Suriname','Brazil'],                          family: 'Moraceae',     conservation_status: 'EN' },
   { common_name: 'Tauroniro',          scientific_name: 'Humiria balsamifera',       carbon_coeff: 5.0,  native_countries: ['Guyana','Suriname','Brazil','Venezuela','Trinidad and Tobago'], family: 'Humiriaceae' },
   { common_name: 'Simarupa',           scientific_name: 'Simarouba amara',           carbon_coeff: 4.2,  native_countries: ['Guyana','Suriname','Brazil','Venezuela','Colombia','Trinidad and Tobago'], family: 'Simaroubaceae' },
   { common_name: 'Sandbox Tree',       scientific_name: 'Hura crepitans',            carbon_coeff: 5.2,  native_countries: ['Guyana','Suriname','Venezuela','Colombia','Brazil','Trinidad and Tobago','Belize','Mexico','Panama'], family: 'Euphorbiaceae' },
@@ -46,14 +50,14 @@ export const WORLD_SPECIES: LocalSpecies[] = [
   { common_name: 'Wax Palm',           scientific_name: 'Ceroxylon quindiuense',     carbon_coeff: 2.5,  native_countries: ['Colombia','Venezuela','Ecuador','Peru'],              family: 'Arecaceae' },
   { common_name: 'Nogal',              scientific_name: 'Cordia alliodora',          carbon_coeff: 4.5,  native_countries: ['Colombia','Venezuela','Ecuador','Peru','Panama','Costa Rica','Guatemala','Mexico'], family: 'Boraginaceae' },
   { common_name: 'Samán',              scientific_name: 'Samanea saman',             carbon_coeff: 5.0,  native_countries: ['Venezuela','Colombia','Trinidad and Tobago','Panama','Mexico','Brazil','Guyana'], family: 'Fabaceae' },
-  { common_name: 'Spanish Cedar',      scientific_name: 'Cedrela odorata',           carbon_coeff: 5.5,  native_countries: ['Colombia','Venezuela','Guyana','Suriname','Brazil','Bolivia','Peru','Ecuador','Panama','Costa Rica','Mexico','Belize'], family: 'Meliaceae' },
+  { common_name: 'Spanish Cedar',      scientific_name: 'Cedrela odorata',           carbon_coeff: 5.5,  native_countries: ['Colombia','Venezuela','Guyana','Suriname','Brazil','Bolivia','Peru','Ecuador','Panama','Costa Rica','Mexico','Belize'], family: 'Meliaceae',    conservation_status: 'VU' },
 
   // ── PERU / ECUADOR / BOLIVIA ─────────────────────────────────────────
   { common_name: 'Quinine (Cinchona)', scientific_name: 'Cinchona officinalis',      carbon_coeff: 2.2,  native_countries: ['Peru','Ecuador','Colombia','Bolivia'],                family: 'Rubiaceae' },
   { common_name: 'Tornillo',           scientific_name: 'Cedrelinga cateniformis',   carbon_coeff: 6.0,  native_countries: ['Peru','Brazil','Ecuador','Colombia'],                 family: 'Fabaceae' },
   { common_name: 'Quebracho Colorado', scientific_name: 'Schinopsis balansae',       carbon_coeff: 5.5,  native_countries: ['Argentina','Paraguay','Bolivia'],                     family: 'Anacardiaceae' },
-  { common_name: 'Monkey Puzzle',      scientific_name: 'Araucaria araucana',        carbon_coeff: 4.5,  native_countries: ['Chile','Argentina'],                                  family: 'Araucariaceae' },
-  { common_name: 'Alerce',             scientific_name: 'Fitzroya cupressoides',     carbon_coeff: 3.8,  native_countries: ['Chile','Argentina'],                                  family: 'Cupressaceae' },
+  { common_name: 'Monkey Puzzle',      scientific_name: 'Araucaria araucana',        carbon_coeff: 4.5,  native_countries: ['Chile','Argentina'],                                  family: 'Araucariaceae', conservation_status: 'VU' },
+  { common_name: 'Alerce',             scientific_name: 'Fitzroya cupressoides',     carbon_coeff: 3.8,  native_countries: ['Chile','Argentina'],                                  family: 'Cupressaceae',  conservation_status: 'EN' },
 
   // ── TRINIDAD AND TOBAGO / CARIBBEAN ──────────────────────────────────
   { common_name: 'Poui (Pink)',         scientific_name: 'Handroanthus roseus',      carbon_coeff: 3.5,  native_countries: ['Trinidad and Tobago','Guyana','Venezuela','Suriname','Colombia'], family: 'Bignoniaceae' },
@@ -62,10 +66,10 @@ export const WORLD_SPECIES: LocalSpecies[] = [
 
   // ── MEXICO / CENTRAL AMERICA ─────────────────────────────────────────
   { common_name: 'Oyamel Fir',         scientific_name: 'Abies religiosa',           carbon_coeff: 3.5,  native_countries: ['Mexico'],                                             family: 'Pinaceae' },
-  { common_name: 'Mexican Mahogany',   scientific_name: 'Swietenia macrophylla',     carbon_coeff: 5.8,  native_countries: ['Mexico','Belize','Guatemala','Honduras','Nicaragua','Panama','Colombia','Venezuela','Brazil','Peru','Bolivia'], family: 'Meliaceae' },
+  { common_name: 'Mexican Mahogany',   scientific_name: 'Swietenia macrophylla',     carbon_coeff: 5.8,  native_countries: ['Mexico','Belize','Guatemala','Honduras','Nicaragua','Panama','Colombia','Venezuela','Brazil','Peru','Bolivia'], family: 'Meliaceae',    conservation_status: 'VU' },
 
   // ── UNITED STATES ────────────────────────────────────────────────────
-  { common_name: 'Coast Redwood',      scientific_name: 'Sequoia sempervirens',      carbon_coeff: 9.5,  native_countries: ['United States'],                                      family: 'Cupressaceae' },
+  { common_name: 'Coast Redwood',      scientific_name: 'Sequoia sempervirens',      carbon_coeff: 9.5,  native_countries: ['United States'],                                      family: 'Cupressaceae',  conservation_status: 'EN' },
   { common_name: 'Douglas Fir',        scientific_name: 'Pseudotsuga menziesii',     carbon_coeff: 5.5,  native_countries: ['United States','Canada'],                             family: 'Pinaceae' },
   { common_name: 'Sugar Maple',        scientific_name: 'Acer saccharum',            carbon_coeff: 3.2,  native_countries: ['United States','Canada'],                             family: 'Sapindaceae' },
   { common_name: 'Northern Red Oak',   scientific_name: 'Quercus rubra',             carbon_coeff: 3.8,  native_countries: ['United States','Canada'],                             family: 'Fagaceae' },
@@ -115,13 +119,13 @@ export const WORLD_SPECIES: LocalSpecies[] = [
   { common_name: 'Banyan',             scientific_name: 'Ficus benghalensis',        carbon_coeff: 4.8,  native_countries: ['India','Sri Lanka','Bangladesh','Nepal','Pakistan'],  family: 'Moraceae' },
   { common_name: 'Neem',               scientific_name: 'Azadirachta indica',        carbon_coeff: 3.5,  native_countries: ['India','Sri Lanka','Bangladesh','Nepal','Pakistan','Myanmar','Thailand'], family: 'Meliaceae' },
   { common_name: 'Peepal / Sacred Fig',scientific_name: 'Ficus religiosa',           carbon_coeff: 4.2,  native_countries: ['India','Sri Lanka','Nepal','Bangladesh','Myanmar','Thailand','Laos','Vietnam'], family: 'Moraceae' },
-  { common_name: 'Indian Rosewood',    scientific_name: 'Dalbergia latifolia',       carbon_coeff: 4.5,  native_countries: ['India','Sri Lanka','Indonesia'],                      family: 'Fabaceae' },
+  { common_name: 'Indian Rosewood',    scientific_name: 'Dalbergia latifolia',       carbon_coeff: 4.5,  native_countries: ['India','Sri Lanka','Indonesia'],                      family: 'Fabaceae',     conservation_status: 'VU' },
   { common_name: 'Sal',                scientific_name: 'Shorea robusta',            carbon_coeff: 5.0,  native_countries: ['India','Nepal','Bangladesh','Bhutan'],                family: 'Dipterocarpaceae' },
   { common_name: 'Deodar Cedar',       scientific_name: 'Cedrus deodara',            carbon_coeff: 4.5,  native_countries: ['India','Pakistan','Nepal','Afghanistan'],             family: 'Pinaceae' },
 
   // ── CHINA / JAPAN / KOREA ────────────────────────────────────────────
   { common_name: 'Ginkgo',             scientific_name: 'Ginkgo biloba',             carbon_coeff: 3.0,  native_countries: ['China'],                                              family: 'Ginkgoaceae' },
-  { common_name: 'Dawn Redwood',       scientific_name: 'Metasequoia glyptostroboides',carbon_coeff:5.2, native_countries: ['China'],                                              family: 'Cupressaceae' },
+  { common_name: 'Dawn Redwood',       scientific_name: 'Metasequoia glyptostroboides',carbon_coeff:5.2, native_countries: ['China'],                                              family: 'Cupressaceae',  conservation_status: 'CR' },
   { common_name: 'Chinese Fir',        scientific_name: 'Cunninghamia lanceolata',   carbon_coeff: 4.5,  native_countries: ['China','Vietnam','Laos'],                             family: 'Cupressaceae' },
   { common_name: 'Moso Bamboo',        scientific_name: 'Phyllostachys edulis',      carbon_coeff: 3.5,  native_countries: ['China','Japan','Taiwan','Vietnam'],                   family: 'Poaceae' },
   { common_name: 'Japanese Cedar',     scientific_name: 'Cryptomeria japonica',      carbon_coeff: 4.0,  native_countries: ['Japan','China'],                                      family: 'Cupressaceae' },
@@ -135,7 +139,7 @@ export const WORLD_SPECIES: LocalSpecies[] = [
   { common_name: 'Hoop Pine',          scientific_name: 'Araucaria cunninghamii',    carbon_coeff: 4.2,  native_countries: ['Australia','Papua New Guinea'],                       family: 'Araucariaceae' },
   { common_name: 'Moreton Bay Fig',    scientific_name: 'Ficus macrophylla',         carbon_coeff: 5.5,  native_countries: ['Australia'],                                          family: 'Moraceae' },
   { common_name: 'Golden Wattle',      scientific_name: 'Acacia pycnantha',          carbon_coeff: 1.5,  native_countries: ['Australia'],                                          family: 'Fabaceae' },
-  { common_name: 'Kauri',              scientific_name: 'Agathis australis',         carbon_coeff: 6.5,  native_countries: ['New Zealand'],                                        family: 'Araucariaceae' },
+  { common_name: 'Kauri',              scientific_name: 'Agathis australis',         carbon_coeff: 6.5,  native_countries: ['New Zealand'],                                        family: 'Araucariaceae', conservation_status: 'EN' },
   { common_name: 'Rimu',               scientific_name: 'Dacrydium cupressinum',     carbon_coeff: 4.8,  native_countries: ['New Zealand'],                                        family: 'Podocarpaceae' },
   { common_name: 'Pohutukawa',         scientific_name: 'Metrosideros excelsa',      carbon_coeff: 3.0,  native_countries: ['New Zealand'],                                        family: 'Myrtaceae' },
   { common_name: 'Totara',             scientific_name: 'Podocarpus totara',         carbon_coeff: 4.2,  native_countries: ['New Zealand'],                                        family: 'Podocarpaceae' },
@@ -153,16 +157,16 @@ export const WORLD_SPECIES: LocalSpecies[] = [
   { common_name: 'Pyinkado',           scientific_name: 'Xylia xylocarpa',           carbon_coeff: 6.0,  native_countries: ['Myanmar','Thailand','Laos','India'],                  family: 'Fabaceae' },
 
   // ── SRI LANKA ─────────────────────────────────────────────────────────
-  { common_name: 'Ceylon Ebony',       scientific_name: 'Diospyros ebenum',          carbon_coeff: 5.5,  native_countries: ['Sri Lanka','India'],                                  family: 'Ebenaceae' },
+  { common_name: 'Ceylon Ebony',       scientific_name: 'Diospyros ebenum',          carbon_coeff: 5.5,  native_countries: ['Sri Lanka','India'],                                  family: 'Ebenaceae',    conservation_status: 'EN' },
   { common_name: 'Ironwood (Na)',       scientific_name: 'Mesua ferrea',              carbon_coeff: 5.0,  native_countries: ['Sri Lanka','India','Myanmar','Thailand','Malaysia'],  family: 'Calophyllaceae' },
 
   // ── AFRICA (WEST/CENTRAL) ────────────────────────────────────────────
-  { common_name: 'African Mahogany',   scientific_name: 'Khaya anthotheca',          carbon_coeff: 6.5,  native_countries: ['Nigeria','Ghana','Cameroon','Ivory Coast','DR Congo','Gabon','Congo','Sierra Leone','Liberia','Equatorial Guinea'], family: 'Meliaceae' },
+  { common_name: 'African Mahogany',   scientific_name: 'Khaya anthotheca',          carbon_coeff: 6.5,  native_countries: ['Nigeria','Ghana','Cameroon','Ivory Coast','DR Congo','Gabon','Congo','Sierra Leone','Liberia','Equatorial Guinea'], family: 'Meliaceae',    conservation_status: 'VU' },
   { common_name: 'Iroko',              scientific_name: 'Milicia excelsa',           carbon_coeff: 7.0,  native_countries: ['Nigeria','Ghana','Cameroon','Ivory Coast','DR Congo','Tanzania','Uganda','Kenya','Sierra Leone'], family: 'Moraceae' },
   { common_name: 'Sapele',             scientific_name: 'Entandrophragma cylindricum',carbon_coeff:6.8, native_countries: ['Cameroon','Nigeria','DR Congo','Gabon','Congo','Ivory Coast','Ghana','Uganda'], family: 'Meliaceae' },
-  { common_name: 'Wenge',              scientific_name: 'Millettia laurentii',       carbon_coeff: 6.5,  native_countries: ['DR Congo','Congo','Cameroon','Gabon','Equatorial Guinea'], family: 'Fabaceae' },
-  { common_name: 'African Teak',       scientific_name: 'Pericopsis elata',          carbon_coeff: 6.2,  native_countries: ['DR Congo','Cameroon','Nigeria','Ghana','Ivory Coast'],family: 'Fabaceae' },
-  { common_name: 'Ebony',              scientific_name: 'Diospyros crassiflora',     carbon_coeff: 5.5,  native_countries: ['Cameroon','Nigeria','Gabon','Equatorial Guinea','DR Congo'], family: 'Ebenaceae' },
+  { common_name: 'Wenge',              scientific_name: 'Millettia laurentii',       carbon_coeff: 6.5,  native_countries: ['DR Congo','Congo','Cameroon','Gabon','Equatorial Guinea'], family: 'Fabaceae',     conservation_status: 'EN' },
+  { common_name: 'African Teak',       scientific_name: 'Pericopsis elata',          carbon_coeff: 6.2,  native_countries: ['DR Congo','Cameroon','Nigeria','Ghana','Ivory Coast'],family: 'Fabaceae',     conservation_status: 'EN' },
+  { common_name: 'Ebony',              scientific_name: 'Diospyros crassiflora',     carbon_coeff: 5.5,  native_countries: ['Cameroon','Nigeria','Gabon','Equatorial Guinea','DR Congo'], family: 'Ebenaceae',    conservation_status: 'EN' },
   { common_name: 'Obeche',             scientific_name: 'Triplochiton scleroxylon',  carbon_coeff: 5.0,  native_countries: ['Nigeria','Ghana','Cameroon','Ivory Coast','DR Congo'], family: 'Malvaceae' },
   { common_name: 'Oil Palm',           scientific_name: 'Elaeis guineensis',         carbon_coeff: 3.5,  native_countries: ['Nigeria','Ghana','Cameroon','Ivory Coast','DR Congo','Gabon','Liberia','Sierra Leone'], family: 'Arecaceae' },
   { common_name: 'Baobab',             scientific_name: 'Adansonia digitata',        carbon_coeff: 8.5,  native_countries: ['Nigeria','Senegal','Gambia','Mali','Niger','Chad','Sudan','Ethiopia','Kenya','Tanzania','Mozambique','Zimbabwe','Botswana','South Africa','Namibia','Madagascar'], family: 'Malvaceae' },
@@ -186,7 +190,7 @@ export const WORLD_SPECIES: LocalSpecies[] = [
 
   // ── TURKEY / MIDDLE EAST ─────────────────────────────────────────────
   { common_name: 'Oriental Plane',     scientific_name: 'Platanus orientalis',       carbon_coeff: 4.0,  native_countries: ['Turkey','Greece','Albania','Iran','Lebanon'],         family: 'Platanaceae' },
-  { common_name: 'Cedar of Lebanon',   scientific_name: 'Cedrus libani',             carbon_coeff: 4.5,  native_countries: ['Lebanon','Syria','Turkey'],                           family: 'Pinaceae' },
+  { common_name: 'Cedar of Lebanon',   scientific_name: 'Cedrus libani',             carbon_coeff: 4.5,  native_countries: ['Lebanon','Syria','Turkey'],                           family: 'Pinaceae',     conservation_status: 'VU' },
   { common_name: 'Olive',              scientific_name: 'Olea europaea',             carbon_coeff: 1.8,  native_countries: ['Israel','Palestine','Lebanon','Jordan','Turkey','Greece','Italy','Spain','Portugal','Morocco','Algeria','Tunisia','Egypt'], family: 'Oleaceae' },
   { common_name: 'Carob',              scientific_name: 'Ceratonia siliqua',         carbon_coeff: 2.0,  native_countries: ['Israel','Palestine','Lebanon','Turkey','Greece','Italy','Spain','Portugal','Morocco'], family: 'Fabaceae' },
 
@@ -196,10 +200,10 @@ export const WORLD_SPECIES: LocalSpecies[] = [
 
   // ── MADAGASCAR ────────────────────────────────────────────────────────
   { common_name: 'Traveller\'s Palm',  scientific_name: 'Ravenala madagascariensis', carbon_coeff: 3.5,  native_countries: ['Madagascar'],                                         family: 'Strelitziaceae' },
-  { common_name: 'Rosewood',           scientific_name: 'Dalbergia maritima',        carbon_coeff: 5.5,  native_countries: ['Madagascar'],                                         family: 'Fabaceae' },
+  { common_name: 'Rosewood',           scientific_name: 'Dalbergia maritima',        carbon_coeff: 5.5,  native_countries: ['Madagascar'],                                         family: 'Fabaceae',     conservation_status: 'CR' },
 
   // ── PAPUA NEW GUINEA ──────────────────────────────────────────────────
-  { common_name: 'PNG Kauri',          scientific_name: 'Agathis robusta',           carbon_coeff: 6.5,  native_countries: ['Papua New Guinea','Australia'],                       family: 'Araucariaceae' },
+  { common_name: 'PNG Kauri',          scientific_name: 'Agathis robusta',           carbon_coeff: 6.5,  native_countries: ['Papua New Guinea','Australia'],                       family: 'Araucariaceae', conservation_status: 'VU' },
 
   // ── IRELAND / SCANDINAVIA ────────────────────────────────────────────
   { common_name: 'Sessile Oak',        scientific_name: 'Quercus petraea',           carbon_coeff: 2.8,  native_countries: ['Ireland','United Kingdom','France','Germany','Spain','Norway','Sweden'], family: 'Fagaceae' },
@@ -487,7 +491,7 @@ export const WORLD_SPECIES: LocalSpecies[] = [
   // ── CARIBBEAN / CENTRAL AMERICA — NATIONAL & ICONIC TREES ────────────
   { common_name: 'Blue Mahoe',         scientific_name: 'Talipariti elatum',         carbon_coeff: 4.5,  native_countries: ['Jamaica','Cuba','Barbados','Dominican Republic','Haiti','Trinidad and Tobago','Guyana','Belize','Panama'], family: 'Malvaceae' },
   { common_name: 'Royal Palm',         scientific_name: 'Roystonea regia',           carbon_coeff: 3.0,  native_countries: ['Cuba','Jamaica','Barbados','Dominican Republic','Haiti','Trinidad and Tobago','Guyana','Suriname','Colombia','Venezuela','Panama','Costa Rica','Belize'], family: 'Arecaceae' },
-  { common_name: 'Cuban Mahogany',     scientific_name: 'Swietenia mahagoni',        carbon_coeff: 5.5,  native_countries: ['Cuba','Jamaica','Barbados','Dominican Republic','Haiti','Bahamas','Belize','Panama','Colombia','Venezuela','Guyana','Suriname','Trinidad and Tobago'], family: 'Meliaceae' },
+  { common_name: 'Cuban Mahogany',     scientific_name: 'Swietenia mahagoni',        carbon_coeff: 5.5,  native_countries: ['Cuba','Jamaica','Barbados','Dominican Republic','Haiti','Bahamas','Belize','Panama','Colombia','Venezuela','Guyana','Suriname','Trinidad and Tobago'], family: 'Meliaceae',    conservation_status: 'EN' },
   { common_name: 'Lignum Vitae',       scientific_name: 'Guaiacum officinale',       carbon_coeff: 4.5,  native_countries: ['Jamaica','Bahamas','Cuba','Dominican Republic','Haiti','Trinidad and Tobago','Guyana','Suriname','Venezuela','Colombia','Panama'], family: 'Zygophyllaceae' },
   { common_name: 'Pride of Barbados',  scientific_name: 'Caesalpinia pulcherrima',   carbon_coeff: 1.2,  native_countries: ['Barbados','Trinidad and Tobago','Guyana','Suriname','Venezuela','Colombia','Panama','Costa Rica','Nicaragua','Honduras','Guatemala','Belize','Cuba','Jamaica','Dominican Republic','Haiti','Mexico'], family: 'Fabaceae' },
   { common_name: 'Guanacaste',         scientific_name: 'Enterolobium cyclocarpum',  carbon_coeff: 7.5,  native_countries: ['Costa Rica','Nicaragua','Honduras','Guatemala','Belize','Panama','Mexico','Colombia','Venezuela','Guyana','Suriname','Trinidad and Tobago','Brazil'], family: 'Fabaceae' },
@@ -504,7 +508,7 @@ export const WORLD_SPECIES: LocalSpecies[] = [
 
   // ── SOUTH / CENTRAL AMERICA — MORE GAPS ──────────────────────────────
   { common_name: 'Balsa Wood',         scientific_name: 'Ochroma pyramidale',        carbon_coeff: 5.5,  native_countries: ['Ecuador','Colombia','Venezuela','Guyana','Suriname','Brazil','Peru','Bolivia','Panama','Costa Rica','Nicaragua','Honduras','Guatemala','Belize','Mexico'], family: 'Malvaceae' },
-  { common_name: 'Cedrela / Cedro',    scientific_name: 'Cedrela fissilis',          carbon_coeff: 5.0,  native_countries: ['Brazil','Guyana','Suriname','Venezuela','Colombia','Peru','Ecuador','Bolivia','Paraguay','Argentina'], family: 'Meliaceae' },
+  { common_name: 'Cedrela / Cedro',    scientific_name: 'Cedrela fissilis',          carbon_coeff: 5.0,  native_countries: ['Brazil','Guyana','Suriname','Venezuela','Colombia','Peru','Ecuador','Bolivia','Paraguay','Argentina'], family: 'Meliaceae',    conservation_status: 'VU' },
   { common_name: 'Açaí (Amazon)',      scientific_name: 'Euterpe oleracea',          carbon_coeff: 3.5,  native_countries: ['Brazil','Guyana','Suriname','Venezuela','Colombia','Peru','Ecuador','Bolivia','Trinidad and Tobago'], family: 'Arecaceae' },
   { common_name: 'Yerba Mate',         scientific_name: 'Ilex paraguariensis',       carbon_coeff: 2.2,  native_countries: ['Brazil','Paraguay','Argentina','Uruguay','Bolivia'], family: 'Aquifoliaceae' },
   { common_name: 'Carnauba Wax Palm',  scientific_name: 'Copernicia prunifera',      carbon_coeff: 2.5,  native_countries: ['Brazil'],                                             family: 'Arecaceae' },
@@ -560,10 +564,23 @@ export const WORLD_SPECIES: LocalSpecies[] = [
   { common_name: 'Myrrh',             scientific_name: 'Commiphora myrrha',          carbon_coeff: 1.5,  native_countries: ['Somalia','Ethiopia','Eritrea','Sudan','Yemen','Oman'], family: 'Burseraceae' },
 ]
 
-// Calculate XP from carbon coefficient
-// Formula: base 30 + coeff × 14, rounded to nearest 5, capped at 200
-export function calcXP(coeff: number): number {
-  return Math.min(200, Math.round((30 + coeff * 14) / 5) * 5)
+/**
+ * Calculate XP from carbon coefficient + optional conservation status.
+ * Base formula: 30 + coeff × 14, rounded to nearest 5.
+ * Conservation multipliers: CR = 2×, EN = 1.75×, VU = 1.5×, NT = 1.25×
+ * Hard cap: 400 XP (allows endangered species to exceed old 200 cap).
+ */
+export function calcXP(
+  coeff: number,
+  status?: LocalSpecies['conservation_status'],
+): number {
+  const base = Math.round((30 + coeff * 14) / 5) * 5
+  const multiplier =
+    status === 'CR' ? 2.0 :
+    status === 'EN' ? 1.75 :
+    status === 'VU' ? 1.5 :
+    status === 'NT' ? 1.25 : 1.0
+  return Math.min(400, Math.round((base * multiplier) / 5) * 5)
 }
 
 // Default XP when no species selected
