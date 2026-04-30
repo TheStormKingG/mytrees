@@ -228,23 +228,30 @@ function AvatarEditor({
               <p style={{ fontSize: 12, color: 'var(--color-tertiary)', marginBottom: 12 }}>
                 50 endangered species — each pick supports awareness 🌿
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 {ENDANGERED_AVATARS.map(av => (
                   <button key={av.name} onClick={() => pickEmoji(av.emoji)} disabled={saving}
                     title={`${av.name} (${av.status})`}
                     style={{
                       background: 'var(--bg)', border: '1px solid rgba(163,177,198,0.2)',
-                      borderRadius: 14, padding: '8px 0', cursor: 'pointer',
+                      borderRadius: 14, padding: '10px 4px 8px', cursor: 'pointer',
                       boxShadow: 'var(--neu-shadow-xs)', transition: 'transform 0.1s',
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                     }}
                     onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.92)')}
                     onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
                   >
-                    <span style={{ fontSize: 28, lineHeight: 1.1 }}>{av.emoji}</span>
+                    <span style={{ fontSize: 30, lineHeight: 1.1 }}>{av.emoji}</span>
+                    <span style={{
+                      fontSize: 8.5, fontWeight: 600, color: 'var(--color-fg)',
+                      textAlign: 'center', lineHeight: 1.25, wordBreak: 'break-word',
+                      width: '100%', padding: '0 2px',
+                    }}>{av.name}</span>
                     <span style={{
                       fontSize: 7.5, fontWeight: 800, letterSpacing: 0.5, textTransform: 'uppercase',
                       color: STATUS_COLOR[av.status] ?? '#888',
+                      background: `${STATUS_COLOR[av.status] ?? '#888'}18`,
+                      borderRadius: 4, padding: '1px 4px',
                     }}>{av.status}</span>
                   </button>
                 ))}
