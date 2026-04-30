@@ -85,10 +85,9 @@ async function saveAvatarUrl(userId: string, url: string): Promise<void> {
 type AvatarTab = 'choose' | 'upload' | 'camera'
 
 function AvatarEditor({
-  userId, currentUrl, onSaved, onClose,
+  userId, onSaved, onClose,
 }: {
   userId: string
-  currentUrl: string | null
   onSaved: (url: string) => void
   onClose: () => void
 }) {
@@ -480,7 +479,6 @@ export default function ProfilePage() {
       {showEditor && userId && (
         <AvatarEditor
           userId={userId}
-          currentUrl={avatarUrl}
           onSaved={url => { setAvatarUrl(url); setShowEditor(false) }}
           onClose={() => setShowEditor(false)}
         />
