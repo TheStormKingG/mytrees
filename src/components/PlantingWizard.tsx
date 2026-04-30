@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { randomTrack, renderTrack } from '../lib/soundtrack'
+import { randomTrackUrl, loadTrack } from '../lib/soundtrack'
 
 declare const google: {
   accounts: { id: { initialize: (cfg: object) => void; renderButton: (el: HTMLElement, opts: object) => void } }
@@ -86,18 +86,18 @@ async function generateSlideshowVideo(
     ctx.restore()
   }
 
-  // ── Music synthesis & audio mixing ───────────────────────────────────────
-  const track = randomTrack()
+  // ── Music loading & audio mixing ─────────────────────────────────────────
+  const trackUrl = randomTrackUrl()
   let audioSource: AudioBufferSourceNode | null = null
   let audioCtx: AudioContext | null = null
   let combinedStream: MediaStream
 
   try {
-    const audioBuffer = await renderTrack(track, 32)
-    audioCtx      = new AudioContext()
-    const audioDest  = audioCtx.createMediaStreamDestination()
-    audioSource   = audioCtx.createBufferSource()
-    audioSource.buffer = audioBuffer
+    audioCtx         = new AudioContext()
+    const audioBuffer   = await loadTrack(trackUrl, audioCtx)
+    const audioDest     = audioCtx.createMediaStreamDestination()
+    audioSource         = audioCtx.createBufferSource()
+    audioSource.buffer  = audioBuffer
     audioSource.connect(audioDest)
     const videoTrack = canvas.captureStream(FPS).getVideoTracks()[0]
     const audioTrack = audioDest.stream.getAudioTracks()[0]
