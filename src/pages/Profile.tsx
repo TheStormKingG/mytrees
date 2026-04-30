@@ -110,7 +110,7 @@ export default function ProfilePage() {
         <div className="card" style={{ padding: '18px 20px' }}>
           <p className="label" style={{ marginBottom: 14 }}>Theme</p>
 
-          {/* Light option */}
+          {/* Sage Green option */}
           <button
             onClick={() => { setTheme('light'); applyTheme('light') }}
             style={{
@@ -126,14 +126,14 @@ export default function ProfilePage() {
             {/* Swatch */}
             <div style={{
               width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-              background: 'linear-gradient(135deg, #f4fbf4 0%, #e8f5e8 100%)',
+              background: 'linear-gradient(135deg, #eaf3ea 0%, #d4e4d4 100%)',
               border: '2px solid ' + (theme === 'light' ? 'var(--accent)' : 'transparent'),
               boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
               transition: 'border-color 0.2s',
             }} />
             <div style={{ flex: 1, textAlign: 'left' }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-fg)', margin: 0 }}>Light</p>
-              <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: '2px 0 0' }}>Near-white with a hint of green</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-fg)', margin: 0 }}>Sage Green</p>
+              <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: '2px 0 0' }}>Soft sage — default</p>
             </div>
             {theme === 'light' && (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -142,7 +142,7 @@ export default function ProfilePage() {
             )}
           </button>
 
-          {/* Dark option */}
+          {/* Deep Forest option */}
           <button
             onClick={() => { setTheme('dark'); applyTheme('dark') }}
             style={{
@@ -158,14 +158,14 @@ export default function ProfilePage() {
             {/* Swatch */}
             <div style={{
               width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-              background: 'linear-gradient(135deg, #e2ece2 0%, #c8dcc8 100%)',
-              border: '2px solid ' + (theme === 'dark' ? 'var(--accent)' : 'transparent'),
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              background: 'linear-gradient(135deg, #1e3820 0%, #0f1c0f 100%)',
+              border: '2px solid ' + (theme === 'dark' ? '#3ed87a' : 'transparent'),
+              boxShadow: '0 2px 8px rgba(0,0,0,0.20)',
               transition: 'border-color 0.2s',
             }} />
             <div style={{ flex: 1, textAlign: 'left' }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-fg)', margin: 0 }}>Forest</p>
-              <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: '2px 0 0' }}>Sage green — default</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-fg)', margin: 0 }}>Deep Forest</p>
+              <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: '2px 0 0' }}>Rich dark green — night mode</p>
             </div>
             {theme === 'dark' && (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

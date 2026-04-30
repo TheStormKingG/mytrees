@@ -590,75 +590,71 @@ a:focus-visible {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   THEME: LIGHT — near-white with a whisper of green
+   THEME: SAGE GREEN — soft sage palette (default)
    Applied via: html.theme-light
    ══════════════════════════════════════════════════════════════════════════════ */
 html.theme-light {
-  --bg:              #f2fbf2;
-  --surface:         rgba(255, 255, 255, 0.92);
-  --surface-solid:   #ffffff;
-  --surface-deep:    #e8f5e8;
-  --border-glass:    rgba(255, 255, 255, 0.90);
-  --border:          #d0e8d0;
-
-  --color-fg:        #0e1e0e;
-  --color-secondary: #3a5c3a;
-  --color-tertiary:  #7aA07a;
-
-  /* Light neumorphic — very delicate, derived from near-white */
-  --shdw-dark:       rgba(160, 196, 160, 0.42);
-  --shdw-light:      rgba(255, 255, 255, 1.00);
-
-  --neu-shadow-lg:
-    14px 14px 28px rgba(160,196,160,0.38),
-    -14px -14px 28px rgba(255,255,255,1.00);
-  --neu-shadow:
-     8px  8px 16px rgba(160,196,160,0.32),
-    -8px  -8px 16px rgba(255,255,255,0.98);
-  --neu-shadow-sm:
-     4px  4px  8px rgba(160,196,160,0.26),
-    -4px  -4px  8px rgba(255,255,255,0.96);
-  --neu-shadow-xs:
-     2px  2px  5px rgba(160,196,160,0.20),
-    -2px  -2px  5px rgba(255,255,255,0.94);
-  --neu-inset:
-    inset  4px  4px  8px rgba(160,196,160,0.22),
-    inset -4px -4px  8px rgba(255,255,255,0.92);
-  --neu-inset-sm:
-    inset  2px  2px  5px rgba(160,196,160,0.18),
-    inset -2px -2px  5px rgba(255,255,255,0.90);
-
-  --accent:          #1e9456;
-  --accent-dark:     #167843;
-  --accent-light:    #32ba6e;
-  --accent-mid:      rgba(30,148,86,0.10);
-  --accent-shadow:   rgba(30,148,86,0.22);
-  --accent-glow:     rgba(30,148,86,0.12);
-
-  --xp:              #d97706;
-  --xp-shadow:       rgba(217,119,6,0.20);
-}
-
-html.theme-light .card::before,
-html.theme-light .card-sm::before {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.95) 40%, rgba(255,255,255,0.95) 60%, transparent 100%);
-}
-
-html.theme-light .nav-island {
-  background: rgba(248, 255, 248, 0.92) !important;
-  border-color: rgba(200, 230, 200, 0.70) !important;
-  box-shadow:
-    0 20px 48px rgba(0,0,0,0.08),
-    0 4px 16px rgba(0,0,0,0.04),
-    0 0 0 1px rgba(255,255,255,0.90) inset !important;
+  /* inherits all :root values — the sage green IS this theme */
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   THEME: DARK — deep forest
-   Applied via: html.theme-dark (default)
+   THEME: DEEP FOREST — rich dark green, night mode
+   Applied via: html.theme-dark
    ══════════════════════════════════════════════════════════════════════════════ */
 html.theme-dark {
-  /* inherits all base :root values — the sage green IS the dark theme */
+  --bg:              #0f1c0f;
+  --surface:         rgba(20, 36, 20, 0.92);
+  --surface-solid:   #162416;
+  --surface-deep:    #0b160b;
+  --border-glass:    rgba(255, 255, 255, 0.08);
+  --border:          #2a3e2a;
+
+  --color-fg:        #d8f2d8;
+  --color-secondary: #9ec49e;
+  --color-tertiary:  #5e885e;
+
+  /* Dark neumorphic — deep forest shadow pair */
+  --shdw-dark:       rgba(0, 0, 0, 0.60);
+  --shdw-light:      rgba(40, 80, 40, 0.28);
+
+  --neu-shadow-lg:
+    16px 16px 32px rgba(0,0,0,0.55),
+    -16px -16px 32px rgba(40,80,40,0.18);
+  --neu-shadow:
+     9px  9px 18px rgba(0,0,0,0.48),
+    -9px  -9px 18px rgba(40,80,40,0.15);
+  --neu-shadow-sm:
+     5px  5px 10px rgba(0,0,0,0.40),
+    -5px  -5px 10px rgba(40,80,40,0.12);
+  --neu-shadow-xs:
+     3px  3px  6px rgba(0,0,0,0.35),
+    -3px  -3px  6px rgba(40,80,40,0.10);
+  --neu-inset:
+    inset  5px  5px  9px rgba(0,0,0,0.40),
+    inset -5px -5px  9px rgba(40,80,40,0.14);
+  --neu-inset-sm:
+    inset  3px  3px  6px rgba(0,0,0,0.32),
+    inset -3px -3px  6px rgba(40,80,40,0.10);
+
+  --accent:          #3ed87a;
+  --accent-dark:     #2ab862;
+  --accent-light:    #5ee890;
+  --accent-mid:      rgba(62,216,122,0.15);
+  --accent-shadow:   rgba(62,216,122,0.30);
+  --accent-glow:     rgba(62,216,122,0.18);
+
+  --xp:              #f5b942;
+  --xp-shadow:       rgba(245,185,66,0.25);
+}
+
+html.theme-dark .nav-island {
+  background: rgba(18, 32, 18, 0.94) !important;
+  border-color: rgba(60, 100, 60, 0.40) !important;
+  box-shadow:
+    0 20px 48px rgba(0,0,0,0.50),
+    0 6px 16px rgba(0,0,0,0.35),
+    0 0 0 1px rgba(62,216,122,0.10) inset,
+    0 1px 0 rgba(80,140,80,0.20) inset !important;
 }
 
 /* ── Reduced motion ─────────────────────────────────────────────────────────── */
