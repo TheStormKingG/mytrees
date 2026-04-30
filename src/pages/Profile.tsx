@@ -6,82 +6,6 @@ import type { Database } from '../types/database'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 
-// ── Animated theme toggle switch ─────────────────────────────────────────────
-function ThemeToggle({ theme, onToggle }: { theme: Theme; onToggle: () => void }) {
-  const isDark = theme === 'dark'
-  return (
-    <button
-      onClick={onToggle}
-      aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        padding: 0,
-        width: '100%',
-        fontFamily: 'inherit',
-      }}
-    >
-      {/* Track */}
-      <div style={{
-        position: 'relative',
-        width: 54,
-        height: 30,
-        borderRadius: 99,
-        background: isDark
-          ? 'linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%)'
-          : 'var(--bg)',
-        boxShadow: isDark
-          ? '0 2px 12px var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,0.2)'
-          : 'var(--neu-inset-sm)',
-        transition: 'background 0.28s ease, box-shadow 0.28s ease',
-        flexShrink: 0,
-      }}>
-        {/* Thumb */}
-        <div style={{
-          position: 'absolute',
-          top: 3,
-          left: isDark ? 'calc(100% - 27px)' : 3,
-          width: 24,
-          height: 24,
-          borderRadius: '50%',
-          background: isDark ? '#fff' : 'var(--surface-solid)',
-          boxShadow: isDark
-            ? '0 2px 8px rgba(0,0,0,0.20)'
-            : '2px 2px 5px rgba(140,168,140,0.35), -2px -2px 5px rgba(255,255,255,0.90)',
-          transition: 'left 0.28s cubic-bezier(0.34,1.56,0.64,1), background 0.28s ease',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 13,
-        }}>
-          {isDark ? '🌿' : '☀️'}
-        </div>
-      </div>
-
-      {/* Label */}
-      <div>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: 14,
-          fontWeight: 600,
-          color: 'var(--color-fg)',
-          margin: 0,
-          letterSpacing: '-0.01em',
-        }}>
-          {isDark ? 'Forest (dark)' : 'Light'}
-        </p>
-        <p style={{ fontSize: 11, color: 'var(--color-tertiary)', margin: '2px 0 0' }}>
-          {isDark ? 'Sage green — default' : 'Near-white with a hint of green'}
-        </p>
-      </div>
-    </button>
-  )
-}
-
 export default function ProfilePage() {
   const [profile,     setProfile]     = useState<Profile | null>(null)
   const [email,       setEmail]       = useState('')
@@ -116,12 +40,6 @@ export default function ProfilePage() {
       school_group: schoolGroup || null,
     })
     setMessage('Saved!'); setTimeout(() => setMessage(''), 2000); setSaving(false)
-  }
-
-  const toggleTheme = () => {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark'
-    setTheme(next)
-    applyTheme(next)
   }
 
   const signOut = async () => {
@@ -197,7 +115,7 @@ export default function ProfilePage() {
             onClick={() => { setTheme('light'); applyTheme('light') }}
             style={{
               display: 'flex', alignItems: 'center', gap: 14,
-              width: '100%', background: 'none', border: 'none',
+              width: '100%', border: 'none',
               cursor: 'pointer', padding: '12px 14px', borderRadius: 16,
               marginBottom: 8, fontFamily: 'inherit',
               boxShadow: theme === 'light' ? 'var(--neu-inset-sm)' : 'var(--neu-shadow-xs)',
@@ -229,7 +147,7 @@ export default function ProfilePage() {
             onClick={() => { setTheme('dark'); applyTheme('dark') }}
             style={{
               display: 'flex', alignItems: 'center', gap: 14,
-              width: '100%', background: 'none', border: 'none',
+              width: '100%', border: 'none',
               cursor: 'pointer', padding: '12px 14px', borderRadius: 16,
               fontFamily: 'inherit',
               boxShadow: theme === 'dark' ? 'var(--neu-inset-sm)' : 'var(--neu-shadow-xs)',

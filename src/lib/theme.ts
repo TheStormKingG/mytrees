@@ -7,7 +7,7 @@ export function getStoredTheme(): Theme {
     const v = localStorage.getItem(KEY)
     if (v === 'light' || v === 'dark') return v
   } catch { /* private browsing */ }
-  return 'dark' // default: sage green
+  return 'light' // default
 }
 
 export function applyTheme(theme: Theme) {
