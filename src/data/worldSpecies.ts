@@ -562,6 +562,41 @@ export const WORLD_SPECIES: LocalSpecies[] = [
   { common_name: 'Prickly Pear',      scientific_name: 'Opuntia ficus-indica',       carbon_coeff: 0.5,  native_countries: ['Mexico','Israel','Palestine','Morocco','Algeria','Tunisia','Libya','Spain','Italy','Greece','Turkey','South Africa','Ethiopia'], family: 'Cactaceae' },
   { common_name: 'Frankincense',      scientific_name: 'Boswellia sacra',            carbon_coeff: 2.0,  native_countries: ['Oman','Yemen','Somalia','Ethiopia','Sudan'],          family: 'Burseraceae' },
   { common_name: 'Myrrh',             scientific_name: 'Commiphora myrrha',          carbon_coeff: 1.5,  native_countries: ['Somalia','Ethiopia','Eritrea','Sudan','Yemen','Oman'], family: 'Burseraceae' },
+
+  // ── MAURITIUS — ENDEMIC FOREST ───────────────────────────────────────
+  { common_name: 'Tambalacoque (Dodo Tree)', scientific_name: 'Sideroxylon grandiflorum', carbon_coeff: 4.5, native_countries: ['Mauritius'],                                         family: 'Sapotaceae',    conservation_status: 'EN' },
+  { common_name: 'Mauritius Ebony',  scientific_name: 'Diospyros tessellaria',       carbon_coeff: 5.0,  native_countries: ['Mauritius'],                                          family: 'Ebenaceae',    conservation_status: 'EN' },
+  { common_name: 'Bois de Natte',    scientific_name: 'Labourdonnaisia glauca',      carbon_coeff: 4.8,  native_countries: ['Mauritius'],                                          family: 'Sapotaceae',    conservation_status: 'VU' },
+  { common_name: 'Mauritius Takamaka', scientific_name: 'Calophyllum tacamahaca',    carbon_coeff: 4.0,  native_countries: ['Mauritius','Réunion'],                                family: 'Calophyllaceae', conservation_status: 'VU' },
+  { common_name: 'Benjoin',          scientific_name: 'Terminalia bentzoë',          carbon_coeff: 3.5,  native_countries: ['Mauritius'],                                          family: 'Combretaceae',  conservation_status: 'VU' },
+  { common_name: "Bois d'Olive",     scientific_name: 'Cassine orientalis',          carbon_coeff: 3.2,  native_countries: ['Mauritius','Seychelles','Réunion'],                   family: 'Celastraceae',  conservation_status: 'VU' },
+
+  // ── CABO VERDE ───────────────────────────────────────────────────────
+  { common_name: 'Dragon Tree',      scientific_name: 'Dracaena draco',              carbon_coeff: 2.5,  native_countries: ['Cabo Verde','Morocco','Spain','Portugal'],            family: 'Asparagaceae',  conservation_status: 'VU' },
+  { common_name: 'Tortolho',         scientific_name: 'Sideroxylon marginatum',      carbon_coeff: 3.2,  native_countries: ['Cabo Verde'],                                         family: 'Sapotaceae',    conservation_status: 'EN' },
+  { common_name: 'Tamarind',         scientific_name: 'Tamarindus indica',           carbon_coeff: 3.0,  native_countries: ['Cabo Verde','Senegal','Mali','Niger','Sudan','Ethiopia','Kenya','Tanzania','Madagascar','Mozambique','India','Bangladesh','Sri Lanka'], family: 'Fabaceae' },
+
+  // ── SÃO TOMÉ AND PRÍNCIPE ────────────────────────────────────────────
+  { common_name: 'Moabi',            scientific_name: 'Baillonella toxisperma',      carbon_coeff: 7.0,  native_countries: ['São Tomé and Príncipe','Gabon','Cameroon','Congo','DR Congo','Equatorial Guinea'], family: 'Sapotaceae', conservation_status: 'VU' },
+  { common_name: 'Parinari',         scientific_name: 'Parinari excelsa',            carbon_coeff: 5.5,  native_countries: ['São Tomé and Príncipe','Gabon','Cameroon','Ghana','Sierra Leone','Guinea','Ivory Coast'], family: 'Chrysobalanaceae' },
+  { common_name: 'African Pear',     scientific_name: 'Dacryodes edulis',            carbon_coeff: 3.5,  native_countries: ['São Tomé and Príncipe','Gabon','Cameroon','Nigeria','Congo','DR Congo','Ghana','Ivory Coast'], family: 'Burseraceae' },
+
+  // ── COMOROS ──────────────────────────────────────────────────────────
+  { common_name: 'Ylang-Ylang',      scientific_name: 'Cananga odorata',             carbon_coeff: 3.5,  native_countries: ['Comoros','Madagascar','Seychelles','Indonesia','Philippines','Malaysia','Timor-Leste'], family: 'Annonaceae' },
+  { common_name: 'Neem',             scientific_name: 'Azadirachta indica',          carbon_coeff: 2.8,  native_countries: ['Comoros','India','Bangladesh','Sri Lanka','Myanmar','Thailand','Indonesia','Senegal','Ghana','Nigeria','Cameroon'], family: 'Meliaceae' },
+  { common_name: 'Breadfruit',       scientific_name: 'Artocarpus altilis',          carbon_coeff: 4.2,  native_countries: ['Comoros','Madagascar','Seychelles','Fiji','Samoa','Tonga','Vanuatu','Solomon Islands','Papua New Guinea','Philippines','Indonesia','Malaysia'], family: 'Moraceae' },
+
+  // ── SINGAPORE — URBAN / BOTANIC NATIVE ───────────────────────────────
+  { common_name: 'Tembusu',          scientific_name: 'Fagraea fragrans',            carbon_coeff: 4.0,  native_countries: ['Singapore','Malaysia','Indonesia','Thailand','Philippines','Vietnam'], family: 'Gentianaceae', conservation_status: 'VU' },
+  { common_name: 'Angsana',          scientific_name: 'Pterocarpus indicus',         carbon_coeff: 5.0,  native_countries: ['Singapore','Malaysia','Indonesia','Philippines','Thailand','Vietnam','Myanmar','Papua New Guinea'], family: 'Fabaceae', conservation_status: 'VU' },
+  { common_name: 'Jelutong',         scientific_name: 'Dyera costulata',             carbon_coeff: 5.0,  native_countries: ['Singapore','Malaysia','Indonesia','Thailand'],        family: 'Apocynaceae',  conservation_status: 'VU' },
+  { common_name: 'Chengal',          scientific_name: 'Neobalanocarpus heimii',      carbon_coeff: 6.5,  native_countries: ['Singapore','Malaysia','Thailand'],                    family: 'Dipterocarpaceae', conservation_status: 'CR' },
+  { common_name: 'Sea Apple',        scientific_name: 'Syzygium grande',             carbon_coeff: 3.5,  native_countries: ['Singapore','Malaysia','Indonesia'],                   family: 'Myrtaceae' },
+
+  // ── BRUNEI ───────────────────────────────────────────────────────────
+  { common_name: 'Belian / Borneo Ironwood', scientific_name: 'Eusideroxylon zwageri', carbon_coeff: 7.0, native_countries: ['Brunei','Malaysia','Indonesia'],                      family: 'Lauraceae',    conservation_status: 'VU' },
+  { common_name: 'Tapang',           scientific_name: 'Koompassia excelsa',          carbon_coeff: 8.0,  native_countries: ['Brunei','Malaysia','Indonesia'],                       family: 'Fabaceae',     conservation_status: 'VU' },
+  { common_name: 'Red Meranti',      scientific_name: 'Shorea leprosulа',            carbon_coeff: 6.5,  native_countries: ['Brunei','Malaysia','Indonesia'],                       family: 'Dipterocarpaceae', conservation_status: 'CR' },
 ]
 
 /**

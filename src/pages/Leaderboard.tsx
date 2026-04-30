@@ -7,6 +7,7 @@ interface LeaderEntry {
   schoolGroup: string | null
   avatarUrl:   string | null
   level:       number
+  xp:          number
   treeCount:   number
   co2kg:       number          // total kg CO₂e absorbed
 }
@@ -64,7 +65,7 @@ export default function Leaderboard() {
       // ── Top 100 profiles ───────────────────────────────────────────────
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, username, school_group, avatar_url, level')
+        .select('id, username, school_group, avatar_url, level, xp')
         .order('xp', { ascending: false })
         .limit(100)
       if (!profiles?.length) { setLoading(false); return }
@@ -113,6 +114,7 @@ export default function Leaderboard() {
         schoolGroup: p.school_group,
         avatarUrl:   p.avatar_url,
         level:       p.level,
+        xp:          p.xp ?? 0,
         treeCount:   countMap[p.id] ?? 0,
         co2kg:       co2Map[p.id]   ?? 0,
       }))
@@ -195,8 +197,8 @@ export default function Leaderboard() {
                       </span>
                     )}
                   </div>
-                  <p style={{ fontSize: 12, color: 'var(--color-tertiary)', margin: '3px 0 0' }}>
-                    {entry.treeCount} {entry.treeCount === 1 ? 'tree' : 'trees'} · Level {entry.level}
+                  <p style={{ fontSize: 12, color: 'var(--color-tertiary)', margin: '3px 0 0', fontStyle: 'italic' }}>
+                    {entry.treeCount} {entry.treeCount === 1 ? 'tree' : 'trees'} · Level {entry.level} · {entry.xp.toLocaleString()} XP
                   </p>
                 </div>
 
