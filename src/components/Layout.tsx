@@ -56,7 +56,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </main>
 
       <nav className="bottom-nav">
-        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '10px 4px 6px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '8px 4px 6px' }}>
           {navItems.map(item => {
             const active = pathname.startsWith(item.to)
             return (
@@ -67,36 +67,47 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: 5,
-                  padding: '2px 12px',
+                  gap: 4,
+                  padding: '4px 10px 2px',
                   textDecoration: 'none',
-                  color: active ? 'var(--color-fg)' : 'var(--color-tertiary)',
-                  transition: 'color 0.15s',
-                  minWidth: 52,
+                  minWidth: 54,
+                  position: 'relative',
                 }}
               >
-                {/* Icon + accent dot container */}
-                <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                  <div style={{ color: active ? 'var(--color-fg)' : 'var(--color-tertiary)', lineHeight: 0 }}>
-                    {item.icon}
-                  </div>
-                  {/* Accent pill directly below icon */}
-                  <div style={{
-                    height: 3,
-                    width: active ? 18 : 0,
-                    borderRadius: 99,
-                    background: 'var(--accent)',
-                    transition: 'width 0.2s ease',
-                  }} />
+                {/* Active bg pill */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0, left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: 50, height: 38,
+                  borderRadius: 12,
+                  background: active ? 'var(--accent-mid)' : 'transparent',
+                  border: active ? '1px solid rgba(36,160,96,0.16)' : '1px solid transparent',
+                  transition: 'background 0.22s ease, border-color 0.22s ease',
+                  zIndex: 0,
+                }} />
+
+                {/* Icon */}
+                <div style={{
+                  color: active ? 'var(--accent)' : 'var(--color-tertiary)',
+                  lineHeight: 0,
+                  position: 'relative', zIndex: 1,
+                  transition: 'color 0.18s ease, transform 0.20s cubic-bezier(0.34,1.56,0.64,1)',
+                  transform: active ? 'scale(1.12) translateY(-1px)' : 'scale(1) translateY(0)',
+                }}>
+                  {item.icon}
                 </div>
 
                 {/* Label */}
                 <span style={{
+                  fontFamily: "'DM Sans', sans-serif",
                   fontSize: 10,
                   fontWeight: active ? 700 : 500,
-                  letterSpacing: '-0.01em',
+                  letterSpacing: active ? '-0.01em' : '0.01em',
                   lineHeight: 1,
-                  color: active ? 'var(--color-fg)' : 'var(--color-tertiary)',
+                  color: active ? 'var(--accent)' : 'var(--color-tertiary)',
+                  position: 'relative', zIndex: 1,
+                  transition: 'color 0.18s ease',
                 }}>
                   {item.label}
                 </span>

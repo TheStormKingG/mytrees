@@ -142,9 +142,9 @@ export default function Auth() {
           width: 100%;
           max-width: 420px;
           background: var(--surface-solid);
-          border-radius: 24px;
+          border-radius: var(--r-xl);
           box-shadow: var(--neu-shadow-lg);
-          border: 1px solid rgba(212,219,229,0.5);
+          border: 1px solid rgba(192,210,192,0.50);
           overflow: hidden;
         }
 
@@ -245,13 +245,13 @@ export default function Auth() {
           <div className="auth-form-area">
 
             {/* Logo + heading */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-              <span style={{ fontSize: 28 }}>🌳</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+              <span style={{ fontSize: 32, lineHeight: 1, filter: 'drop-shadow(0 2px 8px rgba(36,160,96,0.3))' }}>🌳</span>
               <div>
-                <p style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-fg)', lineHeight: 1, letterSpacing: -0.4 }}>
+                <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 22, fontWeight: 800, color: 'var(--color-fg)', lineHeight: 1.1, letterSpacing: '-0.04em' }}>
                   {isSignUp ? 'Join MyTrees' : 'Welcome back'}
                 </p>
-                <p style={{ fontSize: 12, color: 'var(--color-tertiary)', marginTop: 3 }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'var(--color-tertiary)', marginTop: 4 }}>
                   {isSignUp ? 'Start your personal forest today' : 'Sign in to your forest'}
                 </p>
               </div>

@@ -86,44 +86,50 @@ export default function Dashboard() {
 
       {/* XP card */}
       <div className="card" style={{ padding: '20px 20px 18px', marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
           <div>
-            <p className="label" style={{ marginBottom: 2 }}>Experience points</p>
-            <p style={{ fontSize: 32, fontWeight: 700, lineHeight: 1, letterSpacing: '-0.03em', color: 'var(--color-fg)' }}>
+            <p className="label" style={{ marginBottom: 3 }}>Experience points</p>
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 34, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.04em', color: 'var(--color-fg)' }}>
               {(profile?.xp ?? 0).toLocaleString()}
-              <span style={{ fontSize: 16, fontWeight: 400, color: 'var(--color-tertiary)', marginLeft: 4 }}>XP</span>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 500, color: 'var(--color-tertiary)', marginLeft: 5 }}>XP</span>
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 14 }}>
             <div style={{ textAlign: 'right' }}>
-              <p className="label" style={{ marginBottom: 2 }}>Streak</p>
-              <p style={{ fontSize: 17, fontWeight: 600, color: '#d97706' }}>🔥 {profile?.streak_days ?? 0}d</p>
+              <p className="label" style={{ marginBottom: 3 }}>Streak</p>
+              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 18, fontWeight: 700, color: 'var(--xp)', letterSpacing: '-0.02em' }}>🔥 {profile?.streak_days ?? 0}d</p>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <p className="label" style={{ marginBottom: 2 }}>Level</p>
-              <p style={{ fontSize: 17, fontWeight: 600, color: 'var(--accent)' }}>{level}</p>
+              <p className="label" style={{ marginBottom: 3 }}>Level</p>
+              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 18, fontWeight: 700, color: 'var(--accent)', letterSpacing: '-0.02em' }}>{level}</p>
             </div>
           </div>
         </div>
-        {/* XP bar */}
-        <div style={{ background: 'var(--bg)', borderRadius: 8, height: 8, overflow: 'hidden', boxShadow: 'var(--neu-inset-sm)' }}>
-          <div style={{ height: '100%', width: `${pct}%`, background: 'var(--accent)', borderRadius: 8, transition: 'width 0.6s ease' }} />
+        {/* XP progress bar */}
+        <div style={{ background: 'var(--bg)', borderRadius: 99, height: 7, overflow: 'hidden', boxShadow: 'var(--neu-inset-sm)', marginBottom: 8 }}>
+          <div style={{
+            height: '100%',
+            width: `${pct}%`,
+            background: 'linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%)',
+            borderRadius: 99,
+            transition: 'width 0.7s cubic-bezier(0.34,1.56,0.64,1)',
+          }} />
         </div>
-        <p style={{ fontSize: 11, color: 'var(--color-tertiary)', marginTop: 8 }}>
-          {progress} / {XP_PER_LEVEL} XP · {pct}% to Level {level + 1}
+        <p style={{ fontSize: 11, color: 'var(--color-tertiary)' }}>
+          {progress.toLocaleString()} / {XP_PER_LEVEL.toLocaleString()} XP · {pct}% to Level {level + 1}
         </p>
       </div>
 
       {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 28 }}>
         {[
-          { value: trees.length,           label: 'Trees' },
-          { value: `${profile?.streak_days ?? 0}d`, label: 'Streak' },
-          { value: `Lvl ${level}`,          label: 'Rank' },
+          { value: trees.length,                     label: 'Trees',  color: 'var(--color-fg)' },
+          { value: `${profile?.streak_days ?? 0}d`,  label: 'Streak', color: 'var(--xp)'       },
+          { value: `Lvl ${level}`,                   label: 'Rank',   color: 'var(--accent)'   },
         ].map(stat => (
           <div key={stat.label} className="card-sm" style={{ padding: '14px 12px', textAlign: 'center' }}>
-            <p style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-fg)', lineHeight: 1 }}>{stat.value}</p>
-            <p style={{ fontSize: 11, color: 'var(--color-tertiary)', marginTop: 4 }}>{stat.label}</p>
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 22, fontWeight: 800, color: stat.color, lineHeight: 1, letterSpacing: '-0.03em' }}>{stat.value}</p>
+            <p style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--color-tertiary)', marginTop: 5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{stat.label}</p>
           </div>
         ))}
       </div>
@@ -140,32 +146,33 @@ export default function Dashboard() {
       </div>
 
       {trees.length === 0 ? (
-        <div className="card" style={{ padding: '40px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: 52, marginBottom: 12 }}>🌰</div>
-          <p style={{ fontSize: 15, color: 'var(--color-secondary)', marginBottom: 20 }}>You haven't planted any trees yet.</p>
-          <Link to="/add-tree" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block', width: 'auto', padding: '14px 28px' }}>
+        <div className="card empty-state">
+          <span className="empty-state-icon">🌰</span>
+          <p className="empty-state-title">No trees yet</p>
+          <p className="empty-state-body" style={{ marginBottom: 24 }}>Plant your first tree and start building your personal forest.</p>
+          <Link to="/add-tree" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block', width: 'auto', padding: '14px 32px' }}>
             Plant your first tree
           </Link>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {trees.map(tree => (
             <div key={tree.id} style={{ position: 'relative' }}>
               <Link to={`/tree/${tree.id}`} style={{ textDecoration: 'none', display: 'block' }}>
-                <div className="card-sm" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, paddingRight: 52 }}>
+                <div className="card-sm" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, paddingRight: 56 }}>
                   <div style={{
-                    width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+                    width: 50, height: 50, borderRadius: 15, flexShrink: 0,
                     background: 'var(--bg)', boxShadow: 'var(--neu-inset-sm)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
                   }}>
                     {STAGE_EMOJI[tree.stage] ?? '🌱'}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
                       {tree.name}
                     </p>
-                    <p style={{ fontSize: 12, color: 'var(--color-tertiary)', marginTop: 2, textTransform: 'capitalize' }}>
-                      {tree.stage} · {tree.planted_at ? new Date(tree.planted_at).toLocaleDateString() : 'Not planted yet'}
+                    <p style={{ fontSize: 12, color: 'var(--color-tertiary)', marginTop: 3, textTransform: 'capitalize', letterSpacing: '0.01em' }}>
+                      {tree.stage} · {tree.planted_at ? new Date(tree.planted_at).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Not planted yet'}
                     </p>
                   </div>
                 </div>
