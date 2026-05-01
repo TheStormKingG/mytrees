@@ -96,6 +96,9 @@ a, button, input, textarea, select { -webkit-touch-callout: default; }
   min-height: 100vh;
   max-width: 430px;
 }
+@media (min-width: 600px) {
+  .app-shell { max-width: 660px; }
+}
 
 /* ── Page container ────────────────────────────────────────────────────────── */
 .page-container {
