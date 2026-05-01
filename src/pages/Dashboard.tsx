@@ -67,19 +67,7 @@ export default function Dashboard() {
     <div>
       {/* Page header */}
       <header className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 4 }}>
-          <img
-            src="/mytrees/logo-icon.png"
-            alt="groluv icon"
-            style={{ width: 70, height: 70, flexShrink: 0 }}
-          />
-          <img
-            src="/mytrees/logo-wordmark.png"
-            alt="groluv"
-            style={{ height: 42, width: 'auto' }}
-          />
-        </div>
-        <p className="page-subtitle" style={{ marginTop: 8 }}>
+        <p className="page-subtitle">
           {profile?.username ? `Hey, ${profile.username} 👋` : 'Your personal forest tracker'}
         </p>
       </header>

@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useRef } from 'react'
 
 // ── Refined SVG icons — consistent 22px, 1.7 stroke weight ─────────────────
 const icons = {
@@ -55,10 +56,39 @@ const navItems = [
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation()
+  const prevPath = useRef(pathname)
+  const animKey = useRef(0)
+  if (prevPath.current !== pathname) {
+    prevPath.current = pathname
+    animKey.current += 1
+  }
 
   return (
     <div className="app-shell">
-      <main className="page-container">
+
+      {/* ── Persistent wordmark header — never animates ──────────────────── */}
+      <header style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '14px 20px 10px',
+        background: 'var(--color-bg)',
+      }}>
+        <img
+          src="/mytrees/logo-wordmark.png"
+          alt="groluv"
+          style={{ height: 36, width: 'auto' }}
+        />
+      </header>
+
+      {/* ── Animated page content ────────────────────────────────────────── */}
+      <main
+        key={animKey.current}
+        className="page-container page-enter"
+      >
         {children}
       </main>
 
