@@ -45,32 +45,37 @@ const STAGES: { value: TreeStage; label: string; emoji: string }[] = [
   { value: 'tree',     label: 'Tree',     emoji: '🌳' },
 ]
 
-// ── NLP carousel — all free Unsplash, all forests/Amazon/planting ─────────────
+// ── NLP carousel — 6 slides, 3-word heads, 9-word subs ──────────────────────
 const SLIDES = [
   {
+    url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=900&q=85&auto=format&fit=crop',
+    head: 'You grow forests.',
+    sub: 'One tree planted makes the air cleaner for everyone.',
+  },
+  {
     url: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=900&q=85&auto=format&fit=crop',
-    head: 'Your tree will outlive you.',
-    sub: 'Plant something that lasts longer than a lifetime.',
+    head: 'Your legacy lives.',
+    sub: 'The trees you plant will outlive you by centuries.',
   },
   {
     url: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=900&q=85&auto=format&fit=crop',
-    head: 'The Amazon breathes for all of us.',
-    sub: 'Every tree you plant adds to the world\'s lungs.',
+    head: 'Trees heal Earth.',
+    sub: 'Every tree you plant fights climate change right now.',
   },
   {
-    url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=900&q=85&auto=format&fit=crop',
-    head: 'Breathe easier. Literally.',
-    sub: 'A single mature tree absorbs 22kg of CO₂ every year.',
+    url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=900&q=85&auto=format&fit=crop',
+    head: 'Nature needs you.',
+    sub: 'Endangered species survive because brave people like you act.',
   },
   {
-    url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&q=85&auto=format&fit=crop',
-    head: 'Children will play in its shade.',
-    sub: 'The best time to plant a tree was 20 years ago. The second best time is now.',
+    url: 'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=900&q=85&auto=format&fit=crop',
+    head: 'Join the movement.',
+    sub: 'Over 127 countries trust groluv to grow their forests.',
   },
   {
     url: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=900&q=85&auto=format&fit=crop',
-    head: 'Every tree counts.',
-    sub: 'Join a global movement rooted in real action.',
+    head: 'Be the hero.',
+    sub: 'Start planting today and become a nature superhero now.',
   },
 ]
 
