@@ -80,7 +80,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <img
           src="/mytrees/logo-wordmark.png"
           alt="groluv"
-          style={{ height: 36, width: 'auto' }}
+          style={{ height: 60, width: 'auto' }}
         />
       </header>
 
