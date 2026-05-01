@@ -383,7 +383,7 @@ export default function AddTree() {
           <img
             src="/mytrees/logo-wordmark.png"
             alt="groluv"
-            style={{ height: 36, width: 'auto' }}
+            style={{ height: 42, width: 'auto' }}
           />
         </div>
         <h1 className="page-title" style={{ fontSize: 24 }}>Plant a tree 🌱</h1>
