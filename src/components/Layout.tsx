@@ -1,9 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // ── Refined SVG icons — consistent 22px, 1.7 stroke weight ─────────────────
 const icons = {
-  // Plant / add: seedling sprouting from soil
   plant: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 22V10"/>
@@ -12,13 +11,11 @@ const icons = {
       <path d="M9 22h6"/>
     </svg>
   ),
-  // MyTree / forest: stylised tree
   forest: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 3L8 9H5l5 7H7l5 7 5-7h-3l5-7h-3L12 3z"/>
     </svg>
   ),
-  // Carbon: leaf
   carbon: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M6.5 17.5C6.5 17.5 4 14 4 10c0-5 4-8 8-8 4.5 0 8 3 8 8 0 4.5-3 7.5-3 7.5"/>
@@ -27,7 +24,6 @@ const icons = {
       <path d="M12 10l3-4"/>
     </svg>
   ),
-  // Leagues: trophy cup
   leagues: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M8 3h8v9a4 4 0 0 1-8 0V3z"/>
@@ -37,7 +33,6 @@ const icons = {
       <path d="M12 17v4"/>
     </svg>
   ),
-  // Profile: person silhouette
   profile: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="8" r="4"/>
@@ -54,29 +49,67 @@ const navItems = [
   { to: '/profile',     icon: icons.profile, label: 'Profile' },
 ]
 
+// Header height in px — keep in sync with CSS padding + image height
+const HEADER_H = 88
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation()
-  const prevPath = useRef(pathname)
-  const animKey = useRef(0)
+
+  // ── Tab-switch animation key ──────────────────────────────────────────────
+  const prevPath    = useRef(pathname)
+  const animKey     = useRef(0)
+  const tabSwitching = useRef(false)
   if (prevPath.current !== pathname) {
     prevPath.current = pathname
     animKey.current += 1
+    tabSwitching.current = true
   }
+
+  // ── Scroll-based wordmark hide/show ──────────────────────────────────────
+  const [scrolled, setScrolled]         = useState(false)
+  const [noTransition, setNoTransition] = useState(false)
+
+  // On tab switch: snap header to visible with no transition, reset scroll
+  useEffect(() => {
+    setNoTransition(true)
+    setScrolled(false)
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    // Re-enable transitions after a frame so CSS doesn't animate the snap
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setNoTransition(false)
+        tabSwitching.current = false
+      })
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [pathname])
+
+  // Scroll listener — only updates state when NOT switching tabs
+  useEffect(() => {
+    const onScroll = () => {
+      if (tabSwitching.current) return
+      setScrolled(window.scrollY > 40)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
     <div className="app-shell">
 
-      {/* ── Persistent wordmark header — never animates ──────────────────── */}
-      <header style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '14px 20px 10px',
-        background: 'var(--color-bg)',
-      }}>
+      {/* ── Fixed wordmark header ────────────────────────────────────────── */}
+      <header
+        className="wordmark-header"
+        style={{
+          transform: scrolled
+            ? 'translateX(-50%) translateY(-110%)'
+            : 'translateX(-50%) translateY(0)',
+          opacity:    scrolled ? 0 : 1,
+          transition: noTransition
+            ? 'none'
+            : 'transform 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease',
+        }}
+      >
         <img
           src="/mytrees/logo-wordmark.png"
           alt="groluv"
@@ -84,10 +117,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         />
       </header>
 
-      {/* ── Animated page content ────────────────────────────────────────── */}
+      {/* ── Animated page content (extra top padding for fixed header) ───── */}
       <main
         key={animKey.current}
         className="page-container page-enter"
+        style={{ paddingTop: HEADER_H + 8 }}
       >
         {children}
       </main>
@@ -113,7 +147,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   borderRadius: 20,
                   textDecoration: 'none',
                   padding: active ? '0 14px' : '0',
-                  // Active: solid gradient green — feels like a real button
                   background: active
                     ? 'linear-gradient(148deg, var(--accent-light) 0%, var(--accent) 50%, var(--accent-dark) 100%)'
                     : 'transparent',
@@ -125,7 +158,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   position: 'relative',
                 }}
               >
-                {/* Subtle inner sheen on active */}
                 {active && (
                   <div style={{
                     position: 'absolute',
@@ -136,8 +168,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     pointerEvents: 'none',
                   }} />
                 )}
-
-                {/* Icon */}
                 <div style={{
                   color: active ? '#fff' : 'var(--color-tertiary)',
                   lineHeight: 0,
@@ -147,8 +177,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 }}>
                   {item.icon}
                 </div>
-
-                {/* Label — only visible on active, slides in with overflow hidden */}
                 <span style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: 13,

@@ -100,6 +100,26 @@ a, button, input, textarea, select { -webkit-touch-callout: default; }
   .app-shell { max-width: 660px; }
 }
 
+/* ── Fixed wordmark header (matches shell width) ────────────────────────────── */
+.wordmark-header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px 14px;
+  background: var(--color-bg);
+  will-change: transform, opacity;
+}
+@media (min-width: 600px) {
+  .wordmark-header { max-width: 660px; }
+}
+
 /* ── Page container ────────────────────────────────────────────────────────── */
 .page-container {
   padding: 1rem 1.25rem 7.5rem;
@@ -448,6 +468,9 @@ select.input {
   padding: 10px 12px calc(10px + var(--safe-bottom));
   z-index: 50;
   pointer-events: none; /* let clicks pass through gaps */
+}
+@media (min-width: 600px) {
+  .bottom-nav { max-width: 660px; }
 }
 
 /* The actual floating island pill */
